@@ -7,7 +7,7 @@ import com.zip.community.platform.application.port.out.board.LoadBoardPort;
 import com.zip.community.platform.application.port.out.board.LoadBoardReactionPort;
 import com.zip.community.platform.application.port.out.board.RemoveBoardReactionPort;
 import com.zip.community.platform.application.port.out.board.SaveBoardReactionPort;
-import com.zip.community.platform.application.port.out.user.LoadMemberPort;
+import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class BoardReactionService implements AddReactionUseCase, RemoveReactionU
     private final LoadBoardReactionPort loadReactionPort;
     private final RemoveBoardReactionPort removeReactionPort;
     private final LoadBoardPort loadBoardPort;
-    private final LoadMemberPort loadMemberPort;
+    private final LoadUserPort loadUserPort;
 
     @Override
     public BoardReaction addReaction(BoardReactionRequest request) {

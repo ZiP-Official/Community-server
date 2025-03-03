@@ -3,7 +3,7 @@ package com.zip.community.platform.application.service.comment;
 import com.zip.community.platform.application.port.in.comment.AddLikeReactionUseCase;
 import com.zip.community.platform.application.port.in.comment.RemoveLikeReactionUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentReactionRequest;
-import com.zip.community.platform.application.port.out.user.LoadMemberPort;
+import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.application.port.out.comment.CommentReactionPort;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,7 +21,7 @@ public class CommentReactionService implements AddLikeReactionUseCase, RemoveLik
 
     private final CommentReactionPort commentReactionPort;
     private final LoadCommentPort loadCommentPort;
-    private final LoadMemberPort loadMemberPort;
+    private final LoadUserPort loadUserPort;
 
     @Override
     public CommentReaction addReaction(CommentReactionRequest request) {

@@ -8,7 +8,7 @@ import com.zip.community.platform.application.port.out.board.CategoryPort;
 import com.zip.community.platform.application.port.out.board.LoadBoardPort;
 import com.zip.community.platform.application.port.out.board.RemoveBoardPort;
 import com.zip.community.platform.application.port.out.board.SaveBoardPort;
-import com.zip.community.platform.application.port.out.user.LoadMemberPort;
+import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.domain.board.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -28,12 +28,13 @@ public class BoardService implements CreateBoardUseCase, GetBoardInfoUseCase, Re
 
     private final SaveBoardPort saveBoardPort;
     private final LoadBoardPort loadBoardPort;
-    private final LoadMemberPort loadMemberPort;
+    private final LoadUserPort loadUserPort;
     private final CategoryPort categoryPort;
     private final RemoveBoardPort removeBoardPort;
 
     @Override
     public Board createBoard(BoardRequest request) {
+
 //        if (!loadMemberPort.existsById(request.getMemberId())) {
 //            throw new NoSuchElementException("해당 ID의 멤버가 존재하지 않습니다: " + request.getMemberId());
 //        }

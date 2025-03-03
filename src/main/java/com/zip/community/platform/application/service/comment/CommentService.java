@@ -4,7 +4,7 @@ import com.zip.community.platform.application.port.in.comment.CreateCommentUseCa
 import com.zip.community.platform.application.port.in.comment.GetCommentUseCase;
 import com.zip.community.platform.application.port.in.comment.RemoveCommentUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentRequest;
-import com.zip.community.platform.application.port.out.user.LoadMemberPort;
+import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.application.port.out.board.LoadBoardPort;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentPort;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 public class CommentService implements CreateCommentUseCase, GetCommentUseCase, RemoveCommentUseCase {
 
     private final LoadBoardPort loadBoardPort;
-    private final LoadMemberPort loadMemberPort;
+    private final LoadUserPort loadUserPort;
     private final SaveCommentPort saveCommentPort;
     private final LoadCommentPort loadCommentPort;
     private final RemoveCommentPort removeCommentPort;
