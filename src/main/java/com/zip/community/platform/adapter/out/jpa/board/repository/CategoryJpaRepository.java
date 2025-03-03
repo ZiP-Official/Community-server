@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface CategoryJpaRepository extends JpaRepository<CategoryJpaEntity, Long> {
 
-    @Query("SELECT bc FROM CategoryJpaEntity bc WHERE bc.parent IS NULL")
+    @Query("SELECT bc FROM CategoryJpaEntity bc WHERE bc.parentId IS NULL")
     List<CategoryJpaEntity> findRootCategories();
 
     boolean existsByCode(String code);

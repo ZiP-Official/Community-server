@@ -12,7 +12,7 @@ public interface BoardJpaRepository extends JpaRepository<BoardJpaEntity, Long> 
     @Query("""
     SELECT b
     FROM BoardJpaEntity b
-    WHERE b.category.id = :categoryId
+    WHERE b.categoryId = :categoryId
 """)
     Page<BoardJpaEntity> findBoardJpaEntitiesByCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
 
