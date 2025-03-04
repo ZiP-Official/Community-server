@@ -1,0 +1,30 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: zip-mysql
+    volumes:
+      - ./mysql/my.cnf:/etc/mysql/conf.d/mytv.cnf
+      - ./mysql/data:/var/lib/mysql
+    ports:
+      - '3306:3306'
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+  redis:
+    image: redis:7.2.5
+    container_name: zip-redis
+    ports:
+      - '6379:6379'
+  mongodb:
+    image: mongo:6.0.16
+    container_name: zip-mongodb
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongodb/data:/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
