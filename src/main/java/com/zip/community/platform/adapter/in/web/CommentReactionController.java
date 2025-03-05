@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/comment/reaction")
+@RequestMapping("/api/v1/comment/reaction")
 @RequiredArgsConstructor
 public class CommentReactionController {
 

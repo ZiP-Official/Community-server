@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/board")
+@RequestMapping("/api/v1/board")
 @RequiredArgsConstructor
 public class BoardController {
 
@@ -26,19 +26,20 @@ public class BoardController {
     private final GetBoardInfoUseCase getService;
     private final RemoveBoardUseCase removeService;
 
-    // 게시판 생성
+    // 게시글 생성
     @PostMapping
     public ApiResponse<BoardResponse> saveOne(@RequestBody BoardRequest boardRequest) {
         return ApiResponse.created(BoardResponse.from(createService.createBoard(boardRequest)));
     }
 
-    @GetMapping("{boardId}")
+    // 게시글 조회
+    @GetMapping("/{boardId}")
     public ApiResponse<BoardResponse> getOne(@PathVariable Long boardId) {
 
         return ApiResponse.created(BoardResponse.from(getService.getOneInfo(boardId)));
     }
 
-    // 카테고리 내 게시물 조회
+    // 카테고리 내 게시글 조회
     @GetMapping("/category/list/{categoryId}")
     public ApiResponse<PageResponse<BoardResponse>> getByCategory(@PathVariable Long categoryId, PageRequest pageRequest) {
 
