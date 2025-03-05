@@ -1,6 +1,7 @@
 package com.zip.community.platform.domain.board;
 
 
+import com.zip.community.platform.domain.BaseDomain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Board {
+public class Board extends BaseDomain {
 
     private Long id;
     private Long memberId;
@@ -38,7 +39,6 @@ public class Board {
     public void addLikeReaction() {
         this.getStatistics().addLikeCount();
     }
-
 
     public void removeLikeReaction() {
         this.getStatistics().removeLikeCount();

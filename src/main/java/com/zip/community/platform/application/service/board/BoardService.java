@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -61,10 +62,24 @@ public class BoardService implements CreateBoardUseCase, GetBoardInfoUseCase, Re
     @Override
     public Board getOneInfo(Long boardId) {
 
-        // 아이템 정보 가져오기
-        return loadBoardPort.loadBoardById(boardId)
-                .orElseThrow(()-> new EntityNotFoundException("게시판이 존재하지 않습니다."));
+        // 조회수를 증가시키는 로직
+        saveBoardPort.incrementViewCount(boardId);
+
+        // 조회수 조회하기
+        Long viewCount = loadBoardPort.getViewCount(boardId);
+
+        // Board를 조회
+        Optional<Board> boardOptional = loadBoardPort.loadBoardById(boardId);
+
+        // Board가 있으면 조회수를 변경하고 반환
+        boardOptional.ifPresent(board -> {
+            board.getStatistics().changeViewCount(viewCount);
+        });
+
+        // Board가 없으면 예외를 던짐
+        return boardOptional.orElseThrow(() -> new EntityNotFoundException("해당 게시글이 존재하지 않습니다."));
     }
+
 
     // 인기 게시물 조회하기
     @Override

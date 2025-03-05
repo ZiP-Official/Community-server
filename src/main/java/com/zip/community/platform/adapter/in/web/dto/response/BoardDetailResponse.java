@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoardResponse {
+public class BoardDetailResponse {
 
     private Long category; // Immutable 빈 리스트 사용
 
@@ -40,9 +40,9 @@ public class BoardResponse {
 
 
     // 생성자
-    public static BoardResponse from(Board board) {
+    public static BoardDetailResponse from(Board board) {
 
-        return BoardResponse.builder()
+        return BoardDetailResponse.builder()
                 .category(board.getCategoryId())
                 .id(board.getId())
                 .title(board.getSnippet().getTitle())
@@ -51,13 +51,15 @@ public class BoardResponse {
                 .viewCount(board.getStatistics().getViewCount())
                 .commentCount(board.getStatistics().getCommentCount())
                 .likeCount(board.getStatistics().getLikeCount())
+                .createdAt(board.getCreatedAt())
+                .updatedAt(board.getUpdatedAt())
                 .build();
     }
 
     // 리스트 변환
-    public static List<BoardResponse> from(List<Board> boards) {
+    public static List<BoardDetailResponse> from(List<Board> boards) {
         return boards.stream()
-                .map(BoardResponse::from)
+                .map(BoardDetailResponse::from)
                 .collect(Collectors.toList());
     }
 

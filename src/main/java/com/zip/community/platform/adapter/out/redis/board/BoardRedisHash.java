@@ -32,6 +32,7 @@ public class BoardRedisHash {
     public static BoardRedisHash from(Board board) {
 
         return BoardRedisHash.builder()
+                .id(board.getId())
                 .memberId(board.getMemberId())
                 .categoryId(board.getCategoryId())
                 .boardSnippet(BoardSnippetRedisHash.from(board.getSnippet()))
