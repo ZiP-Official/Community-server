@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/review")
+@RequestMapping("api/v1/review")
 @Log4j2
 public class ReviewController {
 
