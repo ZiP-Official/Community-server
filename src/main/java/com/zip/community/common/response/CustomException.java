@@ -4,11 +4,16 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
-public class CustomException extends RuntimeException{
+public class CustomException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public String getMessage() {
-        return errorCode.getMessage();
+    public CustomException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
+    }
+
+    public CustomException(ErrorCode errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
     }
 }
