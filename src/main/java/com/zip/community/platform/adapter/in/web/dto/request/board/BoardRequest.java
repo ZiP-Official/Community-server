@@ -1,5 +1,6 @@
 package com.zip.community.platform.adapter.in.web.dto.request.board;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
 @Builder
 public class BoardRequest {
 
