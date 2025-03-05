@@ -93,9 +93,10 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
                     board.updateViewCount(viewCount);
 
                     repository.save(board);
-                    stringRedisTemplate.opsForSet().remove(RedisKeyGenerator.getBoardViewCountKey(boardId), );
+                    stringRedisTemplate.opsForSet().remove(RedisKeyGenerator.getBoardViewCountKey(boardId));
                 });
     }
+
 
 
     ///  전체 최신 게시물 조회 (작성일자 기준 내림차순)
