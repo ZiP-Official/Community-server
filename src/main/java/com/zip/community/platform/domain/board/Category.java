@@ -19,10 +19,9 @@ public class Category {
     private Long parentId;
 
     // 생성자
-    public static Category of(Long id, Long parentId,String name, String code) {
+    public static Category of(Long parentId,String name, String code) {
 
         return Category.builder()
-                .id(id)
                 .name(name)
                 .code(code)
                 .parentId(parentId)

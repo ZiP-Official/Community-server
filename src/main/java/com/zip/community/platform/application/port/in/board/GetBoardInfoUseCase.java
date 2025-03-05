@@ -11,5 +11,8 @@ public interface GetBoardInfoUseCase {
 
     // 게시물 상세 조회
     Board getOneInfo(Long boardId);
+    
+    // 인기 게시물 상세 조회
+    Board getOneFavoriteInfo(Long boardId);
 
 }

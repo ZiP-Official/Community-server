@@ -31,7 +31,6 @@ public class CategoryJpaEntity {
     public static CategoryJpaEntity from(Category category) {
 
         return CategoryJpaEntity.builder()
-                .id(category.getId())
                 .name(category.getName())
                 .code(category.getCode())
                 .parentId(category.getParentId())  // 부모 변환

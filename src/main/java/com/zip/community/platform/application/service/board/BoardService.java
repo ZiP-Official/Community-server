@@ -35,9 +35,9 @@ public class BoardService implements CreateBoardUseCase, GetBoardInfoUseCase, Re
     @Override
     public Board createBoard(BoardRequest request) {
 
-//        if (!loadMemberPort.existsById(request.getMemberId())) {
-//            throw new NoSuchElementException("해당 ID의 멤버가 존재하지 않습니다: " + request.getMemberId());
-//        }
+        if (!loadUserPort.existsById(request.getMemberId())) {
+            throw new NoSuchElementException("해당 ID의 멤버가 존재하지 않습니다: " + request.getMemberId());
+        }
 
         // 게시물 생성
         BoardSnippet snippet = BoardSnippet.of(request.getTitle(), request.getContent(), "링크");
@@ -62,12 +62,14 @@ public class BoardService implements CreateBoardUseCase, GetBoardInfoUseCase, Re
     public Board getOneInfo(Long boardId) {
 
         // 아이템 정보 가져오기
-        Board board = loadBoardPort.loadBoardById(boardId)
+        return loadBoardPort.loadBoardById(boardId)
                 .orElseThrow(()-> new EntityNotFoundException("게시판이 존재하지 않습니다."));
+    }
 
-        // 조회수 처리
-        board.getStatistics().addViewCount();
-        return saveBoardPort.saveBoard(board);
+    // 인기 게시물 조회하기
+    @Override
+    public Board getOneFavoriteInfo(Long boardId) {
+        return null;
     }
 
 
