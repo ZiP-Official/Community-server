@@ -11,6 +11,9 @@ public interface LoadBoardPort {
     // 게시물 상세 조회
     Optional<Board> loadBoardById(Long boardId);
 
+    // 조회수 조회
+    Long getViewCount(Long boardId);
+
     // 인기 게시물 목록 조회
     Page<Board> loadBoardsFavorite(Pageable pageable);
 

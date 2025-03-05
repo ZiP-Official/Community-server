@@ -4,7 +4,7 @@ import com.zip.community.common.response.ApiResponse;
 import com.zip.community.common.response.pageable.PageRequest;
 import com.zip.community.common.response.pageable.PageResponse;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
-import com.zip.community.platform.adapter.in.web.dto.response.BoardResponse;
+import com.zip.community.platform.adapter.in.web.dto.response.BoardDetailResponse;
 import com.zip.community.platform.application.port.in.board.CreateBoardUseCase;
 import com.zip.community.platform.application.port.in.board.GetBoardInfoUseCase;
 import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
@@ -28,25 +28,25 @@ public class BoardController {
 
     // 게시글 생성
     @PostMapping
-    public ApiResponse<BoardResponse> saveOne(@RequestBody BoardRequest boardRequest) {
-        return ApiResponse.created(BoardResponse.from(createService.createBoard(boardRequest)));
+    public ApiResponse<BoardDetailResponse> saveOne(@RequestBody BoardRequest boardRequest) {
+        return ApiResponse.created(BoardDetailResponse.from(createService.createBoard(boardRequest)));
     }
 
     // 게시글 조회
     @GetMapping("/{boardId}")
-    public ApiResponse<BoardResponse> getOne(@PathVariable Long boardId) {
+    public ApiResponse<BoardDetailResponse> getOne(@PathVariable Long boardId) {
 
-        return ApiResponse.created(BoardResponse.from(getService.getOneInfo(boardId)));
+        return ApiResponse.created(BoardDetailResponse.from(getService.getOneInfo(boardId)));
     }
 
     // 카테고리 내 게시글 조회
     @GetMapping("/category/list/{categoryId}")
-    public ApiResponse<PageResponse<BoardResponse>> getByCategory(@PathVariable Long categoryId, PageRequest pageRequest) {
+    public ApiResponse<PageResponse<BoardDetailResponse>> getByCategory(@PathVariable Long categoryId, PageRequest pageRequest) {
 
         Pageable pageable = org.springframework.data.domain.PageRequest.of(pageRequest.getPage() - 1, pageRequest.getSize(), Sort.by("id").descending());
         Page<Board> result = getService.getByCategoryId(categoryId, pageable);
 
-        List<BoardResponse> dtolist = BoardResponse.from(result.getContent());
+        List<BoardDetailResponse> dtolist = BoardDetailResponse.from(result.getContent());
 
         return ApiResponse.created(new PageResponse<>(dtolist, pageRequest, result.getTotalElements()));
     }

@@ -21,12 +21,8 @@ public class BoardStatistics {
             .build();
     }
 
-    public void addViewCount() {
-        this.viewCount++;
-    }
-
-    public void removeViewCount() {
-        this.viewCount--;
+    public void changeViewCount(long viewCount) {
+        this.viewCount = viewCount;
     }
 
     public void addCommentCount() {
