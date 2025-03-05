@@ -34,8 +34,8 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     // Redis 관련 기능
-//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-//    implementation 'org.springframework.session:spring-session-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.session:spring-session-data-redis'
 
     // https://mvnrepository.com/artifact/net.coobird/thumbnailator / 썸네일
     implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.19'
