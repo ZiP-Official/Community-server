@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/comment")
+@RequestMapping("api/v1/comment")
 @Log4j2
 public class CommentController {
 
