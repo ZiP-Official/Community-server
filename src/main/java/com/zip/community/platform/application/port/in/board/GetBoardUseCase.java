@@ -13,7 +13,7 @@ public interface GetBoardUseCase {
     Page<Board> getByCategoryId(Long categoryId, Pageable pageable);
     
     // 인기 게시물 목록 조회
-    Page<Board> getBoardsFavorite(Pageable pageable);
+    Page<Board> getBoardsView(Pageable pageable);
 
     // 최신 게시물 목록 조회
     Page<Board> getBoards(Pageable pageable);

@@ -61,7 +61,7 @@ public class RedisConfig {
     }
 
     @Bean
-    RedisTemplate<String, Long> StringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    RedisTemplate<String, Long> RedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         final RedisTemplate<String,Long> redisTemplate = new RedisTemplate();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setHashValueSerializer(new GenericToStringSerializer(Long.class));
@@ -71,22 +71,4 @@ public class RedisConfig {
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }
-
-    @Bean
-    public RedisTemplate<Long, Long> LongtypeRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        // RedisTemplate의 제네릭 타입을 명시적으로 지정
-        final RedisTemplate<Long, Long> redisTemplate = new RedisTemplate<>();
-
-        // 연결 팩토리 설정
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-
-        // 키와 값 직렬화 방식 설정
-        redisTemplate.setKeySerializer(new StringRedisSerializer());  // 키는 문자열로 직렬화
-        redisTemplate.setValueSerializer(new GenericToStringSerializer<>(Long.class));  // 값은 Long으로 직렬화
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());  // 해시 키 직렬화 방식
-        redisTemplate.setHashValueSerializer(new GenericToStringSerializer<>(Long.class));  // 해시 값 직렬화 방식
-
-        return redisTemplate;
-    }
-
 }
