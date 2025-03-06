@@ -33,9 +33,7 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     @Override
     public Board saveBoard(Board board) {
         var boardJpaEntity = BoardJpaEntity.from(board);
-        Board domain = repository.save(boardJpaEntity).toDomain(); // JPA를 통해 ID가 포함되어있음
-
-        return redisRepository.save(BoardRedisHash.from(domain)) // 해당하는 ID가 Redis에 들어가게 된다.
+        return repository.save(boardJpaEntity)
                 .toDomain();
     }
 
@@ -49,6 +47,7 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     }
 
     /// 게시물 상세 조회
+    /// 조회수가 10이 넘은것을 레다스로 저장하도록 한다.
     @Override
     public Optional<Board> loadBoardById(Long boardId) {
 
@@ -61,7 +60,12 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
                 .map(BoardRedisHash::toDomain)
                 .or(() -> { // redis cache miss, Redis 에 값을 저장한다.
                     var optionalBoard = repository.findById(boardId);
-                    redisRepository.save(BoardRedisHash.from(optionalBoard.get().toDomain()));
+
+                    var boardViewCountKey = RedisKeyGenerator.getBoardViewCountKey(boardId);
+                    if (redisTemplate.opsForValue().get(boardViewCountKey) >= 10) {
+                        redisRepository.save(BoardRedisHash.from(optionalBoard.get().toDomain()));
+                    }
+
                     return optionalBoard
                             .map(BoardJpaEntity::toDomain);
                 });
@@ -96,7 +100,6 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
                     stringRedisTemplate.opsForSet().remove(RedisKeyGenerator.getBoardViewCountKey(boardId));
                 });
     }
-
 
 
     ///  전체 최신 게시물 조회 (작성일자 기준 내림차순)
