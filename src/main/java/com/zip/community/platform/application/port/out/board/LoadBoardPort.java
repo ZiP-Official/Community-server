@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface LoadBoardPort {
 
@@ -29,8 +30,11 @@ public interface LoadBoardPort {
     // 화제 게시물 목록 조회 (조회수 + 댓글 + 반응의 종합적인 계산)
     Page<Board> loadBoardsFavorite(Pageable pageable);
 
-    // 카테고리 바탕의 조회
+    // 카테고리 바탕의 조회 , 최하위 카테고리 게시글까지 나와야 한다.
     Page<Board> loadBoardsByCategoryId(Long categoryId, Pageable pageable);
+
+    // 카테고리 바탕의 조회 , 하위 카테고리 게시글까지 나와야 한다.
+    Page<Board> loadBoardsByCategories(List<Long> categories, Pageable pageable);
 
     // 카테고리 내, 조회수 높은 게시물 목록
     Page<Board> loadBoardsByCategoryIdView(Long categoryId, Pageable pageable);
