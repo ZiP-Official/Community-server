@@ -12,7 +12,7 @@ public interface LoadBoardPort {
     Optional<Board> loadBoardById(Long boardId);
 
     // 조회수 조회
-    Long getViewCount(Long boardId);
+    Long loadViewCount(Long boardId);
 
     // 인기 게시물 목록 조회
     Page<Board> loadBoardsFavorite(Pageable pageable);

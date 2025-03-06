@@ -73,7 +73,7 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
 
     /// 조회수 가져오기
     @Override
-    public Long getViewCount(Long boardId) {
+    public Long loadViewCount(Long boardId) {
         var boardViewCountKey = RedisKeyGenerator.getBoardViewCountKey(boardId);
         var viewCont = redisTemplate.opsForValue().get(boardViewCountKey);
         return viewCont == null ? 0 : viewCont;
