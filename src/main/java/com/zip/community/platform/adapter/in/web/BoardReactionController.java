@@ -4,8 +4,7 @@ import com.zip.community.common.response.ApiResponse;
 import com.zip.community.common.response.CustomException;
 import com.zip.community.common.response.ErrorCode;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardReactionRequest;
-import com.zip.community.platform.application.port.in.board.AddReactionUseCase;
-import com.zip.community.platform.application.port.in.board.RemoveReactionUseCase;
+import com.zip.community.platform.application.port.in.board.ReactionUseCase;
 import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BoardReactionController {
 
-    private final AddReactionUseCase addService;
-    private final RemoveReactionUseCase removeService;
+    private final ReactionUseCase addService;
 
     @PostMapping("/{reactionType}")
     public ApiResponse<String> toggleReaction(@PathVariable("reactionType") String reactionType,
