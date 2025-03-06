@@ -1,7 +1,6 @@
 package com.zip.community.platform.application.service.board;
 
-import com.zip.community.platform.application.port.in.board.AddReactionUseCase;
-import com.zip.community.platform.application.port.in.board.RemoveReactionUseCase;
+import com.zip.community.platform.application.port.in.board.ReactionUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardReactionRequest;
 import com.zip.community.platform.application.port.out.board.LoadBoardPort;
 import com.zip.community.platform.application.port.out.board.LoadBoardReactionPort;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class BoardReactionService implements AddReactionUseCase, RemoveReactionUseCase {
+public class BoardReactionService implements ReactionUseCase {
 
     private final SaveBoardReactionPort saveReactionPort;
     private final LoadBoardReactionPort loadReactionPort;
@@ -69,6 +68,7 @@ public class BoardReactionService implements AddReactionUseCase, RemoveReactionU
         return ReactionStatus.CREATED;
     }
 
+    /// 내부 예외 체크 함수
     private void checkException(BoardReactionRequest request) {
         if (!loadBoardPort.existBoard(request.getBoardId())) {
             throw new EntityNotFoundException("해당 게시판이 존재하지 않습니다.");
@@ -78,29 +78,4 @@ public class BoardReactionService implements AddReactionUseCase, RemoveReactionU
         }
     }
 
-    /// 감정표현 제거 UseCase
-    @Override
-    public void removeLikeReaction(BoardReactionRequest request) {
-
-        // 요청된 반응 찾기
-        if(!loadReactionPort.checkBoardLikeReaction(request.getBoardId(), request.getMemberId())){
-            throw new IllegalStateException("해당유저는 아직 아무런 감정표현을 누르지 않았습니다.");
-        }
-        // 반응 삭제
-        removeReactionPort.removeBoardLikeReaction(request.getBoardId(), request.getMemberId());
-    }
-
-    @Override
-    public void removeDisLikeReaction(BoardReactionRequest request) {
-
-        // 요청된 반응 찾기
-        if(!loadReactionPort.checkBoardLikeReaction(request.getBoardId(), request.getMemberId())){
-            throw new IllegalStateException("해당유저는 아직 아무런 감정표현을 누르지 않았습니다.");
-        }
-
-        // 반응 삭제
-        removeReactionPort.removeBoardDisLikeReaction(request.getBoardId(), request.getMemberId());
-
-
-    }
 }

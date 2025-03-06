@@ -4,7 +4,7 @@ package com.zip.community.platform.application.port.in.board;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardReactionRequest;
 import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
 
-public interface AddReactionUseCase {
+public interface ReactionUseCase {
 
     /*
         좋아요 처리의 요구사항
