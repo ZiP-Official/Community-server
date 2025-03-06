@@ -8,6 +8,7 @@ import com.zip.community.platform.application.port.out.board.LoadBoardReactionPo
 import com.zip.community.platform.application.port.out.board.RemoveBoardReactionPort;
 import com.zip.community.platform.application.port.out.board.SaveBoardReactionPort;
 import com.zip.community.platform.application.port.out.user.LoadUserPort;
+import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,57 +36,44 @@ public class BoardReactionService implements AddReactionUseCase, RemoveReactionU
     /// 감정표현 추가 UseCase
     // 좋아요 반응 생성 및 저장
     @Override
-    public void addLikeReaction(BoardReactionRequest request) {
-
-        // 게시글과 유저에 대한 예외처리
+    public ReactionStatus addLikeReaction(BoardReactionRequest request) {
         checkException(request);
 
-        // 이미 좋아요를 눌렀다면, 한번 더 누르지 못하도록 예외처리
         if (loadReactionPort.checkBoardLikeReaction(request.getBoardId(), request.getMemberId())) {
-
-            throw new IllegalStateException("이미 해당 글에 좋아요를 눌렀습니다.");
+            removeReactionPort.removeBoardLikeReaction(request.getBoardId(), request.getMemberId());
+            return ReactionStatus.REMOVED;
         }
 
-        // 이미 싫어요에 등록했다면 싫어요가 취소되도록 설정
-        if(loadReactionPort.checkBoardDisLikeReaction(request.getBoardId(), request.getMemberId())){
+        if (loadReactionPort.checkBoardDisLikeReaction(request.getBoardId(), request.getMemberId())) {
             removeReactionPort.removeBoardDisLikeReaction(request.getBoardId(), request.getMemberId());
         }
 
-        // Set에 등록하기 때문에, 중복으로 저장되지 않는다.
         saveReactionPort.saveLikeBoardReaction(request.getBoardId(), request.getMemberId());
+        return ReactionStatus.CREATED;
     }
 
-    // 싫어요 반응 생성 및 저장
     @Override
-    public void addDisLikeReaction(BoardReactionRequest request) {
-
-        // 보드 예외처리
+    public ReactionStatus addDisLikeReaction(BoardReactionRequest request) {
         checkException(request);
 
-        // 이미 싫어요를 눌렀다면, 한번 더 누르지 못하도록 예외처리
-        if (loadReactionPort.checkBoardLikeReaction(request.getBoardId(), request.getMemberId())) {
-            throw new IllegalStateException("이미 해당 글에 싫어요를 눌렀습니다.");
+        if (loadReactionPort.checkBoardDisLikeReaction(request.getBoardId(), request.getMemberId())) {
+            removeReactionPort.removeBoardDisLikeReaction(request.getBoardId(), request.getMemberId());
+            return ReactionStatus.REMOVED;
         }
 
-        // 이미 좋아요에 등록했다면 좋아요가 취소되도록 설정
-        if(loadReactionPort.checkBoardLikeReaction(request.getBoardId(), request.getMemberId())){
+        if (loadReactionPort.checkBoardLikeReaction(request.getBoardId(), request.getMemberId())) {
             removeReactionPort.removeBoardLikeReaction(request.getBoardId(), request.getMemberId());
         }
 
-        // 싫어요 반응 생성 및 저장
         saveReactionPort.saveDisLikeBoardReaction(request.getBoardId(), request.getMemberId());
-
+        return ReactionStatus.CREATED;
     }
 
     private void checkException(BoardReactionRequest request) {
-
-        // 보드 예외처리
-        if(!loadBoardPort.existBoard(request.getBoardId())) {
-            throw new EntityNotFoundException("해당 게시판이 존재하지 않습니다");
+        if (!loadBoardPort.existBoard(request.getBoardId())) {
+            throw new EntityNotFoundException("해당 게시판이 존재하지 않습니다.");
         }
-
-        // 회원 예외처리
-        if(!loadUserPort.existsById(request.getMemberId())){
+        if (!loadUserPort.existsById(request.getMemberId())) {
             throw new EntityNotFoundException("해당하는 멤버가 존재하지 않습니다.");
         }
     }

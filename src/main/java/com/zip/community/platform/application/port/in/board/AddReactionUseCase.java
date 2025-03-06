@@ -2,7 +2,7 @@ package com.zip.community.platform.application.port.in.board;
 
 
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardReactionRequest;
-import com.zip.community.platform.domain.board.BoardReaction;
+import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
 
 public interface AddReactionUseCase {
 
@@ -13,10 +13,10 @@ public interface AddReactionUseCase {
      */
 
     // 좋아요 누르기
-    void addLikeReaction(BoardReactionRequest request);
+    ReactionStatus addLikeReaction(BoardReactionRequest request);
 
     // 싫어요 누르기
-    void addDisLikeReaction(BoardReactionRequest request);
+    ReactionStatus addDisLikeReaction(BoardReactionRequest request);
 
 
 }

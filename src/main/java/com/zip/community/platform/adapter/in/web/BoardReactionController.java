@@ -6,6 +6,7 @@ import com.zip.community.common.response.ErrorCode;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardReactionRequest;
 import com.zip.community.platform.application.port.in.board.AddReactionUseCase;
 import com.zip.community.platform.application.port.in.board.RemoveReactionUseCase;
+import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,29 +19,27 @@ public class BoardReactionController {
     private final RemoveReactionUseCase removeService;
 
     @PostMapping("/{reactionType}")
-    public ApiResponse<String> addReaction(@PathVariable("reactionType") String reactionType,
-                                           @RequestBody BoardReactionRequest request) {
-        if ("like".equalsIgnoreCase(reactionType)) {
-            addService.addLikeReaction(request);
-            return ApiResponse.created("좋아요가 성공으로 저장되었습니다.");
-        } else if ("dislike".equalsIgnoreCase(reactionType)) {
-            addService.addDisLikeReaction(request);
-
-            return ApiResponse.created("싫어요가 성공으로 저장되었습니다.");
-        }
-        return ApiResponse.fail(new CustomException(ErrorCode.INTERNAL_SERVER_ERROR));
-    }
-
-    @DeleteMapping("/{reactionType}/none")
-    public ApiResponse<String> removeReaction(@PathVariable("reactionType") String reactionType,
+    public ApiResponse<String> toggleReaction(@PathVariable("reactionType") String reactionType,
                                               @RequestBody BoardReactionRequest request) {
-        if ("like".equalsIgnoreCase(reactionType)) {
-            removeService.removeLikeReaction(request);
-            return ApiResponse.created("좋아요가 성공적으로 삭제되었습니다.");
-        } else if ("dislike".equalsIgnoreCase(reactionType)) {
-            removeService.removeDisLikeReaction(request);
-            return ApiResponse.created("싫어요가 성공적으로 삭제되었습니다.");
+        ReactionStatus status;
+
+        switch (reactionType.toLowerCase()) {
+            case "like":
+                status = addService.addLikeReaction(request);
+                reactionType = "좋아요";
+                break;
+            case "dislike":
+                status = addService.addDisLikeReaction(request);
+                reactionType = "싫어요";
+                break;
+            default:
+                return ApiResponse.fail(new CustomException(ErrorCode.BAD_REQUEST));
         }
-        return ApiResponse.fail(new CustomException(ErrorCode.INTERNAL_SERVER_ERROR));
+
+        String message = (status == ReactionStatus.CREATED)
+                ? reactionType + "가 생성되었습니다."
+                : reactionType + "가 삭제되었습니다.";
+
+        return ApiResponse.created(message);
     }
 }

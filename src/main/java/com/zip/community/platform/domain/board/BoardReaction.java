@@ -24,14 +24,4 @@ public class BoardReaction {
                 .reactionType(reactionType)
                 .build();
     }
-
-    // 메소드 따로 빼기
-    private static void checkUserReaction(Board board, UserReaction reactionType) {
-        if(reactionType == UserReaction.LIKE) {
-            board.addLikeReaction();
-
-        } else {
-            board.removeLikeReaction();
-        }
-    }
 }
