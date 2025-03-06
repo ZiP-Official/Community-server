@@ -17,5 +17,6 @@ public interface BoardJpaRepository extends JpaRepository<BoardJpaEntity, Long> 
     Page<BoardJpaEntity> findBoardJpaEntitiesByCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
 
 
+    boolean existsById(Long id);
 
 }

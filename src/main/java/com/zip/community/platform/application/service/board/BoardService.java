@@ -79,12 +79,12 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
 
     @Override
     public Page<Board> getByCategoryId(Long categoryId, Pageable pageable) {
-        return loadBoardPort.loadByCategoryId(categoryId, pageable);
+        return loadBoardPort.loadBoardsByCategoryId(categoryId, pageable);
     }
 
     @Override
-    public Page<Board> getBoardsFavorite(Pageable pageable) {
-        return null;
+    public Page<Board> getBoardsView(Pageable pageable) {
+        return loadBoardPort.loadBoardsView(pageable);
     }
 
     @Override
