@@ -131,7 +131,7 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     @Override
     public Page<Board> loadBoards(Pageable pageable) {
 
-        return repository.findAll(pageable)
+        return repository.findBoardsByRecent(pageable)
                 .map(BoardJpaEntity::toDomain);
     }
 

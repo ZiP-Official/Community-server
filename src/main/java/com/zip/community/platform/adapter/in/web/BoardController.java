@@ -11,6 +11,7 @@ import com.zip.community.platform.application.port.in.board.GetBoardUseCase;
 import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
 import com.zip.community.platform.domain.board.Board;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/board")
 @RequiredArgsConstructor
@@ -38,6 +40,21 @@ public class BoardController {
     public ApiResponse<BoardDetailResponse> getBoard(@PathVariable Long boardId) {
 
         return ApiResponse.created(BoardDetailResponse.from(getService.getBoardById(boardId)));
+    }
+
+
+    // 최신 게시글 목록 조회하기
+    @GetMapping("/list")
+    public ApiResponse<PageResponse<BoardListResponse>> getBoards(PageRequest pageRequest) {
+
+        Pageable pageable = org.springframework.data.domain.PageRequest.of(pageRequest.getPage() - 1, pageRequest.getSize(), Sort.by("id").descending());
+
+        Page<Board> result = getService.getBoards(pageable);
+
+        log.info(result.toString());
+        List<BoardListResponse> dtolist = BoardListResponse.from(result.getContent());
+
+        return ApiResponse.ok(new PageResponse<>(dtolist, pageRequest, result.getTotalElements()));
     }
 
     // 조회수 기반 게시글 목록 조회하기

@@ -17,6 +17,9 @@ public interface BoardJpaRepository extends JpaRepository<BoardJpaEntity, Long> 
     Page<BoardJpaEntity> findBoardJpaEntitiesByCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
 
 
+    @Query("select b from BoardJpaEntity b ORDER BY b.created DESC ")
+    Page<BoardJpaEntity> findBoardsByRecent(Pageable pageable);
+
     boolean existsById(Long id);
 
 }
