@@ -58,9 +58,9 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
         }
 
         // key 값 가져오기
-        var videoViewCountKey = RedisKeyGenerator.getBoardViewCountKey(boardId);
+        var boardViewCountKey = RedisKeyGenerator.getBoardViewCountKey(boardId);
 
-        redisTemplate.opsForValue().increment(videoViewCountKey);
+        redisTemplate.opsForValue().increment(boardViewCountKey);
     }
 
     // Redis의 사라짐을 방지하여, 매핑해주는 역할을 수행한다.
@@ -77,6 +77,12 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     }
 
     /// LoadPort 구현체
+    @Override
+    public boolean existBoard(Long boardId) {
+
+        return repository.existsById(boardId);
+    }
+
     // 게시물 상세 조회
     @Override
     public Optional<Board> loadBoardById(Long boardId) {
