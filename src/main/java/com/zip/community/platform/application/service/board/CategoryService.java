@@ -11,48 +11,79 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryService implements CreateCategoryUseCase, GetCategoryInfoUseCase {
+public class CategoryService implements CreateCategoryUseCase, GetCategoryUseCase {
 
     private final CategoryPort categoryPort;
 
+    /// 생성 서비스
     @Override
-    public Category createCategory(CategoryRequest categoryRequest) {
+    public Category createCategory(CategoryRequest request) {
 
-        // 부모가 없는 경우 null 처리
+        // 부모가 없는 경우, root 카테고리
         Category parent = null;
-        if (categoryRequest.getParentId() != null) {
-            parent = categoryPort.loadCategory(categoryRequest.getParentId())
+        if (request.getParentId() != null) {
+            parent = categoryPort.loadCategory(request.getParentId())
                     .orElseThrow(() -> new NoSuchElementException("부모 카테고리가 존재하지 않습니다."));
         }
+
         // code 중복 체크
-        if (categoryRequest.getCode() != null && categoryPort.getCheckedExistCategory(categoryRequest.getCode())) {
-            throw new DuplicateCodeException("이미 존재하는 코드입니다: " + categoryRequest.getCode());
+        if (request.getCode() != null && categoryPort.getCheckedExistCategory(request.getCode())) {
+            throw new DuplicateCodeException("이미 존재하는 코드입니다: " + request.getCode());
         }
 
         // 카테고리 생성
-        Category category = Category.builder()
-                .name(categoryRequest.getName())
-                .code(categoryRequest.getCode())
-                .parentId(categoryRequest.getParentId()) // 부모가 null일 수도 있음
-                .build();
+        Category category = Category.of(request.getParentId(), request.getName(), request.getCode());
 
         // 카테고리 저장
         return categoryPort.saveCategory(category);
     }
 
+    /// 조회 서비스
+    // 루트 목록 조회
     @Override
-    public List<Category> getRootInfo() {
-        return categoryPort.loadAllRootCategories();
+    public List<Category> getRootCategory() {
+
+        // 루트 목록 가져오기
+        List<Category> categories = categoryPort.loadAllRootCategories();
+
+        // children으로 엮기
+        categories.forEach(
+                category -> {
+                    List<Category> children = categoryPort.loadChildrenByParentId(category.getId());
+                    category.changeChildren(children);
+                }
+        );
+        return categories;
     }
 
+
+    // 카테고리 상세 조회
     @Override
     public Category getByCategoryId(Long categoryId) {
-        return categoryPort.loadCategory(categoryId)
-                .orElseThrow(() -> new EntityNotFoundException("카테고리가 존재하지않습니다"));
+        // 카테고리 조회
+        Optional<Category> optionalCategory = categoryPort.loadCategory(categoryId);
+
+        // 카테고리가 존재하면 자식 카테고리 설정 후 반환
+        if (optionalCategory.isPresent()) {
+            Category category = optionalCategory.get();  // 카테고리 가져오기
+            List<Category> children = getChildCategoryByParentId(category.getId());  // 자식 카테고리 조회
+
+            category.changeChildren(children);  // 자식 카테고리 설정
+            return category;  // 설정된 카테고리 반환
+        }
+
+        // 카테고리가 없으면 null 반환 (예외 처리 고려 가능)
+        throw new EntityNotFoundException("해당하는 엔티티가 존재하지 않습니다.");
     }
 
+
+    /// 내부 함수
+    private List<Category> getChildCategoryByParentId(Long parentId) {
+        return categoryPort.loadChildrenByParentId(parentId);
+    }
 
 }
