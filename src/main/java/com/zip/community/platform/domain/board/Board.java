@@ -30,17 +30,4 @@ public class Board extends BaseDomain {
                 .build();
 
     }
-
-    // 양방향
-    public void addComment() {
-        this.getStatistics().addCommentCount();
-    }
-
-    public void addLikeReaction() {
-        this.getStatistics().addLikeCount();
-    }
-
-    public void removeLikeReaction() {
-        this.getStatistics().removeLikeCount();
-    }
 }

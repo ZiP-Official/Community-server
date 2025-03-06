@@ -33,11 +33,7 @@ public class BoardStatistics {
         this.commentCount--;
     }
 
-    public void addLikeCount() {
-        this.likeCount++;
-    }
-
-    public void removeLikeCount() {
-        this.likeCount--;
+    public void changeLikeCount(long likeCount) {
+        this.likeCount = likeCount;
     }
 }
