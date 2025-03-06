@@ -17,6 +17,7 @@ public class Category {
     private String name;
     private String code;
     private Long parentId;
+    private List<Category> children;
 
     // 생성자
     public static Category of(Long parentId,String name, String code) {
@@ -26,6 +27,10 @@ public class Category {
                 .code(code)
                 .parentId(parentId)
                 .build();
+    }
+
+    public void changeChildren(List<Category> children) {
+        this.children = children;
     }
 
 }
