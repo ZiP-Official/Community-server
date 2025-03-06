@@ -17,12 +17,14 @@ public class CategoryResponse {
 
     private Long id;
     private String name;
+    private List<CategoryResponse> children;
 
     // 단일 객체 변환
     public static CategoryResponse from(Category category) {
         return CategoryResponse.builder()
                 .id(category.getId())
                 .name(category.getName())
+                .children(from(category.getChildren()))
                 .build();
     }
 
