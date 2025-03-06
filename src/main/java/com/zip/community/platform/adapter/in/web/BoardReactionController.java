@@ -1,8 +1,9 @@
 package com.zip.community.platform.adapter.in.web;
 
 import com.zip.community.common.response.ApiResponse;
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.ErrorCode;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardReactionRequest;
-import com.zip.community.platform.adapter.in.web.dto.response.BoardReactionResponse;
 import com.zip.community.platform.application.port.in.board.AddReactionUseCase;
 import com.zip.community.platform.application.port.in.board.RemoveReactionUseCase;
 import lombok.RequiredArgsConstructor;
@@ -16,17 +17,30 @@ public class BoardReactionController {
     private final AddReactionUseCase addService;
     private final RemoveReactionUseCase removeService;
 
-    @PostMapping
-    public ApiResponse<BoardReactionResponse> addOne(@RequestBody BoardReactionRequest request) {
+    @PostMapping("/{reactionType}")
+    public ApiResponse<String> addReaction(@PathVariable("reactionType") String reactionType,
+                                           @RequestBody BoardReactionRequest request) {
+        if ("like".equalsIgnoreCase(reactionType)) {
+            addService.addLikeReaction(request);
+            return ApiResponse.created("좋아요가 성공으로 저장되었습니다.");
+        } else if ("dislike".equalsIgnoreCase(reactionType)) {
+            addService.addDisLikeReaction(request);
 
-        return ApiResponse.created(BoardReactionResponse.from(addService.addReaction(request)));
+            return ApiResponse.created("싫어요가 성공으로 저장되었습니다.");
+        }
+        return ApiResponse.fail(new CustomException(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
-    @DeleteMapping
-    public ApiResponse<String> removeOne(@RequestBody BoardReactionRequest request) {
-        removeService.removeReaction(request);
-
-        return ApiResponse.created("성공적으로 삭제되었습니다");
+    @DeleteMapping("/{reactionType}/none")
+    public ApiResponse<String> removeReaction(@PathVariable("reactionType") String reactionType,
+                                              @RequestBody BoardReactionRequest request) {
+        if ("like".equalsIgnoreCase(reactionType)) {
+            removeService.removeLikeReaction(request);
+            return ApiResponse.created("좋아요가 성공적으로 삭제되었습니다.");
+        } else if ("dislike".equalsIgnoreCase(reactionType)) {
+            removeService.removeDisLikeReaction(request);
+            return ApiResponse.created("싫어요가 성공적으로 삭제되었습니다.");
+        }
+        return ApiResponse.fail(new CustomException(ErrorCode.INTERNAL_SERVER_ERROR));
     }
-
 }

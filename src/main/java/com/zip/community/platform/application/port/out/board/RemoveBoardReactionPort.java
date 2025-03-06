@@ -1,9 +1,13 @@
 package com.zip.community.platform.application.port.out.board;
 
-import com.zip.community.platform.domain.board.BoardReaction;
 
 public interface RemoveBoardReactionPort {
 
-    void removeBoardReaction(BoardReaction boardReaction);
+    // 좋아요 삭제
+    void removeBoardLikeReaction(Long boardId, Long userId);
+
+    // 싫어요 삭제
+    void removeBoardDisLikeReaction(Long boardId, Long userId);
+
 
 }

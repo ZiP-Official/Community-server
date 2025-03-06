@@ -21,6 +21,10 @@ public class RedisKeyGenerator {
         return BOARD_LIKE + SEPARATOR +  boardId;
     }
 
+    public static String getBoardDisLikeKey(Long boardId) {
+        return BOARD_DISLIKE + SEPARATOR +  boardId;
+    }
+
     public static String getCommentLikeKey(String commentId) {
         return COMMENT_LIKE + SEPARATOR + commentId;
     }

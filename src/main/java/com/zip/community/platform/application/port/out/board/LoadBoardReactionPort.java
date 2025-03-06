@@ -1,12 +1,13 @@
 package com.zip.community.platform.application.port.out.board;
 
-import com.zip.community.platform.domain.board.BoardReaction;
-import com.zip.community.platform.domain.board.UserReaction;
-
-import java.util.Optional;
-
 public interface LoadBoardReactionPort {
 
-    Optional<BoardReaction> loadBoardReaction(Long boardId, Long memberId);
-    Optional<BoardReaction> loadBoardReactionByType(Long boardId, Long memberId, UserReaction reactionType);
+    // 특정 글에 리액션을 남긴게 있는지 확인
+    boolean checkBoardReaction(Long boardId, Long memberId);
+
+    // 특정 글에 싫어요 리액션을 남긴게 있는지 확인
+    boolean checkBoardLikeReaction(Long boardId, Long memberId);
+
+    // 특정 글에 싫어요 리액션을 남긴게 있는지 확인
+    boolean checkBoardDisLikeReaction(Long boardId, Long memberId);
 }

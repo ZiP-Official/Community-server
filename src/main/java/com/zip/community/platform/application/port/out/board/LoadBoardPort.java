@@ -8,6 +8,9 @@ import java.util.Optional;
 
 public interface LoadBoardPort {
 
+    // 존재하는지 확인
+    boolean existBoard(Long boardId);
+
     // 게시물 상세 조회
     Optional<Board> loadBoardById(Long boardId);
 
