@@ -83,13 +83,13 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     }
 
     @Override
-    public Page<Board> getBoardsView(Pageable pageable) {
-        return loadBoardPort.loadBoardsView(pageable);
+    public Page<Board> getBoards(Pageable pageable) {
+        return loadBoardPort.loadBoards(pageable);
     }
 
     @Override
-    public Page<Board> getBoards(Pageable pageable) {
-        return null;
+    public Page<Board> getBoardsView(Pageable pageable) {
+        return loadBoardPort.loadBoardsView(pageable);
     }
 
     /// RemoveUseCase 구현체
