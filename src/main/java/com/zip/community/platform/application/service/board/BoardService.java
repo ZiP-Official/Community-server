@@ -1,7 +1,7 @@
 package com.zip.community.platform.application.service.board;
 
 import com.zip.community.platform.application.port.in.board.CreateBoardUseCase;
-import com.zip.community.platform.application.port.in.board.GetBoardInfoUseCase;
+import com.zip.community.platform.application.port.in.board.GetBoardUseCase;
 import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
 import com.zip.community.platform.application.port.out.board.CategoryPort;
@@ -25,7 +25,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class BoardService implements CreateBoardUseCase, GetBoardInfoUseCase, RemoveBoardUseCase {
+public class BoardService implements CreateBoardUseCase, GetBoardUseCase, RemoveBoardUseCase {
 
     private final SaveBoardPort saveBoardPort;
     private final LoadBoardPort loadBoardPort;
@@ -33,6 +33,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardInfoUseCase, Re
     private final CategoryPort categoryPort;
     private final RemoveBoardPort removeBoardPort;
 
+    /// CreateUseCase 구현체
     @Override
     public Board createBoard(BoardRequest request) {
 
@@ -54,19 +55,15 @@ public class BoardService implements CreateBoardUseCase, GetBoardInfoUseCase, Re
     }
 
 
+    /// LoadUseCase 구현체
     @Override
-    public Page<Board> getByCategoryId(Long categoryId, Pageable pageable) {
-        return loadBoardPort.loadByCategoryId(categoryId, pageable);
-    }
-
-    @Override
-    public Board getOneInfo(Long boardId) {
+    public Board getBoardById(Long boardId) {
 
         // 조회수를 증가시키는 로직
         saveBoardPort.incrementViewCount(boardId);
 
         // 조회수 조회하기
-        Long viewCount = loadBoardPort.getViewCount(boardId);
+        Long viewCount = loadBoardPort.loadViewCount(boardId);
 
         // Board를 조회
         Optional<Board> boardOptional = loadBoardPort.loadBoardById(boardId);
@@ -80,14 +77,22 @@ public class BoardService implements CreateBoardUseCase, GetBoardInfoUseCase, Re
         return boardOptional.orElseThrow(() -> new EntityNotFoundException("해당 게시글이 존재하지 않습니다."));
     }
 
-
-    // 인기 게시물 조회하기
     @Override
-    public Board getOneFavoriteInfo(Long boardId) {
+    public Page<Board> getByCategoryId(Long categoryId, Pageable pageable) {
+        return loadBoardPort.loadByCategoryId(categoryId, pageable);
+    }
+
+    @Override
+    public Page<Board> getBoardsFavorite(Pageable pageable) {
         return null;
     }
 
+    @Override
+    public Page<Board> getBoards(Pageable pageable) {
+        return null;
+    }
 
+    /// RemoveUseCase 구현체
     @Override
     public void removeBoard(Long boardId) {
         removeBoardPort.removeBoard(boardId);

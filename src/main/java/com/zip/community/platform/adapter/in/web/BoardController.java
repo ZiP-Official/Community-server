@@ -6,7 +6,7 @@ import com.zip.community.common.response.pageable.PageResponse;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
 import com.zip.community.platform.adapter.in.web.dto.response.BoardDetailResponse;
 import com.zip.community.platform.application.port.in.board.CreateBoardUseCase;
-import com.zip.community.platform.application.port.in.board.GetBoardInfoUseCase;
+import com.zip.community.platform.application.port.in.board.GetBoardUseCase;
 import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
 import com.zip.community.platform.domain.board.Board;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import java.util.List;
 public class BoardController {
 
     private final CreateBoardUseCase createService;
-    private final GetBoardInfoUseCase getService;
+    private final GetBoardUseCase getService;
     private final RemoveBoardUseCase removeService;
 
     // 게시글 생성
@@ -36,7 +36,7 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ApiResponse<BoardDetailResponse> getOne(@PathVariable Long boardId) {
 
-        return ApiResponse.created(BoardDetailResponse.from(getService.getOneInfo(boardId)));
+        return ApiResponse.created(BoardDetailResponse.from(getService.getBoardById(boardId)));
     }
 
     // 카테고리 내 게시글 조회
