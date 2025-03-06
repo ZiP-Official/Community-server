@@ -37,8 +37,6 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
         System.out.println("Added userId " + userId + " to Redis set.");  // 로그 추가
     }
 
-
-
     @Override
     public void saveDisLikeBoardReaction(Long boardId, Long userId) {
 
@@ -63,14 +61,12 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
         */
     }
 
+    /// LoadPort
     @Override
     public boolean checkBoardReaction(Long boardId, Long memberId) {
-
         // OR 연산
         return checkBoardDisLikeReaction(boardId, memberId) || checkBoardLikeReaction(boardId, memberId);
     }
-
-
 
     @Override
     public boolean checkBoardLikeReaction(Long boardId, Long memberId) {
@@ -82,6 +78,18 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
     public boolean checkBoardDisLikeReaction(Long boardId, Long memberId) {
         var setOps = redisTemplate.opsForSet();
         return setOps.isMember(RedisKeyGenerator.getBoardDisLikeKey(boardId), memberId);
+    }
+
+    @Override
+    public long loadBoardLikeCount(Long boardId) {
+        var setOps = redisTemplate.opsForSet();
+        return setOps.size(RedisKeyGenerator.getBoardLikeKey(boardId));
+    }
+
+    @Override
+    public long loadBoardDisLikeCount(Long boardId) {
+        var setOps = redisTemplate.opsForSet();
+        return setOps.size(RedisKeyGenerator.getBoardDisLikeKey(boardId));
     }
 
 

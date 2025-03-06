@@ -4,10 +4,7 @@ import com.zip.community.platform.application.port.in.board.CreateBoardUseCase;
 import com.zip.community.platform.application.port.in.board.GetBoardUseCase;
 import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
-import com.zip.community.platform.application.port.out.board.CategoryPort;
-import com.zip.community.platform.application.port.out.board.LoadBoardPort;
-import com.zip.community.platform.application.port.out.board.RemoveBoardPort;
-import com.zip.community.platform.application.port.out.board.SaveBoardPort;
+import com.zip.community.platform.application.port.out.board.*;
 import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.domain.board.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,6 +26,9 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
 
     private final SaveBoardPort saveBoardPort;
     private final LoadBoardPort loadBoardPort;
+
+    private final LoadBoardReactionPort reactionPort;
+
     private final LoadUserPort loadUserPort;
     private final CategoryPort categoryPort;
     private final RemoveBoardPort removeBoardPort;
@@ -56,6 +56,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
 
 
     /// LoadUseCase 구현체
+    // 상세조회하는 유즈케이스 이다.
     @Override
     public Board getBoardById(Long boardId) {
 
@@ -65,12 +66,21 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
         // 조회수 조회하기
         Long viewCount = loadBoardPort.loadViewCount(boardId);
 
+        // 좋아요 / 싫어요 조회하기
+        long likeCount = reactionPort.loadBoardLikeCount(boardId);
+        long disLikeCount = reactionPort.loadBoardDisLikeCount(boardId);
+
+        // 리액션 값은 좋아요 - 싫어요
+        long reaction = likeCount - disLikeCount;
+
         // Board를 조회
         Optional<Board> boardOptional = loadBoardPort.loadBoardById(boardId);
 
         // Board가 있으면 조회수를 변경하고 반환
-        boardOptional.ifPresent(board -> {
-            board.getStatistics().changeViewCount(viewCount);
+        boardOptional
+                .ifPresent(board -> {
+                    board.getStatistics().changeViewCount(viewCount);
+                    board.getStatistics().changeLikeCount(reaction);
         });
 
         // Board가 없으면 예외를 던짐
