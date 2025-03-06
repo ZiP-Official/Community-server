@@ -15,8 +15,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -87,9 +90,26 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
         return boardOptional.orElseThrow(() -> new EntityNotFoundException("해당 게시글이 존재하지 않습니다."));
     }
 
-    @Override
+    @Override // GPT 도움
     public Page<Board> getByCategoryId(Long categoryId, Pageable pageable) {
-        return loadBoardPort.loadBoardsByCategoryId(categoryId, pageable);
+        /*
+            카테고리의 하위 결과까지 가져와야한다.
+         */
+        Category category = categoryPort.loadCategory(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 카테고리가 존재하지않습니다."));
+
+        List<Category> loadChildrenByParentId = categoryPort.loadChildrenByParentId(categoryId);
+
+        // 수정 가능한 리스트로 변환
+        List<Category> categories = new ArrayList<>(loadChildrenByParentId);
+        categories.add(category);  // 상위 카테고리도 추가
+
+        // Category에서 id를 추출하여 List<Long>으로 수정
+        List<Long> categoryIds = categories.stream()
+                .map(Category::getId)  // Category 객체에서 id 추출
+                .collect(Collectors.toList());
+
+        return loadBoardPort.loadBoardsByCategories(categoryIds, pageable);
     }
 
     @Override

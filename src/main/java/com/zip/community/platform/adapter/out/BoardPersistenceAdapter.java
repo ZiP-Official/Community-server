@@ -192,13 +192,14 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     // 카테고리별 게시물 조회
     @Override
     public Page<Board> loadBoardsByCategoryId(Long categoryId, Pageable pageable) {
-        Page<BoardJpaEntity> result = repository.findBoardJpaEntitiesByCategoryId(categoryId, pageable);
+        return repository.findBoardJpaEntitiesByCategoryId(categoryId, pageable)
+                .map(BoardJpaEntity::toDomain);
+    }
 
-        List<Board> boards = result.stream()
-                .map(BoardJpaEntity::toDomain)
-                .toList();
-
-        return new PageImpl<>(boards, pageable, result.getTotalElements());
+    @Override
+    public Page<Board> loadBoardsByCategories(List<Long> categories, Pageable pageable) {
+        return repository.findBoardByCategories(categories, pageable)
+                .map(BoardJpaEntity::toDomain);
     }
 
     @Override
