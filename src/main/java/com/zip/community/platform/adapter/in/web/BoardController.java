@@ -81,7 +81,7 @@ public class BoardController {
     public ApiResponse<PageResponse<BoardListResponse>> getByCategory(@PathVariable Long categoryId, PageRequest pageRequest) {
 
         Pageable pageable = org.springframework.data.domain.PageRequest.of(pageRequest.getPage() - 1, pageRequest.getSize(), Sort.by("id").descending());
-        Page<Board> result = getService.getByCategoryId(categoryId, pageable);
+        Page<Board> result = getService.getBoardsByCategoryId(categoryId, pageable);
 
         List<BoardListResponse> dtolist = BoardListResponse.from(result.getContent());
 

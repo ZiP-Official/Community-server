@@ -10,7 +10,9 @@ import com.zip.community.platform.domain.board.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,11 +92,53 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
         return boardOptional.orElseThrow(() -> new EntityNotFoundException("해당 게시글이 존재하지 않습니다."));
     }
 
+
+    @Override
+    public Page<Board> getBoards(Pageable pageable) {
+        Page<Board> boards = loadBoardPort.loadBoards(pageable);
+        List<Board> list = boards.getContent();
+
+        // 내부함수 적용
+        updateBoardStatistics(list);
+
+        return new PageImpl<>(list, pageable, boards.getTotalElements());
+
+    }
+
+    @Override
+    public Page<Board> getBoardsView(Pageable pageable) {
+        Page<Board> boards = loadBoardPort.loadBoardsView(pageable);
+        List<Board> list = boards.getContent();
+
+        // 내부함수 적용
+        updateBoardStatistics(list);
+
+        return new PageImpl<>(list, pageable, boards.getTotalElements());
+    }
+
+
     @Override // GPT 도움
-    public Page<Board> getByCategoryId(Long categoryId, Pageable pageable) {
+    public Page<Board> getBoardsByCategoryId(Long categoryId, Pageable pageable) {
         /*
             카테고리의 하위 결과까지 가져와야한다.
          */
+
+        // 카테고리 id와 children 카테고리 목록 가져오기
+        List<Long> categoryIds = getLongs(categoryId);
+
+        // 결과값 가져오기
+        Page<Board> boards = loadBoardPort.loadBoardsByCategories(categoryIds, pageable);
+
+        List<Board> list = boards.getContent();
+
+        // 내부함수 적용
+        updateBoardStatistics(list);
+
+        return new PageImpl<>(list, pageable, boards.getTotalElements());
+    }
+
+    ///  내부 함수
+    private @NotNull List<Long> getLongs(Long categoryId) {
         Category category = categoryPort.loadCategory(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 카테고리가 존재하지않습니다."));
 
@@ -109,18 +153,20 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
                 .map(Category::getId)  // Category 객체에서 id 추출
                 .collect(Collectors.toList());
 
-        return loadBoardPort.loadBoardsByCategories(categoryIds, pageable);
+        return categoryIds;
     }
 
-    @Override
-    public Page<Board> getBoards(Pageable pageable) {
-        return loadBoardPort.loadBoards(pageable);
+    // 값 업데이트 시키는 함수
+    private void updateBoardStatistics(List<Board> boards) {
+        boards.forEach(board -> {
+            Long viewCount = loadBoardPort.loadViewCount(board.getId());
+            long likeCount = reactionPort.loadBoardLikeCount(board.getId());
+            long disLikeCount = reactionPort.loadBoardDisLikeCount(board.getId());
+
+            board.getStatistics().bindViewAndLikeStatistics(viewCount, likeCount, disLikeCount);
+        });
     }
 
-    @Override
-    public Page<Board> getBoardsView(Pageable pageable) {
-        return loadBoardPort.loadBoardsView(pageable);
-    }
 
     /// RemoveUseCase 구현체
     @Override

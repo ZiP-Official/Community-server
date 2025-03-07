@@ -36,4 +36,16 @@ public class BoardStatistics {
     public void changeLikeCount(long likeCount) {
         this.likeCount = likeCount;
     }
+
+    public void bindStatistics(long viewCount, long commentCount, long likeCount) {
+        this.viewCount = viewCount;
+        this.commentCount = commentCount;
+        this.likeCount = likeCount;
+    }
+
+    public void bindViewAndLikeStatistics(long viewCount,long likeCount, long diskLikeCount) {
+        this.viewCount = viewCount;
+        this.likeCount = likeCount - diskLikeCount;
+    }
+
 }
