@@ -1,0 +1,27 @@
+name: "📌 Custom Issue"
+description: "기타 논의할 사항을 기록"
+labels: ["custom"]
+body:
+  - type: textarea
+    attributes:
+      label: 📄 개요
+      description: 논의할 내용 또는 작업 내용을 간략히 작성해 주세요.
+      placeholder: 어떤 내용인지 한 문장으로 설명해주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ✏️ 상세 내용
+      description: 논의할 내용 또는 작업할 내용을 자세히 작성해 주세요.
+      placeholder: |
+        - 현재 문제점: ...
+        - 제안하는 해결 방법: ...
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 🔗 참고 자료
+      description: 관련 문서, 링크 또는 레퍼런스가 있다면 추가해 주세요.
+      placeholder: 참고할 링크 또는 문서를 첨부해주세요.
