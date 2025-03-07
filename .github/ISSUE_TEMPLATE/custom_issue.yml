@@ -4,24 +4,56 @@ labels: ["custom"]
 body:
   - type: textarea
     attributes:
-      label: 📄 개요
-      description: 논의할 내용 또는 작업 내용을 간략히 작성해 주세요.
-      placeholder: 어떤 내용인지 한 문장으로 설명해주세요.
+      label: 📌 피처 개요
+      description: 해당 이슈의 주요 개요를 설명해 주세요.
+      placeholder: |
+        예) 공통 응답 및 예외 핸들러 구현
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: ✅ 중요도
+      description: 해당 이슈의 중요도를 선택해 주세요.
+      options:
+        - A (높음)
+        - B (보통)
+        - C (낮음)
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: ✅ 난이도
+      description: 해당 이슈의 난이도를 선택해 주세요.
+      options:
+        - 상 (어려움)
+        - 중 (보통)
+        - 하 (쉬움)
     validations:
       required: true
 
   - type: textarea
     attributes:
-      label: ✏️ 상세 내용
-      description: 논의할 내용 또는 작업할 내용을 자세히 작성해 주세요.
+      label: ✅ 피처 설명
+      description: 구현할 기능 또는 논의할 사항에 대한 설명을 작성해 주세요.
       placeholder: |
-        - 현재 문제점: ...
-        - 제안하는 해결 방법: ...
+        - API 응답을 통일하기 위해 ApiResponse 클래스를 구현한다.
     validations:
-      required: false
+      required: true
 
   - type: textarea
     attributes:
-      label: 🔗 참고 자료
-      description: 관련 문서, 링크 또는 레퍼런스가 있다면 추가해 주세요.
-      placeholder: 참고할 링크 또는 문서를 첨부해주세요.
+      label: ✅ 체크리스트
+      description: 할 일을 체크박스 형태로 작성해 주세요.
+      placeholder: |
+        - [ ] ApiResponse 클래스 구현
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ✅ 관련 정보
+      description: 관련 문서, 참고 자료 또는 레퍼런스가 있다면 추가해 주세요.
+      placeholder: |
+        - Spring @RestControllerAdvice, @ExceptionHandler 활용
