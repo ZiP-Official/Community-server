@@ -12,17 +12,17 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Comment extends BaseDomain {
 
-    private Long id;
+    private String id;
     private Long boardId;
     private Long memberId;
-    private Long parentId;
+    private String parentId;
 
     private CommentStatistics statistics;
 
     private String content;
 
     // 생성자
-    public static Comment of(Long boardId, Long memberId, Long parentId, String content, CommentStatistics statistics) {
+    public static Comment of(Long boardId, Long memberId, String parentId, String content, CommentStatistics statistics) {
 
         return Comment.builder()
                 .boardId(boardId)

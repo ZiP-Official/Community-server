@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CommentResponse {
 
-    private Long id;
+    private String id;
     private String content;
     private Long author;
 

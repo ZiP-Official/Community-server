@@ -13,7 +13,7 @@ public class CommentReactionResponse {
 
     private Long author;
 
-    private Long commentId;
+    private String commentId;
 
     @Enumerated(EnumType.STRING)
     private UserReaction reactionType;
