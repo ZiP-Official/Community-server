@@ -12,9 +12,9 @@ public interface CommentReactionPort {
     CommentReaction saveBoardReaction(CommentReaction reaction);
 
     // 불러오기
-    Optional<CommentReaction> loadBoardReaction(Long commentId, Long memberId);
+    Optional<CommentReaction> loadBoardReaction(String commentId, Long memberId);
 
-    Optional<CommentReaction> loadBoardReactionByType(Long commentId, Long memberId, UserReaction reactionType);
+    Optional<CommentReaction> loadBoardReactionByType(String commentId, Long memberId, UserReaction reactionType);
 
 
     // 삭제

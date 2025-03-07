@@ -14,7 +14,7 @@ public class CommentRequest {
     private Long boardId;
 
     // 대댓글을 위한 아이디
-    private Long parentId;
+    private String parentId;
 
     // 작성하는 댓글
     private String content;

@@ -56,7 +56,7 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
     }
 
     @Override
-    public void removeComment(Long id) {
+    public void removeComment(String id) {
         removeCommentPort.removeComment(id);
     }
 }

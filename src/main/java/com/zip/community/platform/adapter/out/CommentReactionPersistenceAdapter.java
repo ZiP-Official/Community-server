@@ -25,14 +25,14 @@ public class CommentReactionPersistenceAdapter implements CommentReactionPort {
     }
 
     @Override
-    public Optional<CommentReaction> loadBoardReaction(Long commentId, Long memberId) {
+    public Optional<CommentReaction> loadBoardReaction(String commentId, Long memberId) {
 
         return repository.findByCommentIdAndMemberId(commentId, memberId)
                 .map(CommentReactionJpaEntity::toDomain);
     }
 
     @Override
-    public Optional<CommentReaction> loadBoardReactionByType(Long commentId, Long memberId, UserReaction reactionType) {
+    public Optional<CommentReaction> loadBoardReactionByType(String commentId, Long memberId, UserReaction reactionType) {
         return repository.findByCommentIdAndMemberIdAndReactionType(commentId, memberId, reactionType)
                 .map(CommentReactionJpaEntity::toDomain);
     }

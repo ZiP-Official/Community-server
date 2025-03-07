@@ -16,16 +16,15 @@ import lombok.NoArgsConstructor;
 public class CommentJpaEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
-    private Long id;
+    private String id;
 
     private Long boardId;
 
     private Long memberId;
 
     // 대댓글을 위한 설정
-    private Long parentId;
+    private String parentId;
 
     private String content;
 

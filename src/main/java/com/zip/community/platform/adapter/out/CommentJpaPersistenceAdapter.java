@@ -31,7 +31,7 @@ public class CommentJpaPersistenceAdapter implements LoadCommentPort, SaveCommen
     }
 
     @Override
-    public Optional<Comment> loadCommentById(Long id) {
+    public Optional<Comment> loadCommentById(String id) {
 
         return repository.findById(id)
                 .map(CommentJpaEntity::toDomain);
@@ -49,7 +49,7 @@ public class CommentJpaPersistenceAdapter implements LoadCommentPort, SaveCommen
     }
 
     @Override
-    public void removeComment(Long id) {
+    public void removeComment(String id) {
         repository.deleteById(id);
     }
 

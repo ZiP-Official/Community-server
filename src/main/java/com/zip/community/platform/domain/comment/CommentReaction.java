@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @Getter
 public class CommentReaction {
 
-    private Long id;
+    private String id;
     private Long memberId;
-    private Long commentId;
+    private String commentId;
     private UserReaction reactionType;
 
     // 생성자
-    public static CommentReaction of(Long commentId, Long memberId, UserReaction reactionType) {
+    public static CommentReaction of(String commentId, Long memberId, UserReaction reactionType) {
         return CommentReaction.builder()
                 .commentId(commentId)
                 .memberId(memberId)

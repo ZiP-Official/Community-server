@@ -12,7 +12,7 @@ public class CommentReactionRequest {
 
     private Long memberId;
 
-    private Long commentId;
+    private String commentId;
 
     @Enumerated(EnumType.STRING)
     private UserReaction reactionType;

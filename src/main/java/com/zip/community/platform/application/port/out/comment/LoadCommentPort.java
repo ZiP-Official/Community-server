@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface LoadCommentPort {
 
     // 댓글 하나 가져오기
-    Optional<Comment> loadCommentById(Long id);
+    Optional<Comment> loadCommentById(String id);
 
     // 게시글에 맞는 댓글 가져오기
     Page<Comment> loadCommentsByBoardId(Long boardId, Pageable pageable);
