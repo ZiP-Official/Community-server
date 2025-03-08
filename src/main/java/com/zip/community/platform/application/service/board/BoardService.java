@@ -42,7 +42,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     @Override
     public Board createBoard(BoardRequest request) {
 
-        if (!loadUserPort.existsById(request.getMemberId())) {
+        if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
             throw new NoSuchElementException("해당 ID의 멤버가 존재하지 않습니다: " + request.getMemberId());
         }
 
