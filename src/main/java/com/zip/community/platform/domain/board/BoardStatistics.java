@@ -1,10 +1,8 @@
 package com.zip.community.platform.domain.board;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
 @Builder
 public class BoardStatistics {

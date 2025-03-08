@@ -1,5 +1,6 @@
 package com.zip.community.platform.adapter.out.jpa.board;
 
+import com.zip.community.platform.adapter.out.jpa.BaseEntity;
 import com.zip.community.platform.domain.board.Category;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryJpaEntity {
+public class CategoryJpaEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +45,8 @@ public class CategoryJpaEntity {
                 .name(name)
                 .code(code)
                 .parentId(parentId)
+                .createdAt(this.getCreated())
+                .updatedAt(this.getUpdated())
                 .build();
     }
 }

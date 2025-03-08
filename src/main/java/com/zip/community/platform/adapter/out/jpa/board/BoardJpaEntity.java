@@ -49,6 +49,8 @@ public class BoardJpaEntity extends BaseEntity {
                 .memberId(this.memberId)
                 .snippet(this.boardSnippet.toDomain())
                 .statistics(this.boardStatistics.toDomain())
+                .createdAt(this.getCreated())
+                .updatedAt(this.getUpdated())
                 .build();
     }
 
