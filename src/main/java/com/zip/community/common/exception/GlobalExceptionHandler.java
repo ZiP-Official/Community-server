@@ -14,38 +14,37 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.NoSuchElementException;
-
 @Slf4j
-//@RestControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 이것은 어떤 예외인지는 모르겠다.
+    // 페이지를 찾을 수 없거나 지원되지 않는 HTTP 메서드일 때 예외 처리
     @ExceptionHandler(value = {NoHandlerFoundException.class, HttpRequestMethodNotSupportedException.class})
-    public ApiResponse<?> handleNoPageFoundException(Exception e) {
-        log.error("GlobalExceptionHandler catch : {}", e.getMessage());
-        return ApiResponse.fail(new CustomException(ErrorCode.NOT_FOUND_END_POINT));
+    public ApiResponse<?> handlePageNotFoundOrMethodNotSupportedException(Exception e) {
+        log.error("에러 로그 : {}", e.getMessage());
+        return ApiResponse.fail(new CustomException(ErrorCode.NOT_FOUND_END_POINT, e.getMessage()));
     }
 
-    // 이것은 어떤 예외인지는 모르겠다.
+    // 타입 불일치 예외 처리
     @ExceptionHandler(value = TypeMismatchException.class)
-    public ApiResponse<?> handleMismatchException(Exception e) {
-        log.error("GlobalExceptionHandler catch : {}", e.getMessage());
-        return ApiResponse.fail(new CustomException(ErrorCode.BAD_REQUEST));
+    public ApiResponse<?> handleTypeMismatchException(Exception e) {
+        log.error("에러 로그 : {}", e.getMessage());
+        return ApiResponse.fail(new CustomException(ErrorCode.BAD_REQUEST, e.getMessage()));
     }
 
-    // NullPointException 일 때, 예외처리
+    // NullPointerException 또는 IllegalArgumentException 발생 시 예외 처리
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler
-    public ApiResponse<?> handleNullPointException(NullPointerException e) {
-        log.error("GlobalExceptionHandler catch : {}", e.getMessage());
-        return ApiResponse.fail(new CustomException(ErrorCode.BAD_REQUEST));
+    @ExceptionHandler(value = {NullPointerException.class, IllegalArgumentException.class})
+    public ApiResponse<?> handleNullPointerAndIllegalArgumentException(Exception e) {
+        log.error("에러 로그 : {}", e.getMessage());
+        return ApiResponse.fail(new CustomException(ErrorCode.BAD_REQUEST, e.getMessage()));
     }
 
-    // NoSuchElementException, EntityNotFoundException 일 때, 예외처리
+    // NoSuchElementException 또는 EntityNotFoundException 발생 시 예외 처리
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(value = {NoSuchElementException.class, EntityNotFoundException.class})
-    public ApiResponse<?> handleNoSuchElementException(Exception e) {
-        log.error("GlobalExceptionHandler catch : {}", e.getMessage());
-        return ApiResponse.fail(new CustomException(ErrorCode.NOT_FOUND_END_POINT));
+    public ApiResponse<?> handleEntityNotFoundException(Exception e) {
+        log.error("에러 로그 : {}", e.getMessage());
+        return ApiResponse.fail(new CustomException(ErrorCode.NOT_FOUND_END_POINT, e.getMessage()));
     }
 }
