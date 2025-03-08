@@ -20,4 +20,6 @@ public interface TempBoardUseCase {
 
     Optional<Board> getTempBoard(Long boardId, int index);
 
+    void deleteTempBoard(Long boardId, int index);
+
 }
