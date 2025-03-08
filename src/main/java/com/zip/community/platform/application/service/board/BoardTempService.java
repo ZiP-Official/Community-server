@@ -74,4 +74,9 @@ public class BoardTempService implements TempBoardUseCase {
         return tempPort.getTempBoard(boardId, index);
     }
 
+    @Override
+    public void deleteTempBoard(Long boardId, int index) {
+        tempPort.deleteTempBoard(boardId, index);
+    }
+
 }

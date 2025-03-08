@@ -45,5 +45,18 @@ public class BoardTempController {
         return ApiResponse.ok(TempBoardDetailResponse.from(board));
     }
 
+    /// 특정 임시글 삭제
+    @DeleteMapping("/{userId}/{index}")
+    public ApiResponse<String> deleteTempBoardByUserIdAndIndex(
+            @PathVariable("userId") Long userId,
+            @PathVariable("index") int index) {
+
+        tempService.deleteTempBoard(userId, index);
+
+        return ApiResponse.ok("임시 저장글이 삭제되었습니다.");
+
+    }
+
 }
+
 
