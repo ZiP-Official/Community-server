@@ -1,5 +1,6 @@
 package com.zip.community.platform.adapter.out.jpa.board;
 
+import com.zip.community.platform.adapter.out.jpa.BaseEntity;
 import com.zip.community.platform.domain.board.BoardReaction;
 import com.zip.community.platform.domain.board.UserReaction;
 import jakarta.persistence.*;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Builder
-public class BoardReactionJpaEntity {
+public class BoardReactionJpaEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +46,8 @@ public class BoardReactionJpaEntity {
                 .boardId(this.boardId)
                 .memberId(this.memberId)
                 .reactionType(this.reactionType)
+                .createdAt(this.getCreated())
+                .updatedAt(this.getUpdated())
                 .build();
     }
 

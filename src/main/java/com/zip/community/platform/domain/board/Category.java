@@ -1,17 +1,14 @@
 package com.zip.community.platform.domain.board;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.zip.community.platform.domain.BaseDomain;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Category {
+@SuperBuilder
+public class Category extends BaseDomain {
 
     private Long id;
     private String name;

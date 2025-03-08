@@ -2,15 +2,11 @@ package com.zip.community.platform.domain.board;
 
 
 import com.zip.community.platform.domain.BaseDomain;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@SuperBuilder
 public class Board extends BaseDomain {
 
     private Long id;
