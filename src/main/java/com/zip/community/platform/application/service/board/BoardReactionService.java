@@ -73,7 +73,7 @@ public class BoardReactionService implements ReactionUseCase {
         if (!loadBoardPort.existBoard(request.getBoardId())) {
             throw new EntityNotFoundException("해당 게시판이 존재하지 않습니다.");
         }
-        if (!loadUserPort.existsById(request.getMemberId())) {
+        if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
             throw new EntityNotFoundException("해당하는 멤버가 존재하지 않습니다.");
         }
     }

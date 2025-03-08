@@ -23,6 +23,7 @@ public interface CategoryPort {
 
     boolean getCheckedExistCategory(String code);
 
+    boolean getCheckedExistCategory(Long categoryId);
 
     /// Delete 관련
 }

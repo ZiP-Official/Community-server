@@ -22,7 +22,7 @@ public class UserPersistenceAdapter implements LoadUserPort {
     }
 
     @Override
-    public boolean existsById(Long memberId) {
+    public boolean getCheckedExistUser (Long memberId) {
         return repository.existsById(memberId);
     }
 

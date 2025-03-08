@@ -56,5 +56,10 @@ public class CategoryPersistenceAdapter implements CategoryPort {
         return repository.existsByCode(code);
     }
 
+    @Override
+    public boolean getCheckedExistCategory(Long categoryId) {
+        return repository.existsById(categoryId);
+    }
+
 
 }
