@@ -23,18 +23,6 @@ public class BoardStatistics {
         this.viewCount = viewCount;
     }
 
-    public void addCommentCount() {
-        this.commentCount++;
-    }
-
-    public void removeCommentCount() {
-        this.commentCount--;
-    }
-
-    public void changeLikeCount(long likeCount) {
-        this.likeCount = likeCount;
-    }
-
     public void bindStatistics(long viewCount, long commentCount, long likeCount) {
         this.viewCount = viewCount;
         this.commentCount = commentCount;

@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BoardService implements CreateBoardUseCase, GetBoardUseCase, RemoveBoardUseCase {
 
-    private final SaveBoardPort saveBoardPort;
-    private final LoadBoardPort loadBoardPort;
+    private final SaveBoardPort savePort;
+    private final LoadBoardPort loadPort;
 
     private final LoadBoardReactionPort reactionPort;
 
@@ -56,7 +56,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
                 .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다"));
 
         Board board = Board.of(request.getMemberId(),category.getId() ,snippet, statistics);
-        return saveBoardPort.saveBoard(board);
+        return savePort.saveBoard(board);
     }
 
 
@@ -66,26 +66,22 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     public Board getBoardById(Long boardId) {
 
         // 조회수를 증가시키는 로직
-        saveBoardPort.incrementViewCount(boardId);
+        savePort.incrementViewCount(boardId);
 
         // 조회수 조회하기
-        Long viewCount = loadBoardPort.loadViewCount(boardId);
+        Long viewCount = loadPort.loadViewCount(boardId);
 
         // 좋아요 / 싫어요 조회하기
         long likeCount = reactionPort.loadBoardLikeCount(boardId);
         long disLikeCount = reactionPort.loadBoardDisLikeCount(boardId);
 
-        // 리액션 값은 좋아요 - 싫어요
-        long reaction = likeCount - disLikeCount;
-
         // Board를 조회
-        Optional<Board> boardOptional = loadBoardPort.loadBoardById(boardId);
+        Optional<Board> boardOptional = loadPort.loadBoardById(boardId);
 
         // Board가 있으면 조회수를 변경하고 반환
         boardOptional
                 .ifPresent(board -> {
-                    board.getStatistics().changeViewCount(viewCount);
-                    board.getStatistics().changeLikeCount(reaction);
+                    board.getStatistics().bindStatistics(viewCount, likeCount, disLikeCount);
         });
 
         // Board가 없으면 예외를 던짐
@@ -95,7 +91,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
 
     @Override
     public Page<Board> getBoards(Pageable pageable) {
-        Page<Board> boards = loadBoardPort.loadBoards(pageable);
+        Page<Board> boards = loadPort.loadBoards(pageable);
         List<Board> list = boards.getContent();
 
         // 내부함수 적용
@@ -107,7 +103,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
 
     @Override
     public Page<Board> getBoardsView(Pageable pageable) {
-        Page<Board> boards = loadBoardPort.loadBoardsView(pageable);
+        Page<Board> boards = loadPort.loadBoardsView(pageable);
         List<Board> list = boards.getContent();
 
         // 내부함수 적용
@@ -127,7 +123,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
         List<Long> categoryIds = getLongs(categoryId);
 
         // 결과값 가져오기
-        Page<Board> boards = loadBoardPort.loadBoardsByCategories(categoryIds, pageable);
+        Page<Board> boards = loadPort.loadBoardsByCategories(categoryIds, pageable);
 
         List<Board> list = boards.getContent();
 
@@ -159,7 +155,8 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     // 값 업데이트 시키는 함수
     private void updateBoardStatistics(List<Board> boards) {
         boards.forEach(board -> {
-            Long viewCount = loadBoardPort.loadViewCount(board.getId());
+
+            Long viewCount = loadPort.loadViewCount(board.getId());
             long likeCount = reactionPort.loadBoardLikeCount(board.getId());
             long disLikeCount = reactionPort.loadBoardDisLikeCount(board.getId());
 
