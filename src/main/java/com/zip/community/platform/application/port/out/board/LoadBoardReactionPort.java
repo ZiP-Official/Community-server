@@ -12,10 +12,10 @@ public interface LoadBoardReactionPort {
     boolean checkBoardDisLikeReaction(Long boardId, Long memberId);
 
     // 좋아요 개수 가져오기
-    long loadBoardLikeCount(Long boardId);
+    Long loadBoardLikeCount(Long boardId);
 
     // 싫어요 개수 가져오기
-    long loadBoardDisLikeCount(Long boardId);
+    Long loadBoardDisLikeCount(Long boardId);
 
     // 좋아요를 누른 사람 목록 가져오기
 }

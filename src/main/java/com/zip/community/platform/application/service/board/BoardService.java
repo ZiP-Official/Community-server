@@ -5,6 +5,7 @@ import com.zip.community.platform.application.port.in.board.GetBoardUseCase;
 import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
 import com.zip.community.platform.application.port.out.board.*;
+import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.domain.board.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -31,12 +32,13 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
 
     private final SaveBoardPort savePort;
     private final LoadBoardPort loadPort;
-
-    private final LoadBoardReactionPort reactionPort;
+    private final RemoveBoardPort removePort;
 
     private final LoadUserPort loadUserPort;
+
+    private final LoadBoardReactionPort reactionPort;
     private final CategoryPort categoryPort;
-    private final RemoveBoardPort removeBoardPort;
+    private final LoadCommentPort commentPort;
 
     /// CreateUseCase 구현체
     @Override
@@ -68,12 +70,11 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
         // 조회수를 증가시키는 로직
         savePort.incrementViewCount(boardId);
 
-        // 조회수 조회하기
+        // 조회수 /좋아요 / 싫어요 / 댓글 개수 조회하기
         Long viewCount = loadPort.loadViewCount(boardId);
-
-        // 좋아요 / 싫어요 조회하기
-        long likeCount = reactionPort.loadBoardLikeCount(boardId);
-        long disLikeCount = reactionPort.loadBoardDisLikeCount(boardId);
+        Long likeCount = reactionPort.loadBoardLikeCount(boardId);
+        Long disLikeCount = reactionPort.loadBoardDisLikeCount(boardId);
+        Long commentCount = commentPort.loadCommentCount(boardId);
 
         // Board를 조회
         Optional<Board> boardOptional = loadPort.loadBoardById(boardId);
@@ -81,16 +82,18 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
         // Board가 있으면 조회수를 변경하고 반환
         boardOptional
                 .ifPresent(board -> {
-                    board.getStatistics().bindStatistics(viewCount, likeCount, disLikeCount);
+                    board.getStatistics().bindStatistics(viewCount, commentCount, likeCount, disLikeCount);
         });
 
         // Board가 없으면 예외를 던짐
-        return boardOptional.orElseThrow(() -> new EntityNotFoundException("해당 게시글이 존재하지 않습니다."));
+        return boardOptional
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시글이 존재하지 않습니다."));
     }
 
 
     @Override
     public Page<Board> getBoards(Pageable pageable) {
+
         Page<Board> boards = loadPort.loadBoards(pageable);
         List<Board> list = boards.getContent();
 
@@ -157,10 +160,11 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
         boards.forEach(board -> {
 
             Long viewCount = loadPort.loadViewCount(board.getId());
-            long likeCount = reactionPort.loadBoardLikeCount(board.getId());
-            long disLikeCount = reactionPort.loadBoardDisLikeCount(board.getId());
+            Long likeCount = reactionPort.loadBoardLikeCount(board.getId());
+            Long disLikeCount = reactionPort.loadBoardDisLikeCount(board.getId());
+            Long commentCount = commentPort.loadCommentCount(board.getId());
 
-            board.getStatistics().bindViewAndLikeStatistics(viewCount, likeCount, disLikeCount);
+            board.getStatistics().bindStatistics(viewCount, commentCount, likeCount, disLikeCount);
         });
     }
 
@@ -168,6 +172,6 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     /// RemoveUseCase 구현체
     @Override
     public void removeBoard(Long boardId) {
-        removeBoardPort.removeBoard(boardId);
+        removePort.removeBoard(boardId);
     }
 }

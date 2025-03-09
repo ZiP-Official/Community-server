@@ -20,7 +20,9 @@ public class CacheNames {
     public static final String BOARD_DISLIKE = BOARD + SEPARATOR + "dislike";
 
     public static final String COMMENT = "comment";
+    public static final String COMMENT_COUNT = COMMENT + SEPARATOR + "count";
     public static final String COMMENT_LIKE = COMMENT + SEPARATOR + "like";
+    public static final String COMMENT_DISLIKE = COMMENT + SEPARATOR + "dislike";
     public static final String COMMENT_PINNED = COMMENT + SEPARATOR + "pinned";
 
     public static List<String> getCacheNames() {

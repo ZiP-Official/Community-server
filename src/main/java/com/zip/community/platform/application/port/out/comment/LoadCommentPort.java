@@ -9,6 +9,9 @@ import java.util.Optional;
 
 public interface LoadCommentPort {
 
+    // 댓글 개수 조회
+    Long loadCommentCount(Long boardId);
+
     // 존재여부 파악하기
     boolean getCheckedExistComment(String id);
 

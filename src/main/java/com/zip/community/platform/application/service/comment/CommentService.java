@@ -60,6 +60,9 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
 
         Comment saveComment = savePort.saveComment(comment);
 
+        // Cache 댓글 개수 업데이트
+        savePort.incrementCommentCount(comment.getBoardId());
+
         /// 게시글 작성자 여부 파악
         Long writerId = loadBoardPort.loadWriterIdByBoardId(request.getBoardId())
                 .orElseThrow(() -> new EntityNotFoundException("해당하는 게시글이 존재하지 않습니다."));
@@ -68,6 +71,7 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
         if (saveComment.getMemberId().equals(writerId)) {
             saveComment.changeWriter();
         }
+
 
         return saveComment;
     }

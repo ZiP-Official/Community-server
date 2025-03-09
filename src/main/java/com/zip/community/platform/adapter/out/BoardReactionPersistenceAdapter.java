@@ -81,13 +81,13 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
     }
 
     @Override
-    public long loadBoardLikeCount(Long boardId) {
+    public Long loadBoardLikeCount(Long boardId) {
         var setOps = redisTemplate.opsForSet();
         return setOps.size(RedisKeyGenerator.getBoardLikeKey(boardId));
     }
 
     @Override
-    public long loadBoardDisLikeCount(Long boardId) {
+    public Long loadBoardDisLikeCount(Long boardId) {
         var setOps = redisTemplate.opsForSet();
         return setOps.size(RedisKeyGenerator.getBoardDisLikeKey(boardId));
     }

@@ -23,14 +23,9 @@ public class BoardStatistics {
         this.viewCount = viewCount;
     }
 
-    public void bindStatistics(long viewCount, long commentCount, long likeCount) {
+    public void bindStatistics(long viewCount, long commentCount, long likeCount, long diskLikeCount) {
         this.viewCount = viewCount;
         this.commentCount = commentCount;
-        this.likeCount = likeCount;
-    }
-
-    public void bindViewAndLikeStatistics(long viewCount,long likeCount, long diskLikeCount) {
-        this.viewCount = viewCount;
         this.likeCount = likeCount - diskLikeCount;
     }
 
