@@ -1,10 +1,11 @@
 package com.zip.community.platform.adapter.in.web;
 
 import com.zip.community.common.response.ApiResponse;
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.ErrorCode;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentReactionRequest;
-import com.zip.community.platform.adapter.in.web.dto.response.CommentReactionResponse;
-import com.zip.community.platform.application.port.in.comment.AddLikeReactionUseCase;
-import com.zip.community.platform.application.port.in.comment.RemoveLikeReactionUseCase;
+import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
+import com.zip.community.platform.application.port.in.comment.CommentReactionUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,19 +14,30 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CommentReactionController {
 
-    private final AddLikeReactionUseCase addService;
-    private final RemoveLikeReactionUseCase removeService;
+    private final CommentReactionUseCase service;
 
-    @PostMapping
-    public ApiResponse<CommentReactionResponse> addOne(@RequestBody CommentReactionRequest request) {
+    @PostMapping("/{reactionType}")
+    public ApiResponse<String> toggleReaction(@PathVariable("reactionType") String reactionType,
+                                              @RequestBody CommentReactionRequest request) {
+        ReactionStatus status;
 
-        return ApiResponse.created(CommentReactionResponse.from(addService.addReaction(request)));
+        switch (reactionType.toLowerCase()) {
+            case "like":
+                status = service.addLikeReaction(request);
+                reactionType = "좋아요";
+                break;
+            case "dislike":
+                status = service.addDisLikeReaction(request);
+                reactionType = "싫어요";
+                break;
+            default:
+                return ApiResponse.fail(new CustomException(ErrorCode.BAD_REQUEST));
+        }
+
+        String message = (status == ReactionStatus.CREATED)
+                ? reactionType + "가 생성되었습니다."
+                : reactionType + "가 삭제되었습니다.";
+
+        return ApiResponse.created(message);
     }
-
-    @DeleteMapping
-    public ApiResponse<String> delete(@RequestBody CommentReactionRequest request) {
-        removeService.removeReaction(request);
-        return ApiResponse.created("성공적으로 삭제되었습니다.");
-    }
-
 }

@@ -33,6 +33,10 @@ public class RedisKeyGenerator {
         return COMMENT_LIKE + SEPARATOR + commentId;
     }
 
+    public static String getCommentDisLikeKey(String commentId) {
+        return COMMENT_DISLIKE + SEPARATOR + commentId;
+    }
+
     public static String getPinnedCommentKey(Long boardId) {
         return COMMENT_PINNED + SEPARATOR + boardId;
     }

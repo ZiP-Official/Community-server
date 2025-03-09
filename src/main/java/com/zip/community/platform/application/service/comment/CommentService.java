@@ -4,6 +4,7 @@ import com.zip.community.platform.application.port.in.comment.CreateCommentUseCa
 import com.zip.community.platform.application.port.in.comment.GetCommentUseCase;
 import com.zip.community.platform.application.port.in.comment.RemoveCommentUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentRequest;
+import com.zip.community.platform.application.port.out.comment.LoadCommentReactionPort;
 import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.application.port.out.board.LoadBoardPort;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
@@ -32,10 +33,10 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
     private final SaveCommentPort savePort;
     private final LoadCommentPort loadPort;
     private final RemoveCommentPort removePort;
+    private final LoadCommentReactionPort reactionPort;
 
     private final LoadBoardPort loadBoardPort;
     private final LoadUserPort loadUserPort;
-
 
     @Override
     public Comment createComment(CommentRequest request) {
@@ -80,6 +81,7 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
     @Override
     public Page<Comment> getByBoardId(Long boardId, Pageable pageable) {
 
+        // 작성자 아이디 가져오기
         Long writerId = loadBoardPort.loadWriterIdByBoardId(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("해당하는 게시글이 존재하지 않습니다."));
 
@@ -90,17 +92,31 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
         // 댓글 및 자식 댓글 처리
         comments.forEach(comment -> {
             updateWriterStatus(comment, writerId);
+            updateStatstics(comment);
 
             // 자식 댓글 처리
             List<Comment> children = loadPort.loadCommentsByCommentId(comment.getId());
-            children.forEach(child -> updateWriterStatus(child, writerId));
+            children.forEach(child -> {
+                updateWriterStatus(child, writerId);
+                updateStatstics(child);
+            });
 
             comment.changeChildren(children);
         });
 
+
         // 댓글을 변경 후 다시 반환
         return new PageImpl<>(comments, pageable, result.getTotalElements());
     }
+
+    private void updateStatstics(Comment comment) {
+        Long likeCount = reactionPort.loadCommentLikeCount(comment.getId());
+        Long disLikeCount = reactionPort.loadCommentDisLikeCount(comment.getId());
+
+        // 좋아요, 싫어요 값 넣기
+        comment.getStatistics().bindReactionCount(likeCount, disLikeCount);
+    }
+
     /// 내부 메서드
 
     // 작성자 여부 판단 후 상태 변경

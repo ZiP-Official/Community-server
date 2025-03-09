@@ -1,59 +1,84 @@
 package com.zip.community.platform.application.service.comment;
 
-import com.zip.community.platform.application.port.in.comment.AddLikeReactionUseCase;
-import com.zip.community.platform.application.port.in.comment.RemoveLikeReactionUseCase;
+import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
+import com.zip.community.platform.application.port.in.comment.CommentReactionUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentReactionRequest;
+import com.zip.community.platform.application.port.out.comment.LoadCommentReactionPort;
+import com.zip.community.platform.application.port.out.comment.RemoveCommentReactionPort;
 import com.zip.community.platform.application.port.out.user.LoadUserPort;
-import com.zip.community.platform.application.port.out.comment.CommentReactionPort;
+import com.zip.community.platform.application.port.out.comment.SaveCommentReactionPort;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import com.zip.community.platform.domain.comment.Comment;
-import com.zip.community.platform.domain.comment.CommentReaction;
-import com.zip.community.platform.domain.board.UserReaction;
 import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class CommentReactionService implements AddLikeReactionUseCase, RemoveLikeReactionUseCase {
+public class CommentReactionService implements CommentReactionUseCase{
 
-    private final CommentReactionPort commentReactionPort;
+    private final SaveCommentReactionPort savePort;
+    private final LoadCommentReactionPort loadPort;
+    private final RemoveCommentReactionPort removePort;
+
     private final LoadCommentPort loadCommentPort;
     private final LoadUserPort loadUserPort;
 
     @Override
-    public CommentReaction addReaction(CommentReactionRequest request) {
+    public ReactionStatus addLikeReaction(CommentReactionRequest request) {
 
-        Comment comment = loadCommentPort.loadCommentById(request.getCommentId())
-                .orElseThrow(() -> new EntityNotFoundException("댓글이 존재하지 않습니다."));
+        // 예외처리
+        checkException(request);
 
-        // 동일한 회원이 동일한 게시글에 이미 반응을 남겼는지 확인
-        commentReactionPort.loadBoardReaction(comment.getId(), request.getMemberId()).ifPresent(reaction -> {
-            throw new IllegalStateException("이미 반응을 눌렀습니다.");
-        });
+        // 이미 좋아요를 눌렀다면 삭제되도록 한다.
+        if (loadPort.checkCommentLikeReaction(request.getCommentId(), request.getMemberId())) {
+            removePort.removeCommentLikeReaction(request.getCommentId(), request.getMemberId());
+            return ReactionStatus.REMOVED;
+        }
 
-        // 새로운 반응 생성 및 저장
-        CommentReaction reaction = CommentReaction.of(comment.getId(), request.getMemberId(), request.getReactionType());
+        // 이미 싫어요를 눌렀다면, 해당 싫어요를 지우고 새롭게 좋아요를 추가한다.
+        if (loadPort.checkCommentDisLikeReaction(request.getCommentId(), request.getMemberId())) {
+            removePort.removeCommentDisLikeReaction(request.getCommentId(), request.getMemberId());
+        }
 
-        return commentReactionPort.saveBoardReaction(reaction);
+        savePort.saveLikeCommentReaction(request.getCommentId(), request.getMemberId());
+        return ReactionStatus.CREATED;
     }
 
     @Override
-    public void removeReaction(CommentReactionRequest request) {
-        Comment comment = loadCommentPort.loadCommentById(request.getCommentId())
-                .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+    public ReactionStatus addDisLikeReaction(CommentReactionRequest request) {
 
-        // 요청된 반응 유형 가져오기
-        UserReaction reactionType = request.getReactionType();
+        // 예외처리
+        checkException(request);
 
-        // 요청된 반응 찾기
-        CommentReaction reaction = commentReactionPort.loadBoardReactionByType(comment.getId(), request.getMemberId(), reactionType)
-                .orElseThrow(() -> new IllegalArgumentException("Specified reaction not found"));
 
-        // 반응 삭제
-        commentReactionPort.removeBoardReaction(reaction);
+        // 이미 싫어요를 눌렀다면 삭제되도록 한다.
+        if (loadPort.checkCommentDisLikeReaction(request.getCommentId(), request.getMemberId())) {
+            removePort.removeCommentDisLikeReaction(request.getCommentId(), request.getMemberId());
+            return ReactionStatus.REMOVED;
+        }
 
+        // 이미 좋아요를 눌렀다면, 해당 좋아요를 지우고 새롭게 싫어요를 추가한다.
+        if (loadPort.checkCommentLikeReaction(request.getCommentId(), request.getMemberId())) {
+            removePort.removeCommentLikeReaction(request.getCommentId(), request.getMemberId());
+        }
+
+        savePort.saveDisLikeCommentReaction(request.getCommentId(), request.getMemberId());
+        return ReactionStatus.CREATED;
+    }
+
+    ///  내부 함수 처리
+    private void checkException(CommentReactionRequest request) {
+
+        // 댓글이 존재하지 않으면 증가시키면 안된다.
+        if (!loadCommentPort.getCheckedExistComment(request.getCommentId())) {
+            throw new EntityNotFoundException("해당하는 댓글이 존재하지 않습니다.");
+        }
+
+        // 존재하지 않는 유저가 반응을 해선 안된다.
+        if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
+            throw new EntityNotFoundException("해당하는 유저가 존재하지 않습니다.");
+        }
     }
 }

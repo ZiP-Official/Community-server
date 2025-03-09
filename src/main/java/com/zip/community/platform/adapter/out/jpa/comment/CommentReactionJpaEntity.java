@@ -29,6 +29,7 @@ public class CommentReactionJpaEntity {
     // from
     public static CommentReactionJpaEntity from(CommentReaction commentReaction) {
         return CommentReactionJpaEntity.builder()
+                .id(commentReaction.getId())
                 .memberId(commentReaction.getMemberId())
                 .commentId(commentReaction.getCommentId())
                 .reactionType(commentReaction.getReactionType())

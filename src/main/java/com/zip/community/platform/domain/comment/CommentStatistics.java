@@ -23,12 +23,10 @@ public class CommentStatistics {
                 .build();
     }
 
-    public void addLikeCount() {
-        this.likeCount++;
-    }
-
-    public void addDislikeCount() {
-        this.dislikeCount++;
+    // 비즈니스 로직
+    public void bindReactionCount(Long likeCount, Long dislikeCount) {
+        this.likeCount += likeCount;
+        this.dislikeCount += dislikeCount;
     }
 
 }
