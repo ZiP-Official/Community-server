@@ -34,7 +34,7 @@ public class BoardJpaEntity extends BaseEntity {
     // From
     public static BoardJpaEntity from(Board board) {
         return BoardJpaEntity.builder()
-                .memberId(board.getId())
+                .memberId(board.getMemberId())
                 .boardSnippet(BoardSnippetJpaEntity.from(board.getSnippet()))
                 .boardStatistics(BoardStatisticsJpaEntity.from(board.getStatistics()))
                 .categoryId(board.getCategoryId())
