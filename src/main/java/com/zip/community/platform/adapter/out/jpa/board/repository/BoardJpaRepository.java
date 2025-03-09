@@ -30,4 +30,10 @@ public interface BoardJpaRepository extends JpaRepository<BoardJpaEntity, Long> 
     // 존재여부
     boolean existsById(Long id);
 
+
+    @Query("select b.memberId from BoardJpaEntity b where b.id = :boardId")
+    Optional<Long> getMemberIdByBoardId(Long boardId);
+
+
+
 }

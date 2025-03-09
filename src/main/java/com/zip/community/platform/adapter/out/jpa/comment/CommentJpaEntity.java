@@ -28,6 +28,9 @@ public class CommentJpaEntity extends BaseEntity {
 
     private String content;
 
+    @Embedded
+    private CommentStatisticsJpaEntity statistics;
+
 
     // from
     public static CommentJpaEntity from(Comment comment) {
@@ -38,18 +41,23 @@ public class CommentJpaEntity extends BaseEntity {
                 .memberId(comment.getMemberId())
                 .parentId(comment.getParentId())
                 .content(comment.getContent())
+                .statistics(CommentStatisticsJpaEntity.from(comment.getStatistics()))
                 .build();
     }
 
     // toDomain
-    public static Comment toDomain(CommentJpaEntity entity){
+    public Comment toDomain(){
 
         return Comment.builder()
-                .id(entity.getId())
-                .boardId(entity.getBoardId())
-                .parentId(entity.getParentId())
-                .memberId(entity.getMemberId())
-                .content(entity.getContent())
+                .id(id)
+                .boardId(boardId)
+                .parentId(parentId)
+                .memberId(memberId)
+                .content(content)
+                .statistics(statistics.toDomain())
+                .createdAt(this.getCreated())
+                .updatedAt(this.getUpdated())
                 .build();
     }
+
 }

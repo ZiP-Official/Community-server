@@ -217,6 +217,11 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
         return null;
     }
 
+    @Override
+    public Optional<Long> loadWriterIdByBoardId(Long boardId) {
+        return repository.getMemberIdByBoardId(boardId);
+    }
+
     // 게시물 수정
 
 

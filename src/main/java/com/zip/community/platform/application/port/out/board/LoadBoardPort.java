@@ -45,4 +45,6 @@ public interface LoadBoardPort {
     // 카테고리 내, 화제 게시물 목록 조회
     Page<Board> loadBoardsByCategoryIdFavorite(Long categoryId, Pageable pageable);
 
+    // 글 작성자 판단 위한 작성자 id 가져오기
+    Optional<Long> loadWriterIdByBoardId(Long boardId);
 }

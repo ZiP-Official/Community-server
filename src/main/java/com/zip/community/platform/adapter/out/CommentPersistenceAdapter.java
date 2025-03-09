@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class CommentJpaPersistenceAdapter implements LoadCommentPort, SaveCommentPort, RemoveCommentPort {
+public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPort, RemoveCommentPort {
 
     private final CommentJpaRepository repository;
 
@@ -26,7 +26,13 @@ public class CommentJpaPersistenceAdapter implements LoadCommentPort, SaveCommen
 
         var entity = CommentJpaEntity.from(comment);
 
-        return CommentJpaEntity.toDomain(repository.save(entity));
+        return repository.save(entity)
+                .toDomain();
+    }
+
+    @Override
+    public boolean getCheckedExistComment(String id) {
+        return repository.existsById(id);
 
     }
 
@@ -46,6 +52,13 @@ public class CommentJpaPersistenceAdapter implements LoadCommentPort, SaveCommen
                 .toList();
 
         return new PageImpl<>(comments, pageable, result.getTotalElements());
+    }
+
+    @Override
+    public List<Comment> loadCommentsByCommentId(String parentId) {
+        return repository.findCommentByParentId(parentId)
+                .stream().map(CommentJpaEntity::toDomain)
+                .toList();
     }
 
     @Override
