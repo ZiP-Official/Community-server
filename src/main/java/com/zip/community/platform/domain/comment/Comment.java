@@ -26,6 +26,9 @@ public class Comment extends BaseDomain {
     // !- 댓글을 보여주기 위한 도메인 | 엔티티에는 필요없다 . --!
     private List<Comment> children;
 
+    // !- 인기댓글을 보여주기 위한 도메인 | 엔티티에는 필요없다 . --!
+    private boolean pinned;
+
     // 생성자
     public static Comment of(String id,Long boardId, Long memberId, String parentId, String content, CommentStatistics statistics) {
 
@@ -37,6 +40,7 @@ public class Comment extends BaseDomain {
                 .content(content)
                 .statistics(statistics)
                 .writer(false)
+                .pinned(false)
                 .build();
     }
 

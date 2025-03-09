@@ -24,4 +24,7 @@ public interface LoadCommentPort {
     /// 대댓글 가져오기
     List<Comment> loadCommentsByCommentId(String parentId);
 
+    // 인기 댓글로 가져오기
+    List<Comment> getPinnedComment(Long boardId);
+
 }

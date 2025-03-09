@@ -3,16 +3,20 @@ package com.zip.community.platform.adapter.out;
 import com.zip.community.common.util.RedisKeyGenerator;
 import com.zip.community.platform.adapter.out.jpa.comment.CommentReactionJpaEntity;
 import com.zip.community.platform.adapter.out.jpa.comment.CommentReactionJpaRepository;
+import com.zip.community.platform.adapter.out.redis.comment.CommentRedisHash;
 import com.zip.community.platform.application.port.out.comment.LoadCommentReactionPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentReactionPort;
 import com.zip.community.platform.application.port.out.comment.SaveCommentReactionPort;
 import com.zip.community.platform.domain.board.UserReaction;
+import com.zip.community.platform.domain.comment.Comment;
 import com.zip.community.platform.domain.comment.CommentReaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ public class CommentReactionPersistenceAdapter implements SaveCommentReactionPor
 
     private final CommentReactionJpaRepository repository;
     private final RedisTemplate<String, Long> redisTemplate;
+    private final RedisTemplate<String, String> stringRedisTemplate;
 
     /// SavePort 관련
     @Override
@@ -57,6 +62,35 @@ public class CommentReactionPersistenceAdapter implements SaveCommentReactionPor
         var setOps = redisTemplate.opsForSet();
         setOps.add(disLikeKey, userId);
     }
+
+    @Override /// GPT 도움
+    public void savePinnedComment(List<Comment> comments) {
+        // 레디스로 좋아요, 싫어요 출력
+        comments.forEach(comment -> {
+            Long likeCount = loadCommentLikeCount(comment.getId());
+            Long disLikeCount = loadCommentDisLikeCount(comment.getId());
+            comment.getStatistics().bindReactionCount(likeCount, disLikeCount);
+        });
+
+        // likeCount 기준 내림차순 정렬
+        comments.sort((comment1, comment2) ->
+                Long.compare(comment2.getStatistics().getLikeCount(), comment1.getStatistics().getLikeCount())
+        );
+
+        // 상위 3개 댓글만 선택
+        List<Comment> topComments = comments.stream()
+                .limit(2)
+                .collect(Collectors.toList());
+
+        // 상위 3개 댓글에 대해 Redis에 저장
+        String commentKey = RedisKeyGenerator.getPinnedCommentKey(topComments.get(0).getBoardId());
+
+        topComments.forEach(comment -> {
+            stringRedisTemplate.opsForList().rightPush(commentKey, comment.getId());
+        });
+    }
+
+
 
     @Override
     public void synchronizeCommentReaction(CommentReaction commentReaction) {

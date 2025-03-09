@@ -29,9 +29,9 @@ public class CommentDocument {
     // 대댓글을 위한
     private String parentId;
 
-    private int likeCount;
+    private Long likeCount;
 
-    private int dislikeCount;
+    private Long dislikeCount;
 
     public static CommentDocument from(Comment comment) {
 
@@ -41,8 +41,8 @@ public class CommentDocument {
                 .userId(comment.getMemberId())
                 .content(comment.getContent())
                 .parentId(comment.getParentId())
-                .likeCount(0)
-                .dislikeCount(0)
+                .likeCount(0L)
+                .dislikeCount(0L)
                 .build();
     }
 

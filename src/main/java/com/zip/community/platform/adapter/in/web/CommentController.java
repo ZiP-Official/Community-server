@@ -50,5 +50,15 @@ public class CommentController {
         return ApiResponse.created(new PageResponse<>(dtolist, pageRequest, result.getTotalElements()));
     }
 
+    // 인기게시글 보기
+    @GetMapping("/pin/{boardId}")
+    ApiResponse<List<CommentResponse>> pin(
+            @PathVariable("boardId") Long boardId) {
+
+        List<Comment> list = getService.getPinnedComments(boardId);
+
+        return ApiResponse.ok(CommentResponse.from(list));
+    }
+
     // 댓글 삭제하기
 }

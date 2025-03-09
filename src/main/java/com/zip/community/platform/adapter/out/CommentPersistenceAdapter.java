@@ -1,9 +1,9 @@
 package com.zip.community.platform.adapter.out;
 
-import com.zip.community.common.util.CacheNames;
 import com.zip.community.common.util.RedisKeyGenerator;
 import com.zip.community.platform.adapter.out.jpa.comment.CommentJpaEntity;
 import com.zip.community.platform.adapter.out.jpa.comment.CommentJpaRepository;
+import com.zip.community.platform.adapter.out.redis.comment.CommentRedisRepository;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentPort;
 import com.zip.community.platform.application.port.out.comment.SaveCommentPort;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -26,9 +27,12 @@ public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPo
         댓글 저장,삭제에 개수를 Redis 관리
         인기있는 게시글의 댓글은 Redis 캐시로 처리한다.
      */
-
     private final CommentJpaRepository repository;
+
     private final RedisTemplate<String, Long> redisTemplate;
+    private final RedisTemplate<String, String> stringRedisTemplate;
+
+
 
     /// SaveCommentPort
     @Override
@@ -47,11 +51,14 @@ public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPo
         redisTemplate.opsForValue().increment(countKey, 1);
     }
 
+    // 영속성을 위해 싱크 맞추기
     @Override
     public void syncCommentCount(Long boardId) {
 
 
     }
+
+    // 인기 댓글로 지정하기
 
     /// LoadCommentPort
     @Override
@@ -94,6 +101,26 @@ public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPo
                 .stream().map(CommentJpaEntity::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<Comment> getPinnedComment(Long boardId) {
+        // 게시판에 해당하는 인기 댓글 키 가져오기
+        String commentKey = RedisKeyGenerator.getPinnedCommentKey(boardId);
+
+        // Redis에서 인기 댓글 ID 목록 가져오기
+        List<String> pinnedCommentIds = stringRedisTemplate.opsForList().range(commentKey, 0, -1);
+
+        if (pinnedCommentIds == null || pinnedCommentIds.isEmpty()) {
+            return List.of();  // 인기 댓글이 없으면 빈 리스트 반환
+        }
+
+        // 데이터베이스에서 인기 댓글들 조회 후 도메인 객체로 변환
+        return repository.findAllByIds(pinnedCommentIds)
+                .stream()
+                .map(CommentJpaEntity::toDomain)
+                .collect(Collectors.toList());  // toList() 대신 collect() 사용
+    }
+
 
     /// RemoveCommentPort
     // 댓글 삭제하기

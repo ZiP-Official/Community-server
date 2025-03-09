@@ -12,21 +12,21 @@ import lombok.NoArgsConstructor;
 @Getter
 public class CommentStatistics {
 
-    private int likeCount;
-    private int dislikeCount;
+    private Long likeCount;
+    private Long dislikeCount;
 
     // 생성자
     public static CommentStatistics of() {
         return CommentStatistics.builder()
-                .likeCount(0)
-                .dislikeCount(0)
+                .likeCount(0L)
+                .dislikeCount(0L)
                 .build();
     }
 
     // 비즈니스 로직
     public void bindReactionCount(Long likeCount, Long dislikeCount) {
-        this.likeCount += likeCount;
-        this.dislikeCount += dislikeCount;
+        this.likeCount = likeCount;
+        this.dislikeCount = dislikeCount;
     }
 
 }

@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @Getter
 public class CommentStatisticsJpaEntity {
 
-    private int likeCount;
-    private int dislikeCount;
+    private Long likeCount;
+    private Long dislikeCount;
 
     // from
     public static CommentStatisticsJpaEntity from(CommentStatistics statistics) {
