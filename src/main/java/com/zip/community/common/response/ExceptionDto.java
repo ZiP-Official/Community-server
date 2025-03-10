@@ -1,11 +1,11 @@
 package com.zip.community.common.response;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.misc.NotNull;
 
 @Getter
-@JsonPropertyOrder({ "code", "message", "exceptionMessage" })
+@RequiredArgsConstructor
 public class ExceptionDto {
     @NotNull
     private final Integer code;
@@ -13,7 +13,6 @@ public class ExceptionDto {
     @NotNull
     private final String message;
 
-    @NotNull
     private final String exceptionMessage;
 
     public ExceptionDto(ErrorCode errorCode, String exceptionMessage) {
