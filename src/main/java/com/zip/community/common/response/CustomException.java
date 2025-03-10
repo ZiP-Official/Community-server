@@ -1,12 +1,18 @@
 package com.zip.community.common.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class CustomException extends RuntimeException{
-    private final ErrorCode errorCode;
+
+    private ErrorCode errorCode;
+    private String exceptionMessage;
+
+    public CustomException(ErrorCode errorCode) {
+        this(errorCode, null);
+    }
 
     public String getMessage() {
         return errorCode.getMessage();
