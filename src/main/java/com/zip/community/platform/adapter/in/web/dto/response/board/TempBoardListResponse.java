@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @Builder
 public class TempBoardListResponse {
 
+    private Long id;
     private Long category; // Immutable 빈 리스트 사용
 
     private Long author;
@@ -37,6 +38,7 @@ public class TempBoardListResponse {
     public static TempBoardListResponse from(Board board) {
 
         return TempBoardListResponse.builder()
+                .id(board.getId())
                 .category(board.getCategoryId())
                 .title(board.getSnippet().getTitle())
                 .author(board.getMemberId())

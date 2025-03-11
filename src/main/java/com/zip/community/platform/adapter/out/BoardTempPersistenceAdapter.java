@@ -29,18 +29,11 @@ public class BoardTempPersistenceAdapter implements TempBoardPort {
     /// Load 관련 구현체
     // 임시 저장 게시글 상세 조회
     @Override
-    public Optional<Board> getTempBoard(Long userId, int index) {
+    public Optional<Board> getTempBoard(Long boardId) {
 
         // 리스트 조회
-        List<Board> list = redisRepository.findByMemberId(userId)
-                .stream().map(TempBoardRedisHash::toDomain)
-                .sorted(Comparator.comparing(Board::getUpdatedAt))
-                .collect(Collectors.toList());
-
-        // 인덱스를 통해서 특정 글 가져오기
-        Board board = list.get(index - 1);
-
-        return Optional.of(board);
+        return redisRepository.findById(boardId)
+                .map(TempBoardRedisHash::toDomain);
     }
 
     @Override
@@ -55,18 +48,9 @@ public class BoardTempPersistenceAdapter implements TempBoardPort {
 
     /// Delete 관련 구현체
     @Override
-    public void deleteTempBoard(Long userId, int index) {
+    public void deleteTempBoard(Long boardId) {
 
-        // 리스트 조회
-        List<Board> list = redisRepository.findByMemberId(userId)
-                .stream().map(TempBoardRedisHash::toDomain)
-                .sorted(Comparator.comparing(Board::getUpdatedAt))
-                .collect(Collectors.toList());
-
-        // 인덱스를 통해서 특정 글 가져오기
-        Board board = list.get(index - 1);
-
-        redisRepository.deleteById(board.getId());
+        redisRepository.deleteById(boardId);
 
     }
 }

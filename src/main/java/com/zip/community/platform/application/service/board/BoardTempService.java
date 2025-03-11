@@ -70,14 +70,15 @@ public class BoardTempService implements TempBoardUseCase {
 
     /// 삭제 관련 구현체
     @Override
-    public Optional<Board> getTempBoard(Long boardId, int index) {
+    public Optional<Board> getTempBoard(Long boardId) {
 
-        return tempPort.getTempBoard(boardId, index);
+        return tempPort.getTempBoard(boardId);
     }
 
     @Override
-    public void deleteTempBoard(Long boardId, int index) {
-        tempPort.deleteTempBoard(boardId, index);
+    public void deleteTempBoard(Long boardId) {
+        tempPort.deleteTempBoard(boardId);
+
     }
 
 }

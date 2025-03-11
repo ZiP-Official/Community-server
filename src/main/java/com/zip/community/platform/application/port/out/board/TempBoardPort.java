@@ -18,12 +18,13 @@ public interface TempBoardPort {
 
     /// Load
     // 임시 저장 게시글 상세 조회
-    Optional<Board> getTempBoard(Long userId,int index);
+    Optional<Board> getTempBoard(Long userId);
 
     // 임시 저장 게시글 목록 조회
     List<Board> getTempBoards(Long userId);
 
     /// Delete
-    void deleteTempBoard(Long userId, int index);
+    void deleteTempBoard(Long boardId);
+
 
 }

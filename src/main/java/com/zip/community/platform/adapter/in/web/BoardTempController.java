@@ -35,29 +35,26 @@ public class BoardTempController {
     }
 
     /// 특정 임시저장글 조회
-    @GetMapping("/{userId}/{index}")
+    @GetMapping("/{boardId}")
     public ApiResponse<TempBoardDetailResponse> getTempBoardByUserIdAndIndex(
-            @PathVariable("userId") Long userId,
-            @PathVariable("index") int index) {
+            @PathVariable("boardId") Long boardId) {
 
-        Board board = tempService.getTempBoard(userId, index)
+        Board board = tempService.getTempBoard(boardId)
                 .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
 
         return ApiResponse.ok(TempBoardDetailResponse.from(board));
     }
 
     /// 특정 임시글 삭제
-    @DeleteMapping("/{userId}/{index}")
+    @DeleteMapping("/{boardId}")
     public ApiResponse<String> deleteTempBoardByUserIdAndIndex(
-            @PathVariable("userId") Long userId,
-            @PathVariable("index") int index) {
+            @PathVariable("boardId") Long boardId) {
 
-        tempService.deleteTempBoard(userId, index);
+        tempService.deleteTempBoard(boardId);
 
         return ApiResponse.ok("임시 저장글이 삭제되었습니다.");
 
     }
-
 }
 
 

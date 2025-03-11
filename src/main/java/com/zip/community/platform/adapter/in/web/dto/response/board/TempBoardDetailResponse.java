@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 @Builder
 public class TempBoardDetailResponse {
 
+    private Long id;
+
     private Long category;
 
     private Long author;
@@ -39,6 +41,7 @@ public class TempBoardDetailResponse {
     public static TempBoardDetailResponse from(Board board) {
 
         return TempBoardDetailResponse.builder()
+                .id(board.getId())
                 .category(board.getCategoryId())
                 .title(board.getSnippet().getTitle())
                 .content(board.getSnippet().getContent())

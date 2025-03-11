@@ -18,8 +18,8 @@ public interface TempBoardUseCase {
 
     List<Board> getTempBoards(Long userId);
 
-    Optional<Board> getTempBoard(Long boardId, int index);
+    Optional<Board> getTempBoard(Long boardId);
 
-    void deleteTempBoard(Long boardId, int index);
+    void deleteTempBoard(Long boardId);
 
 }
