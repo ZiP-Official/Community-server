@@ -24,8 +24,14 @@ public enum BoardErrorCode implements ErrorCode {
 
 
     // 게시판
-
-    DUPLICATE_ERROR(409, HttpStatus.CONFLICT, "중복된 값이 이미 존재합니다");
+    NOT_FOUND_USER(1001, HttpStatus.NOT_FOUND, "해당 ID의 멤버가 존재하지 않습니다"),
+    NOT_FOUND_CATEGORY(1002, HttpStatus.NOT_FOUND, "해당 카테고리가 존재하지 않습니다"),
+    NOT_FOUND_PARENT_CATEGORY(1003, HttpStatus.NOT_FOUND, "해당 카테고리의 부모 카테고리가 존재하지 않습니다"),
+    NOT_FOUND_BOARD(1004, HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않습니다"),
+    NOT_FOUND_TEMP_BOARD(1005, HttpStatus.NOT_FOUND, "해당 임시 게시글이 존재하지 않습니다"),
+    NOT_FOUND_COMMENT(1006, HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다"),
+    DUPLICATE_CODE(1009, HttpStatus.CONFLICT, "해당 카테고리 코드가 이미 존재합니다"),
+    BAD_REQUEST_REACTION(1010, HttpStatus.BAD_REQUEST, "리액션관련 엔드포인트가 잘못 실행되었습니다."),;
 
     // 주문 관련
 

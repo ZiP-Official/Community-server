@@ -1,5 +1,7 @@
 package com.zip.community.platform.application.service.comment;
 
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.application.port.in.comment.CreateCommentUseCase;
 import com.zip.community.platform.application.port.in.comment.GetCommentUseCase;
 import com.zip.community.platform.application.port.in.comment.RemoveCommentUseCase;
@@ -8,7 +10,6 @@ import com.zip.community.platform.application.port.out.comment.*;
 import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.application.port.out.board.LoadBoardPort;
 import com.zip.community.platform.domain.comment.CommentStatistics;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,13 +43,13 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
 
         // 게시글 존재 여부 파악
         if (!loadBoardPort.existBoard(request.getBoardId())) {
-            throw new EntityNotFoundException("해당 게시글이 존재하지 않습니다.");
+            throw new CustomException(BoardErrorCode.NOT_FOUND_BOARD);
         }
 
         // 대댓글이 없는 경우 예외처리
         if (request.getParentId() != null) {
             if (!loadPort.getCheckedExistComment(request.getParentId())) {
-                throw new EntityNotFoundException("대댓글을 작성할 댓글이 존재하지 않습니다.");
+                throw new CustomException(BoardErrorCode.NOT_FOUND_COMMENT);
             }
         }
 
@@ -65,7 +66,7 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
 
         /// 게시글 작성자 여부 파악
         Long writerId = loadBoardPort.loadWriterIdByBoardId(request.getBoardId())
-                .orElseThrow(() -> new EntityNotFoundException("해당하는 게시글이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
 
         /// 작성자 부분은 DB 저장없이, 처리한다.
         if (saveComment.getMemberId().equals(writerId)) {
@@ -82,7 +83,7 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
 
         // 작성자 아이디 가져오기
         Long writerId = loadBoardPort.loadWriterIdByBoardId(boardId)
-                .orElseThrow(() -> new EntityNotFoundException("해당하는 게시글이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
 
         // 게시글에 해당하는 댓글을 페이지 단위로 조회
         Page<Comment> result = loadPort.loadCommentsByBoardId(boardId, pageable);

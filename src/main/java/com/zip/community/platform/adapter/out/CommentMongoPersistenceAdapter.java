@@ -29,6 +29,21 @@ public class CommentMongoPersistenceAdapter implements SaveCommentPort, LoadComm
     }
 
     @Override
+    public void incrementCommentCount(Long boardId) {
+
+    }
+
+    @Override
+    public void syncCommentCount(Long boardId) {
+
+    }
+
+    @Override
+    public Long loadCommentCount(Long boardId) {
+        return 0L;
+    }
+
+    @Override
     public boolean getCheckedExistComment(String id) {
         return repository.existsById(id);
     }
@@ -49,7 +64,17 @@ public class CommentMongoPersistenceAdapter implements SaveCommentPort, LoadComm
     }
 
     @Override
+    public List<Comment> loadCommentsByBoardId(Long boardId) {
+        return List.of();
+    }
+
+    @Override
     public List<Comment> loadCommentsByCommentId(String parentId) {
+        return List.of();
+    }
+
+    @Override
+    public List<Comment> getPinnedComment(Long boardId) {
         return List.of();
     }
 

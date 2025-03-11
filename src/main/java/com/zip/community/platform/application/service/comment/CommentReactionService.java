@@ -1,5 +1,7 @@
 package com.zip.community.platform.application.service.comment;
 
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
 import com.zip.community.platform.application.port.in.comment.CommentReactionUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentReactionRequest;
@@ -8,7 +10,6 @@ import com.zip.community.platform.application.port.out.comment.RemoveCommentReac
 import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.application.port.out.comment.SaveCommentReactionPort;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -73,12 +74,13 @@ public class CommentReactionService implements CommentReactionUseCase{
 
         // 댓글이 존재하지 않으면 증가시키면 안된다.
         if (!loadCommentPort.getCheckedExistComment(request.getCommentId())) {
-            throw new EntityNotFoundException("해당하는 댓글이 존재하지 않습니다.");
+            throw new CustomException(BoardErrorCode.NOT_FOUND_COMMENT);
         }
 
         // 존재하지 않는 유저가 반응을 해선 안된다.
         if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
-            throw new EntityNotFoundException("해당하는 유저가 존재하지 않습니다.");
+            throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
+
     }
 }
