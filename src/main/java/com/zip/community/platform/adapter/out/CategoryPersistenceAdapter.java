@@ -16,6 +16,8 @@ public class CategoryPersistenceAdapter implements CategoryPort {
 
     private final CategoryJpaRepository repository;
 
+
+    /// 생성
     @Override
     public Category saveCategory(Category category) {
 
@@ -23,6 +25,7 @@ public class CategoryPersistenceAdapter implements CategoryPort {
         return repository.save(entity).toDomain();
     }
 
+    /// 조회
     @Override
     public List<Category> loadAllByCategoryId(List<Long> categoryIds) {
         return repository.findAllById(categoryIds)
@@ -43,8 +46,19 @@ public class CategoryPersistenceAdapter implements CategoryPort {
     }
 
     @Override
+    public List<Category> loadChildrenByParentId(Long parentId) {
+        return repository.findByParentId(parentId)
+                .stream().map(CategoryJpaEntity::toDomain).toList();
+    }
+
+    @Override
     public boolean getCheckedExistCategory(String code) {
         return repository.existsByCode(code);
+    }
+
+    @Override
+    public boolean getCheckedExistCategory(Long categoryId) {
+        return repository.existsById(categoryId);
     }
 
 

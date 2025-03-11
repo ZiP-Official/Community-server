@@ -12,26 +12,20 @@ import lombok.NoArgsConstructor;
 @Getter
 public class CommentReaction {
 
-    private Long id;
+    private String id;
     private Long memberId;
-    private Long commentId;
+    private String commentId;
     private UserReaction reactionType;
 
     // 생성자
-    public static CommentReaction of(Long commentId, Long memberId, UserReaction reactionType) {
+    public static CommentReaction of(String id, String commentId, Long memberId, UserReaction reactionType) {
+
         return CommentReaction.builder()
+                .id(id)
                 .commentId(commentId)
                 .memberId(memberId)
                 .reactionType(reactionType)
                 .build();
     }
-
-    // 좋아요 형태에 따라서, statics 값 변화
-    private static void checkUserReaction(Comment comment, UserReaction reactionType) {
-        if(reactionType == UserReaction.LIKE) {
-            comment.getStatistics().addLikeCount();
-        } else {
-            comment.getStatistics().addDislikeCount();
-        }
-    }
 }
+

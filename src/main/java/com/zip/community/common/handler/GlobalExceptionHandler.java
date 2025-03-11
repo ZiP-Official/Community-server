@@ -4,7 +4,10 @@ import com.zip.community.common.response.*;
 import com.zip.community.common.response.errorcode.BoardErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
@@ -34,6 +37,15 @@ public class GlobalExceptionHandler {
                 ce.getMessage(),
                 request.getRequestURI(),
                 e);
+        return ApiResponse.fail(ce);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ApiResponse<ExceptionDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        CustomException ce = new CustomException(BoardErrorCode.BAD_REQUEST, e.getBindingResult().getFieldError().getDefaultMessage());
+
+        log.error(e.getMessage(), e);
         return ApiResponse.fail(ce);
     }
 }

@@ -9,6 +9,6 @@ public interface LoadUserPort {
 
     Optional<User> loadUser(Long id);
 
-    boolean existsById(Long memberId);
+    boolean getCheckedExistUser(Long memberId);
 }
 

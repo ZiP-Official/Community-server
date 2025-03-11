@@ -1,32 +1,43 @@
 package com.zip.community.platform.adapter.in.web;
 
 import com.zip.community.common.response.ApiResponse;
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardReactionRequest;
-import com.zip.community.platform.adapter.in.web.dto.response.BoardReactionResponse;
-import com.zip.community.platform.application.port.in.board.AddReactionUseCase;
-import com.zip.community.platform.application.port.in.board.RemoveReactionUseCase;
+import com.zip.community.platform.application.port.in.board.ReactionUseCase;
+import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/reaction")
+@RequestMapping("/api/v1/reaction")
 @RequiredArgsConstructor
 public class BoardReactionController {
 
-    private final AddReactionUseCase addService;
-    private final RemoveReactionUseCase removeService;
+    private final ReactionUseCase addService;
 
-    @PostMapping
-    public ApiResponse<BoardReactionResponse> addOne(@RequestBody BoardReactionRequest request) {
+    @PostMapping("/{reactionType}")
+    public ApiResponse<String> toggleReaction(@PathVariable("reactionType") String reactionType,
+                                              @RequestBody BoardReactionRequest request) {
+        ReactionStatus status;
 
-        return ApiResponse.created(BoardReactionResponse.from(addService.addReaction(request)));
+        switch (reactionType.toLowerCase()) {
+            case "like":
+                status = addService.addLikeReaction(request);
+                reactionType = "좋아요";
+                break;
+            case "dislike":
+                status = addService.addDisLikeReaction(request);
+                reactionType = "싫어요";
+                break;
+            default:
+                return ApiResponse.fail(new CustomException(BoardErrorCode.BAD_REQUEST_REACTION));
+        }
+
+        String message = (status == ReactionStatus.CREATED)
+                ? reactionType + "가 생성되었습니다."
+                : reactionType + "가 삭제되었습니다.";
+
+        return ApiResponse.created(message);
     }
-
-    @DeleteMapping
-    public ApiResponse<String> removeOne(@RequestBody BoardReactionRequest request) {
-        removeService.removeReaction(request);
-
-        return ApiResponse.created("성공적으로 삭제되었습니다");
-    }
-
 }

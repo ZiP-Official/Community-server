@@ -22,7 +22,6 @@ public class BoardStatisticsJpaEntity {
                 (boardStatistics.getViewCount(), boardStatistics.getCommentCount(), boardStatistics.getLikeCount());
     }
 
-
     // toDomain
     public BoardStatistics toDomain(){
         return BoardStatistics.builder()
@@ -30,7 +29,11 @@ public class BoardStatisticsJpaEntity {
                 .commentCount(this.commentCount)
                 .likeCount(this.likeCount)
                 .build();
+    }
 
+    ///  비즈니스 로직
+    public void changeViewCount(long viewCount) {
+        this.viewCount = viewCount;
     }
 
 }

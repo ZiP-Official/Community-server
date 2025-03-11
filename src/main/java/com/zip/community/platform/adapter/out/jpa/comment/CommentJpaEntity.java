@@ -16,18 +16,20 @@ import lombok.NoArgsConstructor;
 public class CommentJpaEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
-    private Long id;
+    private String id;
 
     private Long boardId;
 
     private Long memberId;
 
     // 대댓글을 위한 설정
-    private Long parentId;
+    private String parentId;
 
     private String content;
+
+    @Embedded
+    private CommentStatisticsJpaEntity statistics;
 
 
     // from
@@ -39,18 +41,23 @@ public class CommentJpaEntity extends BaseEntity {
                 .memberId(comment.getMemberId())
                 .parentId(comment.getParentId())
                 .content(comment.getContent())
+                .statistics(CommentStatisticsJpaEntity.from(comment.getStatistics()))
                 .build();
     }
 
     // toDomain
-    public static Comment toDomain(CommentJpaEntity entity){
+    public Comment toDomain(){
 
         return Comment.builder()
-                .id(entity.getId())
-                .boardId(entity.getBoardId())
-                .parentId(entity.getParentId())
-                .memberId(entity.getMemberId())
-                .content(entity.getContent())
+                .id(id)
+                .boardId(boardId)
+                .parentId(parentId)
+                .memberId(memberId)
+                .content(content)
+                .statistics(statistics.toDomain())
+                .createdAt(this.getCreated())
+                .updatedAt(this.getUpdated())
                 .build();
     }
+
 }

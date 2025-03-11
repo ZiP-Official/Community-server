@@ -1,57 +1,91 @@
 package com.zip.community.platform.application.service.board;
 
-import com.zip.community.platform.application.port.in.board.AddReactionUseCase;
-import com.zip.community.platform.application.port.in.board.RemoveReactionUseCase;
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
+import com.zip.community.platform.application.port.in.board.ReactionUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardReactionRequest;
 import com.zip.community.platform.application.port.out.board.LoadBoardPort;
 import com.zip.community.platform.application.port.out.board.LoadBoardReactionPort;
 import com.zip.community.platform.application.port.out.board.RemoveBoardReactionPort;
 import com.zip.community.platform.application.port.out.board.SaveBoardReactionPort;
 import com.zip.community.platform.application.port.out.user.LoadUserPort;
-import jakarta.persistence.EntityNotFoundException;
+import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import com.zip.community.platform.domain.board.Board;
-import com.zip.community.platform.domain.board.BoardReaction;
 import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class BoardReactionService implements AddReactionUseCase, RemoveReactionUseCase {
+public class BoardReactionService implements ReactionUseCase {
 
     private final SaveBoardReactionPort saveReactionPort;
     private final LoadBoardReactionPort loadReactionPort;
     private final RemoveBoardReactionPort removeReactionPort;
+
     private final LoadBoardPort loadBoardPort;
     private final LoadUserPort loadUserPort;
 
+    /*
+        좋아요나, 싫어요같은 기능은 사람들이 누르는 경우가 많으니
+        레디스를 통해 성능을 향상시킨다.
+
+        레디스로 값을 변경 시킨 후, 한번에 DB에 저장하는 형태로 기록한다.
+     */
+
+    /// 감정표현 추가 UseCase
+    // 좋아요 반응 생성 및 저장
     @Override
-    public BoardReaction addReaction(BoardReactionRequest request) {
+    public ReactionStatus addLikeReaction(BoardReactionRequest request) {
 
-        // 보드
-        Board board = loadBoardPort.loadBoardById(request.getBoardId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 게시판이 존재하지 않습니다"));
+        // 예외처리
+        checkException(request);
 
-        // 동일한 회원이 동일한 게시글에 이미 반응을 남겼는지 확인
-        loadReactionPort.loadBoardReaction(board.getId(), request.getMemberId()).ifPresent(reaction -> {
-            throw new IllegalStateException("리액션이 이미 존재합니다.");
-        });
+        // 이미 좋아요를 눌렀다면 삭제되도록 한다.
+        if (loadReactionPort.checkBoardLikeReaction(request.getBoardId(), request.getMemberId())) {
+            removeReactionPort.removeBoardLikeReaction(request.getBoardId(), request.getMemberId());
+            return ReactionStatus.REMOVED;
+        }
 
-        // 새로운 반응 생성 및 저장
-        BoardReaction reaction = BoardReaction.of(request.getBoardId(), request.getMemberId(), request.getReactionType());
+        // 이미 싫어요를 눌렀다면, 해당 싫어요를 지우고 새롭게 좋아요를 추가한다.
+        if (loadReactionPort.checkBoardDisLikeReaction(request.getBoardId(), request.getMemberId())) {
+            removeReactionPort.removeBoardDisLikeReaction(request.getBoardId(), request.getMemberId());
+        }
 
-        return saveReactionPort.saveBoardReaction(reaction);
+        saveReactionPort.saveLikeBoardReaction(request.getBoardId(), request.getMemberId());
+        return ReactionStatus.CREATED;
     }
 
     @Override
-    public void removeReaction(BoardReactionRequest request) {
+    public ReactionStatus addDisLikeReaction(BoardReactionRequest request) {
 
-        // 요청된 반응 찾기
-        BoardReaction boardReaction = loadReactionPort.loadBoardReactionByType(request.getBoardId(), request.getMemberId(), request.getReactionType())
-                .orElseThrow(() -> new IllegalArgumentException("리액션을 삭제할 수 없습니다."));
+        // 예외처리
+        checkException(request);
 
-        // 반응 삭제
-        removeReactionPort.removeBoardReaction(boardReaction);
+        // 이미 좋아요를 눌렀다면 삭제되도록 한다.
+        if (loadReactionPort.checkBoardDisLikeReaction(request.getBoardId(), request.getMemberId())) {
+            removeReactionPort.removeBoardDisLikeReaction(request.getBoardId(), request.getMemberId());
+            return ReactionStatus.REMOVED;
+        }
+
+        // 이미 좋아요를 눌렀다면, 해당 좋아요를 지우고 새롭게 싫어요를 추가한다.
+        if (loadReactionPort.checkBoardLikeReaction(request.getBoardId(), request.getMemberId())) {
+            removeReactionPort.removeBoardLikeReaction(request.getBoardId(), request.getMemberId());
+        }
+
+        saveReactionPort.saveDisLikeBoardReaction(request.getBoardId(), request.getMemberId());
+        return ReactionStatus.CREATED;
     }
+
+    /// 내부 예외 체크 함수
+    private void checkException(BoardReactionRequest request) {
+
+        if (!loadBoardPort.existBoard(request.getBoardId())) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_BOARD);
+        }
+        if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
+        }
+    }
+
 }

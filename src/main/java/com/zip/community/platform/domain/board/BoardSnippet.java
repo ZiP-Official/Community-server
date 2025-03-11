@@ -1,14 +1,11 @@
 package com.zip.community.platform.domain.board;
 
-import com.zip.community.platform.domain.BaseDomain;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
 @Builder
-public class BoardSnippet extends BaseDomain {
+public class BoardSnippet {
 
     private String title;
     private String content;

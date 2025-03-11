@@ -1,16 +1,13 @@
 package com.zip.community.platform.domain.board;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.zip.community.platform.domain.BaseDomain;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Board {
+@SuperBuilder
+public class Board extends BaseDomain {
 
     private Long id;
     private Long memberId;
@@ -28,19 +25,5 @@ public class Board {
                 .categoryId(categoryId)
                 .build();
 
-    }
-
-    // 양방향
-    public void addComment() {
-        this.getStatistics().addCommentCount();
-    }
-
-    public void addLikeReaction() {
-        this.getStatistics().addLikeCount();
-    }
-
-
-    public void removeLikeReaction() {
-        this.getStatistics().removeLikeCount();
     }
 }

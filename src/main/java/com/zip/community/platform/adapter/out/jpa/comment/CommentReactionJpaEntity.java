@@ -16,13 +16,12 @@ import lombok.NoArgsConstructor;
 public class CommentReactionJpaEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "like_id")
-    private Long id;
+    @Column(name = "comment_like_id")
+    private String id;
 
     private Long memberId;
 
-    private Long commentId;
+    private String commentId;
 
     @Enumerated(EnumType.STRING)
     private UserReaction reactionType;
@@ -30,6 +29,7 @@ public class CommentReactionJpaEntity {
     // from
     public static CommentReactionJpaEntity from(CommentReaction commentReaction) {
         return CommentReactionJpaEntity.builder()
+                .id(commentReaction.getId())
                 .memberId(commentReaction.getMemberId())
                 .commentId(commentReaction.getCommentId())
                 .reactionType(commentReaction.getReactionType())

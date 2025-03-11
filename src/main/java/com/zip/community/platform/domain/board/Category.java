@@ -1,32 +1,33 @@
 package com.zip.community.platform.domain.board;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.zip.community.platform.domain.BaseDomain;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Category {
+@SuperBuilder
+public class Category extends BaseDomain {
 
     private Long id;
     private String name;
     private String code;
     private Long parentId;
+    private List<Category> children;
 
     // 생성자
-    public static Category of(Long id, Long parentId,String name, String code) {
+    public static Category of(Long parentId,String name, String code) {
 
         return Category.builder()
-                .id(id)
                 .name(name)
                 .code(code)
                 .parentId(parentId)
                 .build();
+    }
+
+    public void changeChildren(List<Category> children) {
+        this.children = children;
     }
 
 }

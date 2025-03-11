@@ -9,8 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
-
 @Entity
 @Getter
 @Builder
@@ -33,13 +31,10 @@ public class BoardJpaEntity extends BaseEntity {
     @Embedded
     private BoardStatisticsJpaEntity boardStatistics;
 
-
-
-
     // From
     public static BoardJpaEntity from(Board board) {
         return BoardJpaEntity.builder()
-                .memberId(board.getId())
+                .memberId(board.getMemberId())
                 .boardSnippet(BoardSnippetJpaEntity.from(board.getSnippet()))
                 .boardStatistics(BoardStatisticsJpaEntity.from(board.getStatistics()))
                 .categoryId(board.getCategoryId())
@@ -51,11 +46,20 @@ public class BoardJpaEntity extends BaseEntity {
         return Board.builder()
                 .id(this.id)
                 .categoryId(this.categoryId)
+                .memberId(this.memberId)
                 .snippet(this.boardSnippet.toDomain())
                 .statistics(this.boardStatistics.toDomain())
-                .memberId(this.memberId)
+                .createdAt(this.getCreated())
+                .updatedAt(this.getUpdated())
                 .build();
     }
+
+    /// 비즈니스 로직
+    // 조회수 매핑 업데이트 로직
+    public void updateViewCount(Long viewCount) {
+        this.boardStatistics.changeViewCount(viewCount);
+    }
+
     
 
 }
