@@ -3,7 +3,6 @@ package com.zip.community.platform.adapter.out;
 import com.zip.community.common.util.RedisKeyGenerator;
 import com.zip.community.platform.adapter.out.jpa.comment.CommentJpaEntity;
 import com.zip.community.platform.adapter.out.jpa.comment.CommentJpaRepository;
-import com.zip.community.platform.adapter.out.redis.comment.CommentRedisRepository;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentPort;
 import com.zip.community.platform.application.port.out.comment.SaveCommentPort;
@@ -92,6 +91,13 @@ public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPo
                 .toList();
 
         return new PageImpl<>(comments, pageable, result.getTotalElements());
+    }
+
+    @Override
+    public List<Comment> loadCommentsByBoardId(Long boardId) {
+        return repository.findCommentByBoardId(boardId)
+                .stream().map(CommentJpaEntity::toDomain)
+                .toList();
     }
 
     // 대댓글 가져오기

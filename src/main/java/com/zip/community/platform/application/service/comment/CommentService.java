@@ -104,13 +104,22 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
             comment.changeChildren(children);
         });
 
-        // 인기게시글 적용하기
-        saveReactionPort.savePinnedComment(comments);
+        /// 인기게시글 저장하기
+        savePinnedComments(boardId);
 
         // 댓글을 변경 후 다시 반환
         return new PageImpl<>(comments, pageable, result.getTotalElements());
     }
 
+    ///
+    private void savePinnedComments(Long boardId) {
+
+        // BoardId에 해당하는 댓글 목록을 로드하고, 이를 ArrayList로 변환
+        List<Comment> list = new ArrayList<>(loadPort.loadCommentsByBoardId(boardId));
+
+        // 인기게시글 적용하기
+        saveReactionPort.savePinnedComment(list);
+    }
 
     // 인기댓글 보기
     @Override

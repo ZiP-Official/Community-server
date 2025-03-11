@@ -21,6 +21,9 @@ public interface LoadCommentPort {
     // 게시글에 맞는 댓글 가져오기
     Page<Comment> loadCommentsByBoardId(Long boardId, Pageable pageable);
 
+    /// 게시글에 해당 댓글 모두 가져오기
+    List<Comment> loadCommentsByBoardId(Long boardId);
+
     /// 대댓글 가져오기
     List<Comment> loadCommentsByCommentId(String parentId);
 

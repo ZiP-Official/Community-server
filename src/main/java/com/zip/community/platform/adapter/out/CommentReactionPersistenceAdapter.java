@@ -3,7 +3,6 @@ package com.zip.community.platform.adapter.out;
 import com.zip.community.common.util.RedisKeyGenerator;
 import com.zip.community.platform.adapter.out.jpa.comment.CommentReactionJpaEntity;
 import com.zip.community.platform.adapter.out.jpa.comment.CommentReactionJpaRepository;
-import com.zip.community.platform.adapter.out.redis.comment.CommentRedisHash;
 import com.zip.community.platform.application.port.out.comment.LoadCommentReactionPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentReactionPort;
 import com.zip.community.platform.application.port.out.comment.SaveCommentReactionPort;
@@ -79,7 +78,7 @@ public class CommentReactionPersistenceAdapter implements SaveCommentReactionPor
 
         // 상위 3개 댓글만 선택
         List<Comment> topComments = comments.stream()
-                .limit(2)
+                .limit(3)
                 .collect(Collectors.toList());
 
         // 상위 3개 댓글에 대해 Redis에 저장
