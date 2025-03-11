@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.List;
 import java.util.Set;
@@ -37,15 +38,6 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
         var boardJpaEntity = BoardJpaEntity.from(board);
         return repository.save(boardJpaEntity)
                 .toDomain();
-    }
-
-    @Override
-    public void saveTemporalBoard(Board board) {
-
-        /*
-            레디스를 활용하여 임시저장한다.
-            memberId와 매핑을 하면 될 것 같다.
-         */
     }
 
     // 조회수 증가시키기
@@ -86,43 +78,43 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     // 게시물 상세 조회
     @Override
     public Optional<Board> loadBoardById(Long boardId) {
-
-         /*
-            레디스에서 게시글을 먼저 가져오되, 없으면 JPA에서 가져오도록 한다.
-            초기 MVP에서는 조회수 10을 인기게시물로 정의한다.
-            인기게시물을 레디스에 저장하도록 한다.
-         */
-
+        // 레디스에서 게시글을 먼저 가져오되, 없으면 JPA에서 가져오도록 한다.
         return redisRepository.findById(boardId)
                 // redis cache hit
                 .map(BoardRedisHash::toDomain)
-                .or(() -> { // redis cache miss, Redis 에 값을 저장한다.
+                .or(() -> {
+                    // redis cache miss, JPA에서 값을 가져온다.
                     var optionalBoard = repository.findById(boardId);
-
-                    // 조회수 가져오기
-                    Long viewCount = loadViewCount(boardId);
-
-                    // 인기게시물일 경우, 성능을 위해서 레디스에 저장
-                    if (viewCount >= 10) {
-                        redisRepository.save(BoardRedisHash.from(optionalBoard.get().toDomain()));
-                        saveBoardFavorite(boardId, viewCount);
-                    }
 
                     return optionalBoard
                             .map(BoardJpaEntity::toDomain);
                 });
     }
 
-    // 인기게시물 목록 저장하기
-    private void saveBoardFavorite(Long boardId, Long viewCount) {
+    // 게시글을 레디스의 인기게시물 목록에 저장하기
+    @Override
+    public void saveBoardFavorite(Long boardId) {
+
+        /// RedisRepository 에 저장한다.
+        // boardId
+        repository.findById(boardId)
+                .map(BoardJpaEntity::toDomain)
+                .ifPresent(board -> {
+
+                    // 해당 글을 레디스에 저장한다.
+                    // 해당 글은 더 이상 수정할 수 없다.
+                    BoardRedisHash hash = BoardRedisHash.from(board);
+                    redisRepository.save(hash);
+                });
+
+        /// Redis템플릿으로 인기게시글 저장 시간 비교
 
         // 아래에서 인기게시물의 조건을 설정한다.
-        long score = viewCount;
-
-        // Sorted Set 추가
-        String countSetKey = RedisKeyGenerator.getBoardViewCountSetKey();
-        redisTemplate.opsForZSet().add(countSetKey, boardId, score);
-
+        String boardList = RedisKeyGenerator.getBoardList();
+        // 현재 시간을 밀리초로 가져옴
+        long currentTimeMillis = Instant.now().toEpochMilli();
+        // 시간과 함께 저장한다.
+        redisTemplate.opsForZSet().add(boardList, boardId, currentTimeMillis);
     }
 
     // 조회수 가져오기
@@ -178,11 +170,7 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
         return new PageImpl<>(boards, pageable, totalCount);
     }
 
-    @Override
-    public Page<Board> loadBoardsLike(Pageable pageable) {
-        return null;
-    }
-
+    // 인기게시글 조회하기
     @Override
     public Page<Board> loadBoardsFavorite(Pageable pageable) {
         return null;
@@ -203,16 +191,6 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     }
 
     @Override
-    public Page<Board> loadBoardsByCategoryIdView(Long categoryId, Pageable pageable) {
-        return null;
-    }
-
-    @Override
-    public Page<Board> loadBoardsByCategoryIdLike(Long categoryId, Pageable pageable) {
-        return null;
-    }
-
-    @Override
     public Page<Board> loadBoardsByCategoryIdFavorite(Long categoryId, Pageable pageable) {
         return null;
     }
@@ -228,9 +206,21 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     /// DeletePort 구현체
     @Override
     public void removeBoard(Long boardId) {
-        /*
-            해당 부분은 softDelete 진행한다.
-        */
+
+
+        /// 레디스 삭제
+        // 레디스에서 삭제한다.
+        repository.findById(boardId)
+                        .ifPresent(board -> {
+                            BoardRedisHash redisHash = BoardRedisHash.from(board.toDomain());
+                            redisRepository.delete(redisHash);
+                        });
+
+        // 인기게시글 목록에서도 삭제
+        String boardList = RedisKeyGenerator.getBoardList();
+        redisTemplate.opsForZSet().remove(boardList, boardId);
+
+        // 해당 부분은 softDelete 진행한다.
         repository.deleteById(boardId);
     }
 }

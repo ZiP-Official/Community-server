@@ -10,4 +10,7 @@ public interface RemoveBoardReactionPort {
     void removeBoardDisLikeReaction(Long boardId, Long userId);
 
 
+    /// 게시글 삭제와 연동되는 부분
+    // 게시글에 해당 하는 내용 다 삭제하기
+    void removeAllByBoardId(Long boardId);
 }

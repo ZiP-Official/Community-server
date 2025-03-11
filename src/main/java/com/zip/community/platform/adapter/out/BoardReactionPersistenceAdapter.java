@@ -82,7 +82,6 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
     @Override
     public void removeBoardLikeReaction(Long boardId, Long userId) {
 
-
         var setOps = redisTemplate.opsForSet();
         setOps.remove(RedisKeyGenerator.getBoardLikeKey(boardId), userId);
     }
@@ -91,6 +90,14 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
     public void removeBoardDisLikeReaction(Long boardId, Long userId) {
         var setOps = redisTemplate.opsForSet();
         setOps.remove(RedisKeyGenerator.getBoardDisLikeKey(boardId), userId);
+    }
+
+    // 게시글에 해당 하는 내용 다 삭제하기
+    @Override
+    public void removeAllByBoardId(Long boardId) {
+        var setOps = redisTemplate.opsForSet();
+        setOps.remove(RedisKeyGenerator.getBoardDisLikeKey(boardId));
+        setOps.remove(RedisKeyGenerator.getBoardLikeKey(boardId));
     }
 
 

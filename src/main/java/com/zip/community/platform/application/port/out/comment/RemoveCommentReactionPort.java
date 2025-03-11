@@ -10,4 +10,6 @@ public interface RemoveCommentReactionPort {
     void removeCommentDisLikeReaction(String commentId, Long userId);
 
 
+    /// 게시글에서 사용할 내용
+    void removeAllByBoardId(Long boardId);
 }

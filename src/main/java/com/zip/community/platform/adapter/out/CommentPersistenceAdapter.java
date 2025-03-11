@@ -140,5 +140,14 @@ public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPo
         repository.deleteById(id);
     }
 
+    // 레디스에서 댓글 갯수 삭제하기
+    @Override
+    public void removeCommentByBoardId(Long boardId) {
+
+        // 레디스에 해당 개수 카운트 삭제
+        redisTemplate.delete(RedisKeyGenerator.getCommentCountKey(boardId));
+
+    }
+
 
 }
