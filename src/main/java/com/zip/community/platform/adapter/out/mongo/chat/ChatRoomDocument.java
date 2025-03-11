@@ -3,6 +3,7 @@ package com.zip.community.platform.adapter.out.mongo.chat;
 import com.zip.community.platform.adapter.out.mongo.BaseDocument;
 import com.zip.community.platform.domain.chat.ChatRoom;
 import com.zip.community.platform.domain.chat.LastMessage;
+import com.zip.community.platform.domain.chat.Participant;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,10 +22,10 @@ public class ChatRoomDocument extends BaseDocument {
 
     @Id
     private String id;
-    private List<String> participants;
+    private List<Participant> participants;
     private LastMessage lastMessage;
 
-    public static ChatRoomDocument from(String id, List<String> participants, LastMessage lastMessage) {
+    public static ChatRoomDocument from(String id, List<Participant> participants, LastMessage lastMessage) {
         return ChatRoomDocument.builder()
                 .id(id)
                 .participants(participants)

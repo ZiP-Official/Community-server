@@ -5,15 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatRoom {
+public class Participant {
 
-    private String id;
-    private List<Participant> participants;
-    private LastMessage lastMessage;
+    private Long id;
+    private String name;
 }
