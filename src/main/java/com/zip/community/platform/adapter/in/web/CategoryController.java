@@ -2,7 +2,7 @@ package com.zip.community.platform.adapter.in.web;
 
 import com.zip.community.common.response.ApiResponse;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CategoryRequest;
-import com.zip.community.platform.adapter.in.web.dto.response.CategoryResponse;
+import com.zip.community.platform.adapter.in.web.dto.response.board.CategoryResponse;
 import com.zip.community.platform.application.port.in.board.CreateCategoryUseCase;
 import com.zip.community.platform.application.port.in.board.GetCategoryUseCase;
 import lombok.RequiredArgsConstructor;

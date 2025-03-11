@@ -1,4 +1,4 @@
-package com.zip.community.platform.adapter.in.web.dto.response;
+package com.zip.community.platform.adapter.in.web.dto.response.review;
 
 import com.zip.community.platform.domain.review.ReviewSnippet;
 import lombok.Builder;

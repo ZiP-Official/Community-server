@@ -1,17 +1,14 @@
 package com.zip.community.platform.domain.member;
 
 import com.zip.community.platform.domain.BaseDomain;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+
+@SuperBuilder
 @Getter
 public class Member extends BaseDomain {
 

@@ -4,7 +4,7 @@ import com.zip.community.common.response.ApiResponse;
 import com.zip.community.common.response.pageable.PageRequest;
 import com.zip.community.common.response.pageable.PageResponse;
 import com.zip.community.platform.adapter.in.web.dto.request.review.ReviewRequest;
-import com.zip.community.platform.adapter.in.web.dto.response.ReviewResponse;
+import com.zip.community.platform.adapter.in.web.dto.response.review.ReviewResponse;
 import com.zip.community.platform.application.port.in.review.CreateReviewUseCase;
 import com.zip.community.platform.application.port.in.review.GetReviewUseCase;
 import com.zip.community.platform.application.port.in.review.RemoveReviewUseCase;

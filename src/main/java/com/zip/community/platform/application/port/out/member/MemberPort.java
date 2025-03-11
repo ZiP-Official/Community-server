@@ -15,4 +15,9 @@ public interface MemberPort {
     void chgNickName(Long id, String nickName);    // 닉네임 변경
 
     void chgLocation(Long id, String location);     // 지역 변경
+
+
+    /// 게시글 관련 기능에서 유저를 확인하기 위해 사용하는 로직입니다.
+    boolean getCheckedExistUser(Long memberId);
+
 }

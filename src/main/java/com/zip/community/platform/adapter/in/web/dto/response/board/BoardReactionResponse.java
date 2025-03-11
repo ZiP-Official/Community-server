@@ -1,4 +1,4 @@
-package com.zip.community.platform.adapter.in.web.dto.response;
+package com.zip.community.platform.adapter.in.web.dto.response.board;
 
 import com.zip.community.platform.domain.board.BoardReaction;
 import com.zip.community.platform.domain.board.UserReaction;

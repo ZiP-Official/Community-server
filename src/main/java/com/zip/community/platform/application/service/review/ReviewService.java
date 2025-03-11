@@ -4,7 +4,7 @@ import com.zip.community.platform.adapter.in.web.dto.request.review.ReviewReques
 import com.zip.community.platform.application.port.in.review.CreateReviewUseCase;
 import com.zip.community.platform.application.port.in.review.GetReviewUseCase;
 import com.zip.community.platform.application.port.in.review.RemoveReviewUseCase;
-import com.zip.community.platform.application.port.out.user.LoadUserPort;
+import com.zip.community.platform.application.port.out.member.MemberPort;
 import com.zip.community.platform.application.port.out.review.LoadReviewPort;
 import com.zip.community.platform.application.port.out.review.RemoveReviewPort;
 import com.zip.community.platform.application.port.out.review.SaveReviewPort;
@@ -29,7 +29,7 @@ public class ReviewService implements CreateReviewUseCase, GetReviewUseCase, Rem
     private final LoadReviewPort loadReviewPort;
     private final SaveReviewPort saveReviewPort;
     private final RemoveReviewPort removeReviewPort;
-    private final LoadUserPort loadUserPort;
+    private final MemberPort memberPort;
 
     @Override
     public Review createReview(ReviewRequest request) {

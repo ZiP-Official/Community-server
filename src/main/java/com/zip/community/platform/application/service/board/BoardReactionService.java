@@ -8,8 +8,8 @@ import com.zip.community.platform.application.port.out.board.LoadBoardPort;
 import com.zip.community.platform.application.port.out.board.LoadBoardReactionPort;
 import com.zip.community.platform.application.port.out.board.RemoveBoardReactionPort;
 import com.zip.community.platform.application.port.out.board.SaveBoardReactionPort;
-import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
+import com.zip.community.platform.application.port.out.member.MemberPort;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class BoardReactionService implements ReactionUseCase {
     private final RemoveBoardReactionPort removeReactionPort;
 
     private final LoadBoardPort loadBoardPort;
-    private final LoadUserPort loadUserPort;
+    private final MemberPort memberPort;
 
     /*
         좋아요나, 싫어요같은 기능은 사람들이 누르는 경우가 많으니
@@ -83,7 +83,7 @@ public class BoardReactionService implements ReactionUseCase {
         if (!loadBoardPort.existBoard(request.getBoardId())) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_BOARD);
         }
-        if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
+        if (!memberPort.getCheckedExistUser(request.getMemberId())) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
     }

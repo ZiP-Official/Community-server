@@ -1,8 +1,8 @@
-package com.zip.community.platform.adapter.in.web.dto.member;
+package com.zip.community.platform.adapter.in.web;
 
 import com.zip.community.common.response.ApiResponse;
 import com.zip.community.common.response.CustomException;
-import com.zip.community.common.response.ErrorCode;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.adapter.in.web.dto.request.member.MemberRequest;
 import com.zip.community.platform.adapter.in.web.dto.response.member.MemberResponse;
 import com.zip.community.platform.application.port.in.member.MemberUseCase;
@@ -30,9 +30,9 @@ public class MemberController {
         // memberRequest (email)
         Member mem = memberService.chkEmail(memberRequest.getEmail());
         if(mem == null){
-            throw new CustomException(ErrorCode.DUPLICATE_ERROR);   // 비회원
+            throw new CustomException(BoardErrorCode.DUPLICATE_CODE);   // 비회원
         }else if(mem != null && !mem.getStatus().isEmpty() && "0".equals(mem.getStatus())){
-            throw new CustomException(ErrorCode.DUPLICATE_ERROR);   // 정지된 이용자
+            throw new CustomException(BoardErrorCode.NOT_FOUND_USER);   // 정지된 이용자
         }
 
         return ApiResponse.created(MemberResponse.from(memberService.loginMember(memberRequest.getEmail())));
@@ -45,10 +45,10 @@ public class MemberController {
 
         Member mem = memberService.chkEmail(memberRequest.getEmail());
         if(mem != null && !mem.getStatus().isEmpty() && "0".equals(mem.getStatus())){
-            throw new CustomException(ErrorCode.DUPLICATE_ERROR);   // 정지된 이용자
+            throw new CustomException(BoardErrorCode.NOT_FOUND_USER);   // 정지된 이용자
         }
         if(mem != null){
-            throw new CustomException(ErrorCode.DUPLICATE_ERROR);   // 이미 가입된 이용자입니다.
+            throw new CustomException(BoardErrorCode.NOT_FOUND_USER);   // 이미 가입된 이용자입니다.
         }
 
         String[] str = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",

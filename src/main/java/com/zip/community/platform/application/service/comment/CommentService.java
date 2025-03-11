@@ -7,8 +7,8 @@ import com.zip.community.platform.application.port.in.comment.GetCommentUseCase;
 import com.zip.community.platform.application.port.in.comment.RemoveCommentUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentRequest;
 import com.zip.community.platform.application.port.out.comment.*;
-import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.application.port.out.board.LoadBoardPort;
+import com.zip.community.platform.application.port.out.member.MemberPort;
 import com.zip.community.platform.domain.comment.CommentStatistics;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
     private final SaveCommentReactionPort saveReactionPort;
     private final LoadCommentReactionPort loadReactionPort;
     private final LoadBoardPort loadBoardPort;
-    private final LoadUserPort loadUserPort;
+    private final MemberPort memberPort;
 
     @Override
     public Comment createComment(CommentRequest request) {

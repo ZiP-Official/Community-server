@@ -1,4 +1,4 @@
-package com.zip.community.platform.adapter.out.member;
+package com.zip.community.platform.adapter.out;
 
 import com.zip.community.platform.adapter.out.jpa.member.MemberJpaEntity;
 import com.zip.community.platform.adapter.out.jpa.member.repository.MemberRepository;
@@ -64,5 +64,12 @@ public class MemberLoginAdapter implements MemberPort {
     @Override
     public void chgLocation(Long id, String location) {
         repository.chgLocation(id, location);
+    }
+
+    /// 게시글에서 유저의 존재여부를 파악하기 위해 사용하는 기능입니다.
+
+    @Override
+    public boolean getCheckedExistUser (Long memberId) {
+        return repository.existsById(memberId);
     }
 }

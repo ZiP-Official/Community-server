@@ -6,7 +6,7 @@ import com.zip.community.platform.adapter.in.web.dto.request.board.TempBoardRequ
 import com.zip.community.platform.application.port.in.board.TempBoardUseCase;
 import com.zip.community.platform.application.port.out.board.CategoryPort;
 import com.zip.community.platform.application.port.out.board.TempBoardPort;
-import com.zip.community.platform.application.port.out.user.LoadUserPort;
+import com.zip.community.platform.application.port.out.member.MemberPort;
 import com.zip.community.platform.domain.board.Board;
 import com.zip.community.platform.domain.board.BoardSnippet;
 import com.zip.community.platform.domain.board.BoardStatistics;
@@ -27,7 +27,7 @@ public class BoardTempService implements TempBoardUseCase {
     private final TempBoardPort tempPort;
 
     // 의존성
-    private final LoadUserPort loadUserPort;
+    private final MemberPort memberPort;
     private final CategoryPort categoryPort;
 
     /// 저장 관련 구현체
@@ -35,7 +35,7 @@ public class BoardTempService implements TempBoardUseCase {
     public void createTempBoard(TempBoardRequest request) {
 
         // 유저 예외처리
-        if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
+        if (!memberPort.getCheckedExistUser(request.getMemberId())) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
 
