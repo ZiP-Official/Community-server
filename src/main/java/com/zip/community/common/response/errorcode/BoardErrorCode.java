@@ -19,7 +19,8 @@ public enum BoardErrorCode implements ErrorCode {
     NOT_FOUND_END_POINT(404, HttpStatus.NOT_FOUND, "요청한 대상이 존재하지 않습니다."),
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(500, HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류입니다."),
-
+    // 503 서비스 불가능
+    REDIS_UNAVAILABLE(503, HttpStatus.SERVICE_UNAVAILABLE, "레디스를 사용할 수 없습니다."),
     // 아파트
 
 

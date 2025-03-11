@@ -4,6 +4,7 @@ import com.zip.community.common.response.*;
 import com.zip.community.common.response.errorcode.BoardErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,6 +46,15 @@ public class GlobalExceptionHandler {
     public ApiResponse<ExceptionDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         CustomException ce = new CustomException(BoardErrorCode.BAD_REQUEST, e.getBindingResult().getFieldError().getDefaultMessage());
 
+        log.error(e.getMessage(), e);
+        return ApiResponse.fail(ce);
+    }
+
+    /// 레디스 에러 처리 핸들러
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    public ApiResponse<ExceptionDto> handleRedisConnectionFailureException(RedisConnectionFailureException e) {
+        CustomException ce = new CustomException(BoardErrorCode.INTERNAL_SERVER_ERROR);
         log.error(e.getMessage(), e);
         return ApiResponse.fail(ce);
     }
