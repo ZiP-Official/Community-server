@@ -1,5 +1,7 @@
 package com.zip.community.platform.application.service.board;
 
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.application.port.in.board.CreateBoardUseCase;
 import com.zip.community.platform.application.port.in.board.GetBoardUseCase;
 import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
@@ -8,7 +10,6 @@ import com.zip.community.platform.application.port.out.board.*;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.domain.board.*;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,7 +45,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     public Board createBoard(BoardRequest request) {
 
         if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
-            throw new NoSuchElementException("해당 ID의 멤버가 존재하지 않습니다: " + request.getMemberId());
+            throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
 
         // 게시물 생성
@@ -55,7 +55,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
 
         // 카테고리와 연결
         Category category = categoryPort.loadCategory(request.getCategoryId())
-                .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다"));
+                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_CATEGORY));
 
         Board board = Board.of(request.getMemberId(),category.getId() ,snippet, statistics);
         return savePort.saveBoard(board);
@@ -87,8 +87,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
 
         // Board가 없으면 예외를 던짐
         return boardOptional
-                .orElseThrow(() -> new EntityNotFoundException("해당 게시글이 존재하지 않습니다."));
-    }
+                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));}
 
 
     @Override
@@ -139,7 +138,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     ///  내부 함수
     private @NotNull List<Long> getLongs(Long categoryId) {
         Category category = categoryPort.loadCategory(categoryId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 카테고리가 존재하지않습니다."));
+                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_CATEGORY));
 
         List<Category> loadChildrenByParentId = categoryPort.loadChildrenByParentId(categoryId);
 

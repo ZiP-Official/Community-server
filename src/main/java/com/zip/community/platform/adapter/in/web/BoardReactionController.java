@@ -2,7 +2,7 @@ package com.zip.community.platform.adapter.in.web;
 
 import com.zip.community.common.response.ApiResponse;
 import com.zip.community.common.response.CustomException;
-import com.zip.community.common.response.ErrorCode;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardReactionRequest;
 import com.zip.community.platform.application.port.in.board.ReactionUseCase;
 import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
@@ -31,7 +31,7 @@ public class BoardReactionController {
                 reactionType = "싫어요";
                 break;
             default:
-                return ApiResponse.fail(new CustomException(ErrorCode.BAD_REQUEST));
+                return ApiResponse.fail(new CustomException(BoardErrorCode.BAD_REQUEST_REACTION));
         }
 
         String message = (status == ReactionStatus.CREATED)

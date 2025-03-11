@@ -1,5 +1,7 @@
 package com.zip.community.platform.application.service.board;
 
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.application.port.in.board.ReactionUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardReactionRequest;
 import com.zip.community.platform.application.port.out.board.LoadBoardPort;
@@ -8,7 +10,6 @@ import com.zip.community.platform.application.port.out.board.RemoveBoardReaction
 import com.zip.community.platform.application.port.out.board.SaveBoardReactionPort;
 import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.application.port.in.board.response.ReactionStatus;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -80,10 +81,10 @@ public class BoardReactionService implements ReactionUseCase {
     private void checkException(BoardReactionRequest request) {
 
         if (!loadBoardPort.existBoard(request.getBoardId())) {
-            throw new EntityNotFoundException("해당 게시판이 존재하지 않습니다.");
+            throw new CustomException(BoardErrorCode.NOT_FOUND_BOARD);
         }
         if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
-            throw new EntityNotFoundException("해당하는 멤버가 존재하지 않습니다.");
+            throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
     }
 

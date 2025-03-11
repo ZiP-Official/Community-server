@@ -1,5 +1,7 @@
 package com.zip.community.platform.application.service.board;
 
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.adapter.in.web.dto.request.board.TempBoardRequest;
 import com.zip.community.platform.application.port.in.board.TempBoardUseCase;
 import com.zip.community.platform.application.port.out.board.CategoryPort;
@@ -13,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.testcontainers.shaded.org.apache.commons.lang3.StringUtils.isAllEmpty;
@@ -35,17 +36,17 @@ public class BoardTempService implements TempBoardUseCase {
 
         // 유저 예외처리
         if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
-            throw new NoSuchElementException("해당 ID의 멤버가 존재하지 않습니다: " + request.getMemberId());
+            throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
 
         // 카테고리 예외처리
         if (!categoryPort.getCheckedExistCategory(request.getCategoryId())) {
-            throw new NoSuchElementException("해당 ID의 멤버가 존재하지 않습니다: " + request.getMemberId());
+            throw new CustomException(BoardErrorCode.NOT_FOUND_CATEGORY);
         }
 
         // 제목, 내용, 썸네일 URL이 모두 비어있으면 예외 처리
         if (isAllEmpty(request.getTitle(), request.getContent(), request.getThumbnailUrl())) {
-            throw new IllegalArgumentException("제목, 내용, 썸네일 URL이 모두 비어있습니다. 최소 하나는 채워야 합니다.");
+            throw new CustomException(BoardErrorCode.BAD_REQUEST, "제목, 내용, 썸네일 URL이 모두 비어있습니다. 최소 하나는 채워야 합니다.");
         }
 
         // 정보

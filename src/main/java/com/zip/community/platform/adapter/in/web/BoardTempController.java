@@ -1,12 +1,13 @@
 package com.zip.community.platform.adapter.in.web;
 
 import com.zip.community.common.response.ApiResponse;
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.adapter.in.web.dto.request.board.TempBoardRequest;
 import com.zip.community.platform.adapter.in.web.dto.response.TempBoardDetailResponse;
 import com.zip.community.platform.adapter.in.web.dto.response.TempBoardListResponse;
 import com.zip.community.platform.application.port.in.board.TempBoardUseCase;
 import com.zip.community.platform.domain.board.Board;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +41,7 @@ public class BoardTempController {
             @PathVariable("index") int index) {
 
         Board board = tempService.getTempBoard(userId, index)
-                .orElseThrow(() -> new EntityNotFoundException("해당하는 게시글이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
 
         return ApiResponse.ok(TempBoardDetailResponse.from(board));
     }
