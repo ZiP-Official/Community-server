@@ -1,7 +1,5 @@
 package com.zip.community.platform.application.service.chat;
 
-import com.zip.community.common.response.CustomException;
-import com.zip.community.common.response.errorcode.ChatErrorCode;
 import com.zip.community.platform.application.port.in.chat.ChatRoomUseCase;
 import com.zip.community.platform.application.port.out.chat.ChatRoomPort;
 import com.zip.community.platform.domain.chat.ChatRoom;
