@@ -1,6 +1,7 @@
-package com.zip.community.platform.adapter.in.web.dto.response;
+package com.zip.community.platform.adapter.in.web.dto.response.chat;
 
 import com.zip.community.platform.domain.chat.ChatRoom;
+import com.zip.community.platform.domain.chat.Participant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +18,7 @@ import java.util.stream.Collectors;
 public class ChatRoomResponse {
 
     private String id;
-    private String userId1;
-    private String userId2;
+    private List<Participant> participants;
     private String lastMessage;
     private LocalDateTime lastMessageTime;
 
@@ -26,8 +26,7 @@ public class ChatRoomResponse {
     public static ChatRoomResponse from(ChatRoom chatRoom) {
         return ChatRoomResponse.builder()
                 .id(chatRoom.getId())
-                .userId1(chatRoom.getParticipants().getFirst())
-                .userId2(chatRoom.getParticipants().getLast())
+                .participants(chatRoom.getParticipants())
                 .lastMessage(chatRoom.getLastMessage().getContent())
                 .lastMessageTime(chatRoom.getLastMessage().getSentAt())
                 .build();

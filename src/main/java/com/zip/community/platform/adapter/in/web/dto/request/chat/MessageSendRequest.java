@@ -5,10 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ChatRoomRequest {
+public class MessageSendRequest {
 
+    private String content;
     private Long senderId;
-    private Long receiverId;
-    private String senderName;
-    private String receiverName;
 }
