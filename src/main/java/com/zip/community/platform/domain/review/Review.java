@@ -1,15 +1,11 @@
 package com.zip.community.platform.domain.review;
 
 import com.zip.community.platform.domain.BaseDomain;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@SuperBuilder
 @Getter
 public class Review extends BaseDomain {
 

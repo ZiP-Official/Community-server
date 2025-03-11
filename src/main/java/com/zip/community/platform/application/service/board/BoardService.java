@@ -8,7 +8,7 @@ import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
 import com.zip.community.platform.application.port.out.board.*;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
-import com.zip.community.platform.application.port.out.user.LoadUserPort;
+import com.zip.community.platform.application.port.out.member.MemberPort;
 import com.zip.community.platform.domain.board.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -34,7 +34,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     private final LoadBoardPort loadPort;
     private final RemoveBoardPort removePort;
 
-    private final LoadUserPort loadUserPort;
+    private final MemberPort memberPort;
 
     private final LoadBoardReactionPort reactionPort;
     private final CategoryPort categoryPort;
@@ -44,7 +44,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     @Override
     public Board createBoard(BoardRequest request) {
 
-        if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
+        if (!memberPort.getCheckedExistUser(request.getMemberId())) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
 

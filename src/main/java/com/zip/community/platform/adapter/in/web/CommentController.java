@@ -4,7 +4,7 @@ import com.zip.community.common.response.ApiResponse;
 import com.zip.community.common.response.pageable.PageRequest;
 import com.zip.community.common.response.pageable.PageResponse;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentRequest;
-import com.zip.community.platform.adapter.in.web.dto.response.CommentResponse;
+import com.zip.community.platform.adapter.in.web.dto.response.board.CommentResponse;
 import com.zip.community.platform.application.port.in.comment.CreateCommentUseCase;
 import com.zip.community.platform.application.port.in.comment.GetCommentUseCase;
 import com.zip.community.platform.application.port.in.comment.RemoveCommentUseCase;

@@ -1,4 +1,4 @@
-package com.zip.community.platform.adapter.in.web.dto.response;
+package com.zip.community.platform.adapter.in.web.dto.response.board;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zip.community.platform.domain.board.Board;
@@ -15,19 +15,16 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoardListResponse {
+public class TempBoardListResponse {
 
     private Long category; // Immutable 빈 리스트 사용
 
-    private Long id;
     private Long author;
     private String title;
 
     @Builder.Default
     private String thumbnailUrl = "";
 
-    private long commentCount;
-    private long likeCount;  // Long → long으로 통일
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -37,24 +34,21 @@ public class BoardListResponse {
 
 
     // 생성자
-    public static BoardListResponse from(Board board) {
+    public static TempBoardListResponse from(Board board) {
 
-        return BoardListResponse.builder()
+        return TempBoardListResponse.builder()
                 .category(board.getCategoryId())
-                .id(board.getId())
                 .title(board.getSnippet().getTitle())
                 .author(board.getMemberId())
-                .commentCount(board.getStatistics().getCommentCount())
-                .likeCount(board.getStatistics().getLikeCount())
                 .createdAt(board.getCreatedAt())
                 .updatedAt(board.getUpdatedAt())
                 .build();
     }
 
     // List 해결
-    public static List<BoardListResponse> from(List<Board> boards) {
+    public static List<TempBoardListResponse> from(List<Board> boards) {
         return boards.stream()
-                .map(BoardListResponse::from)
+                .map(TempBoardListResponse::from)
                 .collect(Collectors.toList());
     }
 

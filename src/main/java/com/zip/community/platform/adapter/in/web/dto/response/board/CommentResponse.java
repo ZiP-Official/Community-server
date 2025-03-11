@@ -1,4 +1,4 @@
-package com.zip.community.platform.adapter.in.web.dto.response;
+package com.zip.community.platform.adapter.in.web.dto.response.board;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zip.community.platform.domain.comment.Comment;

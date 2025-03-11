@@ -1,34 +1,31 @@
-package com.zip.community.platform.adapter.in.web.dto.response;
+package com.zip.community.platform.adapter.in.web.dto.response.board;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.zip.community.platform.domain.board.Board;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.zip.community.platform.domain.board.Board;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoardDetailResponse {
+public class BoardListResponse {
 
     private Long category; // Immutable 빈 리스트 사용
 
     private Long id;
     private Long author;
     private String title;
-    private String content;
 
     @Builder.Default
     private String thumbnailUrl = "";
 
-    private long viewCount;
     private long commentCount;
     private long likeCount;  // Long → long으로 통일
 
@@ -40,15 +37,13 @@ public class BoardDetailResponse {
 
 
     // 생성자
-    public static BoardDetailResponse from(Board board) {
+    public static BoardListResponse from(Board board) {
 
-        return BoardDetailResponse.builder()
+        return BoardListResponse.builder()
                 .category(board.getCategoryId())
                 .id(board.getId())
                 .title(board.getSnippet().getTitle())
-                .content(board.getSnippet().getContent())
                 .author(board.getMemberId())
-                .viewCount(board.getStatistics().getViewCount())
                 .commentCount(board.getStatistics().getCommentCount())
                 .likeCount(board.getStatistics().getLikeCount())
                 .createdAt(board.getCreatedAt())
@@ -56,12 +51,11 @@ public class BoardDetailResponse {
                 .build();
     }
 
-    // 리스트 변환
-    public static List<BoardDetailResponse> from(List<Board> boards) {
+    // List 해결
+    public static List<BoardListResponse> from(List<Board> boards) {
         return boards.stream()
-                .map(BoardDetailResponse::from)
+                .map(BoardListResponse::from)
                 .collect(Collectors.toList());
     }
-
 
 }

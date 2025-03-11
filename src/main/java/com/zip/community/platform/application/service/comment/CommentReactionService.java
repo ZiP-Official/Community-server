@@ -7,9 +7,9 @@ import com.zip.community.platform.application.port.in.comment.CommentReactionUse
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentReactionRequest;
 import com.zip.community.platform.application.port.out.comment.LoadCommentReactionPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentReactionPort;
-import com.zip.community.platform.application.port.out.user.LoadUserPort;
 import com.zip.community.platform.application.port.out.comment.SaveCommentReactionPort;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
+import com.zip.community.platform.application.port.out.member.MemberPort;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class CommentReactionService implements CommentReactionUseCase{
     private final RemoveCommentReactionPort removePort;
 
     private final LoadCommentPort loadCommentPort;
-    private final LoadUserPort loadUserPort;
+    private final MemberPort memberPort;
 
     @Override
     public ReactionStatus addLikeReaction(CommentReactionRequest request) {
@@ -78,7 +78,7 @@ public class CommentReactionService implements CommentReactionUseCase{
         }
 
         // 존재하지 않는 유저가 반응을 해선 안된다.
-        if (!loadUserPort.getCheckedExistUser(request.getMemberId())) {
+        if (!memberPort.getCheckedExistUser(request.getMemberId())) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
 
