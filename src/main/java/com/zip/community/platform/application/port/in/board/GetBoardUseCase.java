@@ -13,10 +13,9 @@ public interface GetBoardUseCase {
     Page<Board> getBoards(Pageable pageable);
 
     // 인기 게시물 목록 조회
-    Page<Board> getBoardsView(Pageable pageable);
+    Page<Board> getBoardsFavorite(Pageable pageable);
 
-
-    // 특정 카테고리에 있는 게시글 조회하기 (댓글은 숫자)
+    // 특정 카테고리에 있는 최신 게시글 조회하기
     Page<Board> getBoardsByCategoryId(Long categoryId, Pageable pageable);
 
 

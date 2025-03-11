@@ -7,8 +7,8 @@ public interface SaveBoardPort {
     // 작성글 저장하는 기능
     Board saveBoard(Board board);
 
-    // 작성글 임시저장 기능
-    void saveTemporalBoard(Board board);
+    // 인기게시글 목록에 등록하기
+    void saveBoardFavorite(Long boardId);
 
     // 캐시에 조회수를 증가시키는 로직
     void incrementViewCount(Long boardId);

@@ -4,8 +4,8 @@ import com.zip.community.common.response.CustomException;
 import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.application.port.in.board.CreateBoardUseCase;
 import com.zip.community.platform.application.port.in.board.GetBoardUseCase;
-import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
+import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
 import com.zip.community.platform.application.port.out.board.*;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentPort;
@@ -71,14 +71,19 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     @Override
     public Board getBoardById(Long boardId) {
 
+        // 예외처리 하기
+        if (!loadPort.existBoard(boardId)) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_BOARD);
+        }
+
         // 조회수를 증가시키는 로직
         savePort.incrementViewCount(boardId);
 
         // 조회수 /좋아요 / 싫어요 / 댓글 개수 조회하기
-        Long viewCount = loadPort.loadViewCount(boardId);
-        Long likeCount = loadReactionPort.loadBoardLikeCount(boardId);
-        Long disLikeCount = loadReactionPort.loadBoardDisLikeCount(boardId);
-        Long commentCount = loadCommentPort.loadCommentCount(boardId);
+        long viewCount = loadPort.loadViewCount(boardId) != null ? loadPort.loadViewCount(boardId) : 0L;
+        long likeCount = loadReactionPort.loadBoardLikeCount(boardId) != null ? loadReactionPort.loadBoardLikeCount(boardId) : 0L;
+        long disLikeCount = loadReactionPort.loadBoardDisLikeCount(boardId) != null ? loadReactionPort.loadBoardDisLikeCount(boardId) : 0L;
+        long commentCount = loadCommentPort.loadCommentCount(boardId) != null ? loadCommentPort.loadCommentCount(boardId) : 0L;
 
         // Board를 조회
         Optional<Board> boardOptional = loadPort.loadBoardById(boardId);
@@ -89,9 +94,16 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
                     board.getStatistics().bindStatistics(viewCount, commentCount, likeCount, disLikeCount);
         });
 
+        // 만약 해당 게시글이 인기 게시글의 조건에 충족하다면, 인기게시글로 만든다.
+        long favoriteCondition = viewCount + likeCount + disLikeCount + commentCount;
+        if (favoriteCondition > 10) {
+            savePort.saveBoardFavorite(boardId);
+        }
+
         // Board가 없으면 예외를 던짐
         return boardOptional
-                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));}
+                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
+    }
 
 
     // 최신 목록글 조회
@@ -111,7 +123,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     // 인기 목록글 조회
     @Override
     public Page<Board> getBoardsFavorite(Pageable pageable) {
-        Page<Board> boards = loadPort.loadBoardsView(pageable);
+        Page<Board> boards = loadPort.loadBoardsFavorite(pageable);
         List<Board> list = boards.getContent();
 
         // 내부함수 적용
@@ -128,6 +140,9 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
             카테고리의 하위 결과까지 가져와야한다.
          */
 
+        if (!categoryPort.getCheckedExistCategory(categoryId)) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_CATEGORY);
+        }
         // 카테고리 id와 children 카테고리 목록 가져오기
         List<Long> categoryIds = getLongs(categoryId);
 
@@ -161,10 +176,10 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     private void updateBoardStatistics(List<Board> boards) {
         boards.forEach(board -> {
 
-            Long viewCount = loadPort.loadViewCount(board.getId());
-            Long likeCount = loadReactionPort.loadBoardLikeCount(board.getId());
-            Long disLikeCount = loadReactionPort.loadBoardDisLikeCount(board.getId());
-            Long commentCount = loadCommentPort.loadCommentCount(board.getId());
+            long viewCount = loadPort.loadViewCount(board.getId()) != null ? loadPort.loadViewCount(board.getId()) : 0L;
+            long likeCount = loadReactionPort.loadBoardLikeCount(board.getId()) != null ? loadReactionPort.loadBoardLikeCount(board.getId()) : 0L;
+            long disLikeCount = loadReactionPort.loadBoardDisLikeCount(board.getId()) != null ? loadReactionPort.loadBoardDisLikeCount(board.getId()) : 0L;
+            long commentCount = loadCommentPort.loadCommentCount(board.getId()) != null ? loadCommentPort.loadCommentCount(board.getId()) : 0L;
 
             board.getStatistics().bindStatistics(viewCount, commentCount, likeCount, disLikeCount);
         });

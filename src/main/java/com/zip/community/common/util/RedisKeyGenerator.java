@@ -16,6 +16,9 @@ public class RedisKeyGenerator {
     public static String getBoardViewCountSetKey() {
         return BOARD_VIEW_COUNT_SET;
     }
+    public static String getBoardList(){
+        return BOARD_LIST;
+    }
 
     public static String getBoardLikeKey(Long boardId) {
         return BOARD_LIKE + SEPARATOR +  boardId;

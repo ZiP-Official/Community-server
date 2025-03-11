@@ -68,29 +68,6 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
                 });
     }
 
-    /// LoadPort 구현체
-    @Override
-    public boolean existBoard(Long boardId) {
-
-        return repository.existsById(boardId);
-    }
-
-    // 게시물 상세 조회
-    @Override
-    public Optional<Board> loadBoardById(Long boardId) {
-        // 레디스에서 게시글을 먼저 가져오되, 없으면 JPA에서 가져오도록 한다.
-        return redisRepository.findById(boardId)
-                // redis cache hit
-                .map(BoardRedisHash::toDomain)
-                .or(() -> {
-                    // redis cache miss, JPA에서 값을 가져온다.
-                    var optionalBoard = repository.findById(boardId);
-
-                    return optionalBoard
-                            .map(BoardJpaEntity::toDomain);
-                });
-    }
-
     // 게시글을 레디스의 인기게시물 목록에 저장하기
     @Override
     public void saveBoardFavorite(Long boardId) {
@@ -115,6 +92,29 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
         long currentTimeMillis = Instant.now().toEpochMilli();
         // 시간과 함께 저장한다.
         redisTemplate.opsForZSet().add(boardList, boardId, currentTimeMillis);
+    }
+
+    /// LoadPort 구현체
+    @Override
+    public boolean existBoard(Long boardId) {
+
+        return repository.existsById(boardId);
+    }
+
+    // 게시물 상세 조회
+    @Override
+    public Optional<Board> loadBoardById(Long boardId) {
+        // 레디스에서 게시글을 먼저 가져오되, 없으면 JPA에서 가져오도록 한다.
+        return redisRepository.findById(boardId)
+                // redis cache hit
+                .map(BoardRedisHash::toDomain)
+                .or(() -> {
+                    // redis cache miss, JPA에서 값을 가져온다.
+                    var optionalBoard = repository.findById(boardId);
+
+                    return optionalBoard
+                            .map(BoardJpaEntity::toDomain);
+                });
     }
 
     // 조회수 가져오기
@@ -173,7 +173,33 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     // 인기게시글 조회하기
     @Override
     public Page<Board> loadBoardsFavorite(Pageable pageable) {
-        return null;
+
+        /// 레디스에서 조회하기
+
+        String boardList = RedisKeyGenerator.getBoardList();
+
+        // 해당 페이지에 맞는 게시글 ID들 가져오기 (ZSet은 순서가 정해져 있으므로, 스코어를 기준으로 범위 가져옴)
+        var opsZet = redisTemplate.opsForZSet();
+        Set<Long> boardIds = opsZet.reverseRange(boardList, pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1);
+
+        // 게시글이 없으면 빈 페이지 반환
+        if (boardIds == null || boardIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        // 게시글 ID 목록에 해당하는 게시글들을 조회
+        List<Board> boards = boardIds.stream()
+                .map(this::loadBoardById)  // Board ID로 Board 상세 조회
+                .filter(Optional::isPresent)  // 존재하는 게시글만 필터링
+                .map(Optional::get)  // Optional에서 Board 객체 추출
+                .collect(Collectors.toList());
+        
+        /// 없으면 DB에서 조회하기
+        /*
+            추후 개발예정
+         */
+
+        return new PageImpl<>(boards, pageable, boardIds.size());
     }
 
 

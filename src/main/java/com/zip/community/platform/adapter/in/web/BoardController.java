@@ -57,23 +57,21 @@ public class BoardController {
         return ApiResponse.ok(new PageResponse<>(dtolist, pageRequest, result.getTotalElements()));
     }
 
-    // 조회수 기반 게시글 목록 조회하기
-    @GetMapping("/list/view")
-    public ApiResponse<PageResponse<BoardListResponse>> getBoardsView(PageRequest pageRequest) {
+    // 화제 게시글 목록 조회하기
+    @GetMapping("/list/favorite")
+    public ApiResponse<PageResponse<BoardListResponse>> getBoardsFavorite(PageRequest pageRequest) {
 
         Pageable pageable = org.springframework.data.domain.PageRequest.of(pageRequest.getPage() - 1, pageRequest.getSize(), Sort.by("id").descending());
 
-        Page<Board> result = getService.getBoardsView(pageable);
+        Page<Board> result = getService.getBoardsFavorite(pageable);
         List<BoardListResponse> dtolist = BoardListResponse.from(result.getContent());
 
         return ApiResponse.ok(new PageResponse<>(dtolist, pageRequest, result.getTotalElements()));
-
     }
 
     // 좋아요 기반 게시글 목록 조회하기
 
 
-    // 화제 게시글 목록 조회하기
 
 
     // 카테고리 내 게시글 조회
