@@ -1,5 +1,7 @@
 package com.zip.community.platform.adapter.out;
 
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.errorcode.ChatErrorCode;
 import com.zip.community.platform.adapter.out.mongo.chat.ChatRoomDocument;
 import com.zip.community.platform.adapter.out.mongo.chat.repository.ChatRoomMongoRepository;
 import com.zip.community.platform.application.port.out.chat.ChatRoomPort;
@@ -31,22 +33,23 @@ public class ChatRoomMongoPersistenceAdapter implements ChatRoomPort {
     public ChatRoom findByChatRoomId(String chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
                 .map(ChatRoomDocument::toDomain)
-                .orElse(null);
+                .orElseThrow(() -> new CustomException(ChatErrorCode.NOT_FOUND_CHAT_ROOM));
     }
 
     @Override
-    public ChatRoom findChatRoomByParticipants(String userId1, String userId2) {
-        List<ChatRoomDocument> rooms = chatRoomRepository.findByParticipantsContaining(userId1);
+    public List<ChatRoom> findChatRoomsByUserId(Long memberId) {
+        List<ChatRoomDocument> rooms = chatRoomRepository.findByParticipantsId(memberId);
+        if (rooms == null || rooms.isEmpty()) {
+            throw new CustomException(ChatErrorCode.NOT_FOUND_CHAT_ROOM);
+        }
         return rooms.stream()
-                .filter(room -> room.getParticipants().contains(userId2))
-                .findFirst()
                 .map(ChatRoomDocument::toDomain)
-                .orElse(null);
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<ChatRoom> findChatRoomsByUserId(String userId) {
-        List<ChatRoomDocument> rooms = chatRoomRepository.findByParticipantsContaining(userId);
-        return rooms.stream().map(ChatRoomDocument::toDomain).collect(Collectors.toList());
+    public ChatRoom findChatRoomByParticipants(Long senderId, Long receiverId) {
+        List<ChatRoomDocument> rooms = chatRoomRepository.findByParticipantsContainingBoth(senderId, receiverId);
+        return rooms.stream().findFirst().map(ChatRoomDocument::toDomain).orElse(null);
     }
 }

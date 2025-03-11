@@ -5,6 +5,6 @@ import com.zip.community.platform.domain.chat.ChatRoom;
 import java.util.List;
 
 public interface ChatRoomUseCase {
-    ChatRoom startChat(String userId1, String userId2);
-    List<ChatRoom> getChatRoomsForUser(String userId);
+    ChatRoom startChat(Long senderId, Long receiverId, String senderName, String receiverName);
+    List<ChatRoom> getChatRoomsForUser(Long memberId);
 }

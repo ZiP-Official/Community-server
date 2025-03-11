@@ -8,6 +8,6 @@ public interface ChatRoomPort {
 
     ChatRoom save(ChatRoom chatRoom);
     ChatRoom findByChatRoomId(String chatRoomId);
-    ChatRoom findChatRoomByParticipants(String userId1, String userId2);
-    List<ChatRoom> findChatRoomsByUserId(String userId);
+    List<ChatRoom> findChatRoomsByUserId(Long memberId);
+    ChatRoom findChatRoomByParticipants(Long senderId, Long receiverId);
 }
