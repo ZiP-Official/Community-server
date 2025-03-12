@@ -11,6 +11,7 @@ public interface SaveBoardReactionPort {
     void saveDisLikeBoardReaction(Long boardId, Long userId);
 
     // 싱크를 맞춘다
-    void synchronizeBoardReaction(BoardReaction boardReaction);
+    void synchronizeBoardReaction(Long boardId);
+
 
 }
