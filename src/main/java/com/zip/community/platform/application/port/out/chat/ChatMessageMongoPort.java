@@ -3,7 +3,6 @@ package com.zip.community.platform.application.port.out.chat;
 import com.zip.community.platform.domain.chat.ChatMessage;
 import com.zip.community.platform.domain.report.ReportedChatMessage;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatMessageMongoPort {
