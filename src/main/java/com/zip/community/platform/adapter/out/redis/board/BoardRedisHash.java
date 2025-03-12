@@ -9,6 +9,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
+import java.time.LocalDateTime;
+
 @RedisHash("board")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,6 +30,10 @@ public class BoardRedisHash {
 
     private BoardStatisticsRedisHash boardStatistics;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
     // from 생성자
     public static BoardRedisHash from(Board board) {
 
@@ -37,6 +43,8 @@ public class BoardRedisHash {
                 .categoryId(board.getCategoryId())
                 .boardSnippet(BoardSnippetRedisHash.from(board.getSnippet()))
                 .boardStatistics(BoardStatisticsRedisHash.from(board.getStatistics()))
+                .createdAt(board.getCreatedAt()) // 이미 JPA에서 만들어진 시간을 바탕으로 가져온다
+                .updatedAt(board.getUpdatedAt()) // 이미 JPA에서 만들어진 시간을 바탕으로 가져온다
                 .build();
     }
 
@@ -48,6 +56,8 @@ public class BoardRedisHash {
                 .categoryId(categoryId)
                 .snippet(boardSnippet.toDomain())
                 .statistics(boardStatistics.toDomain())
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
                 .build();
     }
 }

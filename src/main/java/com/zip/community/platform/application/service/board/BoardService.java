@@ -2,13 +2,16 @@ package com.zip.community.platform.application.service.board;
 
 import com.zip.community.common.response.CustomException;
 import com.zip.community.common.response.errorcode.BoardErrorCode;
+import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
+import com.zip.community.platform.adapter.in.web.dto.request.board.BoardUpdateRequest;
 import com.zip.community.platform.application.port.in.board.CreateBoardUseCase;
 import com.zip.community.platform.application.port.in.board.GetBoardUseCase;
-import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
 import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
+import com.zip.community.platform.application.port.in.board.UpdateBoardUseCase;
 import com.zip.community.platform.application.port.out.board.*;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentPort;
+import com.zip.community.platform.application.port.out.comment.SaveCommentPort;
 import com.zip.community.platform.application.port.out.member.MemberPort;
 import com.zip.community.platform.domain.board.*;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +32,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class BoardService implements CreateBoardUseCase, GetBoardUseCase, RemoveBoardUseCase {
+public class BoardService implements CreateBoardUseCase, GetBoardUseCase, UpdateBoardUseCase, RemoveBoardUseCase {
+
 
     private final SaveBoardPort savePort;
     private final LoadBoardPort loadPort;
@@ -41,6 +45,8 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     /// 레디스 관련 의존성
     private final LoadBoardReactionPort loadReactionPort;
     private final RemoveBoardReactionPort removeReactionPort;
+
+    private final SaveCommentPort saveCommentPort;
     private final LoadCommentPort loadCommentPort;
     private final RemoveCommentPort removeCommentPort;
 
@@ -48,8 +54,14 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
     @Override
     public Board createBoard(BoardRequest request) {
 
+        // 멤버 예외처리
         if (!memberPort.getCheckedExistUser(request.getMemberId())) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
+        }
+
+        // 카테고리 값 예외처리
+        if (!categoryPort.getCheckedExistCategory(request.getCategoryId())) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_CATEGORY);
         }
 
         // 게시물 생성
@@ -57,12 +69,54 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
 
         BoardStatistics statistics = BoardStatistics.of();
 
-        // 카테고리와 연결
-        Category category = categoryPort.loadCategory(request.getCategoryId())
-                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_CATEGORY));
 
-        Board board = Board.of(request.getMemberId(),category.getId() ,snippet, statistics);
+
+        Board board = Board.of(request.getMemberId(), request.getCategoryId(), snippet, statistics);
         return savePort.saveBoard(board);
+    }
+
+    /// UpdateUseCase 구현체
+    @Override
+    public Board updateBoard(BoardUpdateRequest request) {
+
+        // 게시글 가져오기
+        Board board = loadPort.loadBoardById((request.getBoardId()))
+                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
+
+        // 유저가 존재하는지 확인하는 예외처리
+        if (memberPort.getCheckedExistUser(board.getMemberId())) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
+        }
+
+        // 게시글 작성 유저와 요청 유저가 동일한지 체크
+        if (!board.getMemberId().equals(request.getBoardId())){
+            throw new CustomException(BoardErrorCode.BAD_REQUEST_UPDATE);
+        }
+
+        // 카테고리 값 예외처리
+        if (!categoryPort.getCheckedExistCategory(request.getCategoryId())) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_CATEGORY);
+        }
+
+        // 인기글이라면 수정할 수 없다.
+
+
+        // 값 수정하기
+        board.update(request);
+
+        return savePort.updateBoard(board);
+    }
+
+    @Override
+    public void syncData(Long boardId) {
+
+        // 게시글 가져오기
+        Board board = loadPort.loadBoardById(boardId)
+                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
+
+        // JPA에 업데이트하는 로직추가 하기
+        savePort.syncData(boardId);
+
     }
 
 
@@ -92,11 +146,13 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
         boardOptional
                 .ifPresent(board -> {
                     board.getStatistics().bindStatistics(viewCount, commentCount, likeCount, disLikeCount);
-        });
+                });
 
         // 만약 해당 게시글이 인기 게시글의 조건에 충족하다면, 인기게시글로 만든다.
         long favoriteCondition = viewCount + likeCount + disLikeCount + commentCount;
-        if (favoriteCondition > 10) {
+
+        // 인기글 조건 + 해당 게시글이 이미 존재한다면 추가할 필요없음
+        if (favoriteCondition > 10 && !loadPort.checkBoardFavorite(boardId)) {
             savePort.saveBoardFavorite(boardId);
         }
 
@@ -140,6 +196,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
             카테고리의 하위 결과까지 가져와야한다.
          */
 
+        // 카테고리 예외처리
         if (!categoryPort.getCheckedExistCategory(categoryId)) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_CATEGORY);
         }
@@ -203,4 +260,6 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Remove
 
         return categoryIds;
     }
+
+
 }

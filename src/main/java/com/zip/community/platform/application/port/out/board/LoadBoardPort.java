@@ -30,6 +30,9 @@ public interface LoadBoardPort {
     // 카테고리 내, 인기 게시물 목록 조회
     Page<Board> loadBoardsByCategoryIdFavorite(Long categoryId, Pageable pageable);
 
+    // 인기 게시물 목록 중 하나인지 조회
+    boolean checkBoardFavorite(Long boardId);
+
     // 글 작성자 판단 위한 작성자 id 가져오기
     Optional<Long> loadWriterIdByBoardId(Long boardId);
 
