@@ -9,4 +9,5 @@ public class MessageSendRequest {
 
     private String content;
     private Long senderId;
+    private String senderName;
 }
