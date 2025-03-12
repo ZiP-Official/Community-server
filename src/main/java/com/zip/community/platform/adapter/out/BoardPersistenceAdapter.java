@@ -10,6 +10,7 @@ import com.zip.community.platform.adapter.out.redis.board.BoardRedisRepository;
 import com.zip.community.platform.application.port.out.board.LoadBoardPort;
 import com.zip.community.platform.application.port.out.board.RemoveBoardPort;
 import com.zip.community.platform.application.port.out.board.SaveBoardPort;
+import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.domain.board.Board;
 import com.zip.community.platform.domain.board.BoardFavorite;
 import lombok.RequiredArgsConstructor;
@@ -31,14 +32,12 @@ import java.util.stream.Collectors;
 public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, RemoveBoardPort {
 
     private final BoardJpaRepository repository;
-
     private final BoardRedisRepository redisRepository;
-
     private final RedisTemplate<String, Long> redisTemplate;
 
     /// 외부 의존성 존재
     private final BoardFavoriteJpaRepository favoriteRepository;
-
+    private final LoadCommentPort loadCommentPort;
 
     /// SavePort 구현체
     @Override
@@ -57,30 +56,31 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
             return;
         }
 
+        /// REDIS가 없다면 repository에서 viewCount값을 받고, 그 값에 추가하는 형식
         // key 값 가져오기
         var boardViewCountKey = RedisKeyGenerator.getBoardViewCountKey(boardId);
 
-        redisTemplate.opsForValue().increment(boardViewCountKey);
+        if (redisTemplate.hasKey(boardViewCountKey)) {
+            redisTemplate.opsForValue().increment(boardViewCountKey);
+
+        } else {
+            repository.findById(boardId)
+                    .ifPresent(board -> {
+                        redisTemplate.opsForValue().set(boardViewCountKey, board.getBoardStatistics().getViewCount());
+                        redisTemplate.opsForValue().increment(boardViewCountKey);
+                    });
+        }
     }
 
-    // Redis의 사라짐을 방지하여, 매핑해주는 역할을 수행한다.
+    // Redis의 매핑이 사라져도 JPA에 그 값들을 저장하는 로직
     @Override
-    public void syncData(Long boardId) {
-        repository.findById(boardId)
-                .ifPresent(board -> {
-                    Long viewCount = redisTemplate.opsForValue().get(RedisKeyGenerator.getBoardViewCountKey(boardId));
-                    Long likeCount = redisTemplate.opsForValue().get(RedisKeyGenerator.getBoardLikeKey(boardId));
-                    Long diskLikeCount = redisTemplate.opsForValue().get(RedisKeyGenerator.getBoardDisLikeKey(boardId));
+    public void syncData(Long boardId, long viewCount, long likeCount, long dislikeCount, long commentCount) {
 
-                    board.updateBoardStatics(viewCount,likeCount,diskLikeCount);
-
-                    // 해당 값을 db에 저장한다.
-                    repository.save(board);
-
-                    redisTemplate.opsForSet().remove(RedisKeyGenerator.getBoardViewCountKey(boardId));
-                    redisTemplate.opsForSet().remove(RedisKeyGenerator.getBoardLikeKey(boardId));
-                    redisTemplate.opsForSet().remove(RedisKeyGenerator.getBoardDisLikeKey(boardId));
-                });
+        // JPA에 업데이트하는 로직 구현
+        repository.findById(boardId).ifPresent(board -> {
+            board.updateBoardStatics(viewCount, likeCount, dislikeCount, commentCount);
+            repository.save(board);
+        });
     }
 
     // 게시글을 레디스의 인기게시물 목록에 저장하기 & Entity 저장하기
@@ -110,7 +110,21 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
         redisTemplate.opsForZSet().add(boardList, boardId, currentTimeMillis);
     }
 
-    
+    // 업데이트 하기
+    @Override
+    public Board updateBoard(Board board) {
+
+        /*
+            게시글 업데이트 하는 로직
+            기존의 레디스에서 해당하는 값은 삭제해야한다.
+            조회수나, 좋아요, 추천수는 유지해야한다.
+         */
+        removeCache(board.getId());
+
+        // 새롭게 db에 업데이트 한다.
+        return repository.save(BoardJpaEntity.from(board))
+                .toDomain();
+    }
 
     /// LoadPort 구현체
     @Override
@@ -152,8 +166,19 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     @Override
     public Long loadViewCount(Long boardId) {
         var boardViewCountKey = RedisKeyGenerator.getBoardViewCountKey(boardId);
-        var viewCont = redisTemplate.opsForValue().get(boardViewCountKey);
-        return viewCont == null ? 0 : viewCont;
+        var viewCount = redisTemplate.opsForValue().get(boardViewCountKey);
+
+        // Redis에 데이터가 없으면 DB에서 조회 후 Redis에 저장
+        if (viewCount == null) {
+            viewCount = repository.findById(boardId)
+                    .map(board -> board.getBoardStatistics().getViewCount())
+                    .orElse(0L);
+
+            // Redis에 캐싱
+            redisTemplate.opsForValue().set(boardViewCountKey, viewCount);
+        }
+
+        return viewCount;
     }
 
     //  전체 최신 게시물 조회 (작성일자 기준 내림차순)
@@ -164,44 +189,7 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
                 .map(BoardJpaEntity::toDomain);
     }
 
-    // 전체 인기 게시물 조회 (조회수 10 이상)
-    // GPT 바탕의 코드
-    @Override
-    public Page<Board> loadBoardsView(Pageable pageable) {
-
-        String countSetKey = RedisKeyGenerator.getBoardViewCountSetKey();
-
-        // ZSET에서 인기 게시물 조회 (내림차순으로 정렬)
-        Set<ZSetOperations.TypedTuple<Long>> range = redisTemplate.opsForZSet()
-                .reverseRangeWithScores(countSetKey, pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1);
-
-        // Redis에서 게시물 ID로 Board 객체를 가져오는 로직
-        List<Board> boards = range.stream()
-                .map(tuple -> {
-
-                    // 게시물 ID
-                    Long boardId = tuple.getValue();
-
-                    // Board 객체를 Redis를 통해서 조회한다.
-                    Board board = loadBoardById(boardId).get();
-
-                    // Board의 조회수를 Redis를 통해서 조회한다.
-                    Long viewCount = loadViewCount(boardId);
-
-                    board.getStatistics().changeViewCount(viewCount);
-
-                    return board;
-                })
-                .collect(Collectors.toList());
-
-        // 전체 ZSET 크기 (전체 인기 게시물 개수)
-        long totalCount = redisTemplate.opsForZSet().size(countSetKey);
-
-        // PageImpl로 페이지 처리된 결과 반환
-        return new PageImpl<>(boards, pageable, totalCount);
-    }
-
-    // 인기게시글 조회하기,
+    // 인기게시글 조회하기
     @Override
     public Page<Board> loadBoardsFavorite(Pageable pageable) {
 
@@ -296,20 +284,37 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     @Override
     public void removeBoard(Long boardId) {
 
-
         /// 레디스 삭제
         // 레디스에서 삭제한다.
-        repository.findById(boardId)
-                        .ifPresent(board -> {
-                            BoardRedisHash redisHash = BoardRedisHash.from(board.toDomain());
-                            redisRepository.delete(redisHash);
-                        });
+        removeCache(boardId);
 
         // 인기게시글 목록에서도 삭제
         String boardList = RedisKeyGenerator.getBoardList();
         redisTemplate.opsForZSet().remove(boardList, boardId);
 
         // 해당 부분은 softDelete 진행한다.
+        removeEntity(boardId);
+    }
+
+    @Override
+    public void removeEntity(Long boardId) {
+
+        // 게시글 관련하여 영속성 삭제를 진행한다.
+        // softDelete, Batch 통해 삭제할 예정이다.
         repository.deleteById(boardId);
     }
+
+    @Override
+    public void removeCache(Long boardId) {
+
+        // 레디스에서 삭제한다.
+        repository.findById(boardId)
+                .ifPresent(board -> {
+                    BoardRedisHash redisHash = BoardRedisHash.from(board.toDomain());
+                    redisRepository.delete(redisHash);
+                });
+
+    }
+
+
 }

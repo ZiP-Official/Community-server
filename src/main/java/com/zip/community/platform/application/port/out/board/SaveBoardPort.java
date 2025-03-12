@@ -4,6 +4,7 @@ import com.zip.community.platform.domain.board.Board;
 
 public interface SaveBoardPort {
 
+    /// 저장 관련
     // 작성글 저장하는 기능
     Board saveBoard(Board board);
 
@@ -14,7 +15,9 @@ public interface SaveBoardPort {
     void incrementViewCount(Long boardId);
 
     // DB와 캐시 사이에 조회수를 매핑시키는 로직
-    void syncViewCount(Long boardId);
+    void syncData(Long boardId, long viewCount, long likeCount, long dislikeCount, long commentCount);
 
+    /// 업데이트 관련
+    Board updateBoard(Board board);
 
 }

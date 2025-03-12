@@ -79,6 +79,7 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
 
 
     /// DeletePort
+    // 특정 유저의 좋아요 취소
     @Override
     public void removeBoardLikeReaction(Long boardId, Long userId) {
 
@@ -87,17 +88,39 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
     }
 
     @Override
+    // 특정 유저의 싫어요 취소
     public void removeBoardDisLikeReaction(Long boardId, Long userId) {
         var setOps = redisTemplate.opsForSet();
         setOps.remove(RedisKeyGenerator.getBoardDisLikeKey(boardId), userId);
     }
 
-    // 게시글에 해당 하는 내용 다 삭제하기
+    // 게시글의 모든 반응 삭제하기, 주로 글 삭제와 연관되어있을 듯 싶다
     @Override
     public void removeAllByBoardId(Long boardId) {
-        var setOps = redisTemplate.opsForSet();
-        setOps.remove(RedisKeyGenerator.getBoardDisLikeKey(boardId));
-        setOps.remove(RedisKeyGenerator.getBoardLikeKey(boardId));
+
+        // 캐싱 삭제
+        removeCache(boardId);
+
+        // 영속성 삭제
+        removeEntity(boardId);
+    }
+
+    // 영속성 관련 내용 삭제하기
+    @Override
+    public void removeEntity(Long boardId) {
+
+        // 소프트 처리등을 여기서 진행한다.
+
+    }
+
+    // 캐시 관련 내용 삭제하기
+    @Override
+    public void removeCache(Long boardId) {
+
+        redisTemplate.delete(RedisKeyGenerator.getBoardDisLikeKey(boardId));
+        redisTemplate.delete(RedisKeyGenerator.getBoardLikeKey(boardId));
+
+        // 해당 게시글 내부의 댓글마다의 추천 비추천을 삭제는 RemoveBoardPort에서 처리한다.
     }
 
 

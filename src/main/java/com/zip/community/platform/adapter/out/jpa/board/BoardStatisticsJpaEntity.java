@@ -32,8 +32,10 @@ public class BoardStatisticsJpaEntity {
     }
 
     ///  비즈니스 로직
-    public void changeViewCount(long viewCount) {
+    public void changeStatistics(long viewCount, long likeCount, long dislikeCount, long commentCount) {
         this.viewCount = viewCount;
+        this.likeCount = likeCount - dislikeCount;
+        this.commentCount = commentCount;
     }
 
 }

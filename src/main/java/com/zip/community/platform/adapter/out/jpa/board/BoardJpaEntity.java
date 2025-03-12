@@ -55,9 +55,9 @@ public class BoardJpaEntity extends BaseEntity {
     }
 
     /// 비즈니스 로직
-    // 조회수 매핑 업데이트 로직
-    public void updateViewCount(Long viewCount) {
-        this.boardStatistics.changeViewCount(viewCount);
+    // 실제 DB 내에서 조회수를 매핑할때 사용하는 로직
+    public void updateBoardStatics(long viewCount, long likeCount, long dislikeCount, long commentCount) {
+        this.boardStatistics.changeStatistics(viewCount, likeCount, dislikeCount, commentCount);
     }
 
     

@@ -19,10 +19,7 @@ public class BoardStatistics {
             .build();
     }
 
-    public void changeViewCount(long viewCount) {
-        this.viewCount = viewCount;
-    }
-
+    /// 도메인 상으로 값이 변한것만 보여주기 위해서 사용
     public void bindStatistics(long viewCount, long commentCount, long likeCount, long diskLikeCount) {
         this.viewCount = viewCount;
         this.commentCount = commentCount;

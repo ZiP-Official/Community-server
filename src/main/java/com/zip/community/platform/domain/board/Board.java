@@ -1,6 +1,7 @@
 package com.zip.community.platform.domain.board;
 
 
+import com.zip.community.platform.adapter.in.web.dto.request.board.BoardUpdateRequest;
 import com.zip.community.platform.domain.BaseDomain;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -25,5 +26,23 @@ public class Board extends BaseDomain {
                 .categoryId(categoryId)
                 .build();
 
+    }
+
+    /// 수정 로직
+    public void update(BoardUpdateRequest request) {
+        // 제목이 null이 아니면 제목 업데이트
+        if (request.getTitle() != null) {
+            this.snippet.changeTitle(request.getTitle());
+        }
+
+        // 내용이 null이 아니면 내용 업데이트
+        if (request.getContent() != null) {
+            this.snippet.changeContent(request.getContent());
+        }
+
+        // 카테고리 ID가 null이 아니면 카테고리 ID 업데이트
+        if (request.getCategoryId() != null) {
+            this.categoryId = request.getCategoryId();
+        }
     }
 }

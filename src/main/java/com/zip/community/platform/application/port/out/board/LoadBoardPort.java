@@ -40,7 +40,4 @@ public interface LoadBoardPort {
 
     // 최하위 카테고리 바탕의 조회
     Page<Board> loadBoardsByCategoryId(Long categoryId, Pageable pageable);
-
-    // 전체 내, 조회수 높은 게시물 목록 조회
-    Page<Board> loadBoardsView(Pageable pageable);
 }

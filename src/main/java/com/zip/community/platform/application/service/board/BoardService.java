@@ -11,7 +11,7 @@ import com.zip.community.platform.application.port.in.board.UpdateBoardUseCase;
 import com.zip.community.platform.application.port.out.board.*;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentPort;
-import com.zip.community.platform.application.port.out.comment.SaveCommentPort;
+import com.zip.community.platform.application.port.out.comment.RemoveCommentReactionPort;
 import com.zip.community.platform.application.port.out.member.MemberPort;
 import com.zip.community.platform.domain.board.*;
 import lombok.RequiredArgsConstructor;
@@ -46,9 +46,9 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
     private final LoadBoardReactionPort loadReactionPort;
     private final RemoveBoardReactionPort removeReactionPort;
 
-    private final SaveCommentPort saveCommentPort;
     private final LoadCommentPort loadCommentPort;
     private final RemoveCommentPort removeCommentPort;
+    private final RemoveCommentReactionPort removeCommentReactionPort;
 
     /// CreateUseCase 구현체
     @Override
@@ -66,12 +66,10 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
 
         // 게시물 생성
         BoardSnippet snippet = BoardSnippet.of(request.getTitle(), request.getContent(), "링크");
-
         BoardStatistics statistics = BoardStatistics.of();
-
-
-
         Board board = Board.of(request.getMemberId(), request.getCategoryId(), snippet, statistics);
+
+        // 저장하기
         return savePort.saveBoard(board);
     }
 
@@ -100,8 +98,9 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
 
         // 인기글이라면 수정할 수 없다.
 
-
         // 값 수정하기
+
+        // 캐시 삭제하는 것도 필요하다.
         board.update(request);
 
         return savePort.updateBoard(board);
@@ -114,8 +113,23 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
         Board board = loadPort.loadBoardById(boardId)
                 .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
 
-        // JPA에 업데이트하는 로직추가 하기
-        savePort.syncData(boardId);
+        long viewCount = loadPort.loadViewCount(board.getId()) != null ? loadPort.loadViewCount(board.getId()) : 0L;
+        long likeCount = loadReactionPort.loadBoardLikeCount(board.getId()) != null ? loadReactionPort.loadBoardLikeCount(board.getId()) : 0L;
+        long disLikeCount = loadReactionPort.loadBoardDisLikeCount(board.getId()) != null ? loadReactionPort.loadBoardDisLikeCount(board.getId()) : 0L;
+        long commentCount = loadCommentPort.loadCommentCount(board.getId()) != null ? loadCommentPort.loadCommentCount(board.getId()) : 0L;
+
+        // JPA 에 연동하기
+        savePort.syncData(boardId, viewCount, likeCount, disLikeCount, commentCount);
+
+        /// 해당 레디스들은 전부 삭제하기
+
+        // 리액션 관련 내용 삭제하기
+        removePort.removeCache(boardId);
+        removeReactionPort.removeCache(board.getId());
+
+        // 댓글 관련 내용 삭제하기
+        removeCommentReactionPort.removeCache(board.getId());
+        removeCommentPort.removeCache(board.getId());
 
     }
 
@@ -125,15 +139,15 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
     @Override
     public Board getBoardById(Long boardId) {
 
-        // 예외처리 하기
+        // 예외처리
         if (!loadPort.existBoard(boardId)) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_BOARD);
         }
 
-        // 조회수를 증가시키는 로직
+        // 조회수 증가
         savePort.incrementViewCount(boardId);
 
-        // 조회수 /좋아요 / 싫어요 / 댓글 개수 조회하기
+        // 조회수 /좋아요 / 싫어요 / 댓글 개수 조회
         long viewCount = loadPort.loadViewCount(boardId) != null ? loadPort.loadViewCount(boardId) : 0L;
         long likeCount = loadReactionPort.loadBoardLikeCount(boardId) != null ? loadReactionPort.loadBoardLikeCount(boardId) : 0L;
         long disLikeCount = loadReactionPort.loadBoardDisLikeCount(boardId) != null ? loadReactionPort.loadBoardDisLikeCount(boardId) : 0L;
@@ -151,7 +165,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
         // 만약 해당 게시글이 인기 게시글의 조건에 충족하다면, 인기게시글로 만든다.
         long favoriteCondition = viewCount + likeCount + disLikeCount + commentCount;
 
-        // 인기글 조건 + 해당 게시글이 이미 존재한다면 추가할 필요없음
+        // 이미 존재한다면 추가할 필요없음
         if (favoriteCondition > 10 && !loadPort.checkBoardFavorite(boardId)) {
             savePort.saveBoardFavorite(boardId);
         }
@@ -217,14 +231,15 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
     /// RemoveUseCase 구현체
     @Override
     public void removeBoard(Long boardId) {
+
         // 게시글 관련 레디스 + DB 삭제
         removePort.removeBoard(boardId);
 
-        // 추천 관련 레디스 정보 삭제
+        // 추천 관련 레디스, DB 정보 삭제
         removeReactionPort.removeAllByBoardId(boardId);
 
-        // 댓글 관련 레디스 정보 삭제
-        removeCommentPort.removeCommentByBoardId(boardId);
+        // 댓글 관련 레디스, DB 정보 삭제
+        removeCommentPort.removeAllByBoardId(boardId);
     }
 
 
