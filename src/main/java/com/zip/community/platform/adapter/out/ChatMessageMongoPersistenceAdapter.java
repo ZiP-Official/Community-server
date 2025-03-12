@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,6 +57,9 @@ public class ChatMessageMongoPersistenceAdapter implements ChatMessageMongoPort 
 
     @Override
     public ReportedChatMessage reportMessage(String messageId, Long reportMemberId, Long reportedMemberId, String reason) {
+        reportedChatMessageRepository.findByMessageIdAndReportMemberId(messageId, reportMemberId).ifPresent(doc -> {
+            throw new CustomException(ChatErrorCode.ALREADY_REPORTED_MESSAGE);
+        });
         return reportedChatMessageRepository.save(ReportedChatMessageDocument.builder()
                 .messageId(messageId)
                 .reportMemberId(reportMemberId)
