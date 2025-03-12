@@ -1,17 +1,14 @@
 package com.zip.community.platform.domain.chat;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.zip.community.platform.domain.BaseDomain;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class ChatRoom {
+@SuperBuilder
+public class ChatRoom extends BaseDomain {
 
     private String id;
     private List<Participant> participants;
