@@ -11,6 +11,4 @@ public interface UpdateBoardUseCase {
     // 유저의 게시글 수정
     Board updateBoard(BoardUpdateRequest request);
 
-    /// 데이터 동기화 업데이트
-    void syncData(Long boardId);
 }

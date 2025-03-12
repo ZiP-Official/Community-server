@@ -9,4 +9,8 @@ public interface SaveCommentPort {
     // 캐시에 조회수를 증가시키는 로직
     void incrementCommentCount(Long boardId);
 
+    /// 데이터 일관성 유지를 위한
+    void syncBoardReaction(Long boardId);
+
+
 }

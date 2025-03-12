@@ -20,7 +20,8 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPort, RemoveCommentPort {
+public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPort, RemoveCommentPort {
+
 
     /*
         댓글 저장,삭제에 개수를 Redis 관리
@@ -30,7 +31,6 @@ public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPo
 
     private final RedisTemplate<String, Long> redisTemplate;
     private final RedisTemplate<String, String> stringRedisTemplate;
-
 
 
     /// SaveCommentPort
@@ -47,25 +47,47 @@ public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPo
     @Override
     public void incrementCommentCount(Long boardId) {
         String countKey = RedisKeyGenerator.getCommentCountKey(boardId);
-        redisTemplate.opsForValue().increment(countKey, 1);
+
+        /// Redis 존재할 경우
+        if (redisTemplate.hasKey(countKey)) {
+            redisTemplate.opsForValue().increment(countKey, 1);
+        } else { /// db에서 값 가져와서 값 추가한다.
+            long dbCount = repository.countCommentsByBoardId(boardId);
+            redisTemplate.opsForValue().set(countKey, dbCount + 1);
+        }
     }
 
-    // 영속성을 위해 싱크 맞추기
     @Override
-    public void syncCommentCount(Long boardId) {
+    public void syncBoardReaction(Long boardId) {
 
-
+        /*
+            댓글의 일관성 여부는 일단 보류한다.
+         */
     }
 
-    // 인기 댓글로 지정하기
 
     /// LoadCommentPort
     @Override
     // 개수 가져오기
     public Long loadCommentCount(Long boardId) {
 
-        return redisTemplate.opsForValue().get(RedisKeyGenerator.getCommentCountKey(boardId));
+        // Redis에서 개수 가져오기
+        Long redisCount = redisTemplate.opsForValue().get(RedisKeyGenerator.getCommentCountKey(boardId));
+
+        // Redis에 값이 없거나 0일 경우 DB에서 조회
+        if (redisCount == null || redisCount.equals(0L)) {
+            // DB에서 댓글 개수를 직접 조회하여 리턴
+            long dbCount = repository.countCommentsByBoardId(boardId);
+
+            // DB에서 조회한 개수를 Redis에 저장
+            redisTemplate.opsForValue().set(RedisKeyGenerator.getCommentCountKey(boardId), dbCount);
+
+            return dbCount;
+        }
+
+        return redisCount;
     }
+
 
     // 이미 존재하는 댓글인지 확인
     @Override
@@ -76,7 +98,6 @@ public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPo
     // 댓글 상세 조회
     @Override
     public Optional<Comment> loadCommentById(String id) {
-
         return repository.findById(id)
                 .map(CommentJpaEntity::toDomain);
     }
@@ -140,14 +161,50 @@ public class CommentPersistenceAdapter implements LoadCommentPort, SaveCommentPo
         repository.deleteById(id);
     }
 
-    // 레디스에서 댓글 갯수 삭제하기
-    @Override
-    public void removeCommentByBoardId(Long boardId) {
 
-        // 레디스에 해당 개수 카운트 삭제
+    @Override
+    public void removeEntity(Long boardId) {
+        /// JPA 처리
+
+        // 해당하는 글의 댓글 모두 가져오기
+        List<CommentJpaEntity> comments = repository.findCommentByBoardId(boardId);
+
+        // 기존에 존재하는 SoftDelete의 로직을 사용한다.
+        comments.forEach(
+                comment -> removeComment(comment.getId())
+        );
+
+    }
+
+    // 게시글과 관련된 캐시를 모두 삭제한다.
+    @Override
+    public void removeCache(Long boardId) {
+
+        /// 레디스 처리
+        // 해당 글의 댓글 모두 가져오기
+        List<CommentJpaEntity> comments = repository.findCommentByBoardId(boardId);
+
+        // 댓글의 레디스키 관련 삭제하기
+        comments.forEach(commentJpaEntity -> {
+            // 해당 댓글의 좋아요, 싫어요 키 삭제
+            redisTemplate.delete(RedisKeyGenerator.getCommentLikeKey(commentJpaEntity.getId()));
+            redisTemplate.delete(RedisKeyGenerator.getCommentDisLikeKey(commentJpaEntity.getId()));
+        });
+
+        // 레디스에 해당 게시글의 댓글 개수 카운트 삭제
         redisTemplate.delete(RedisKeyGenerator.getCommentCountKey(boardId));
 
     }
 
+    ///  게시글과 댓글 모두 삭제한다.
+    @Override
+    public void removeAllByBoardId(Long boardId) {
+        // Redis 처리
+        removeCache(boardId);
+
+        // JPA 처리
+        removeEntity(boardId);
+
+    }
 
 }

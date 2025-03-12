@@ -34,21 +34,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BoardService implements CreateBoardUseCase, GetBoardUseCase, UpdateBoardUseCase, RemoveBoardUseCase {
 
-
     private final SaveBoardPort savePort;
+
     private final LoadBoardPort loadPort;
-    private final RemoveBoardPort removePort;
-
-    private final MemberPort memberPort;
-    private final CategoryPort categoryPort;
-
-    /// 레디스 관련 의존성
     private final LoadBoardReactionPort loadReactionPort;
-    private final RemoveBoardReactionPort removeReactionPort;
-
     private final LoadCommentPort loadCommentPort;
+
+    private final RemoveBoardPort removePort;
+    private final RemoveBoardReactionPort removeReactionPort;
     private final RemoveCommentPort removeCommentPort;
     private final RemoveCommentReactionPort removeCommentReactionPort;
+
+    /// 예외처리 관련 의존성
+    private final MemberPort memberPort;
+    private final CategoryPort categoryPort;
 
     /// CreateUseCase 구현체
     @Override
@@ -106,33 +105,6 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
         return savePort.updateBoard(board);
     }
 
-    @Override
-    public void syncData(Long boardId) {
-
-        // 게시글 가져오기
-        Board board = loadPort.loadBoardById(boardId)
-                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
-
-        long viewCount = loadPort.loadViewCount(board.getId()) != null ? loadPort.loadViewCount(board.getId()) : 0L;
-        long likeCount = loadReactionPort.loadBoardLikeCount(board.getId()) != null ? loadReactionPort.loadBoardLikeCount(board.getId()) : 0L;
-        long disLikeCount = loadReactionPort.loadBoardDisLikeCount(board.getId()) != null ? loadReactionPort.loadBoardDisLikeCount(board.getId()) : 0L;
-        long commentCount = loadCommentPort.loadCommentCount(board.getId()) != null ? loadCommentPort.loadCommentCount(board.getId()) : 0L;
-
-        // JPA 에 연동하기
-        savePort.syncData(boardId, viewCount, likeCount, disLikeCount, commentCount);
-
-        /// 해당 레디스들은 전부 삭제하기
-
-        // 리액션 관련 내용 삭제하기
-        removePort.removeCache(boardId);
-        removeReactionPort.removeCache(board.getId());
-
-        // 댓글 관련 내용 삭제하기
-        removeCommentReactionPort.removeCache(board.getId());
-        removeCommentPort.removeCache(board.getId());
-
-    }
-
 
     /// LoadUseCase 구현체
     // 상세조회하는 유즈케이스 이다.
@@ -148,7 +120,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
         savePort.incrementViewCount(boardId);
 
         // 조회수 /좋아요 / 싫어요 / 댓글 개수 조회
-        long viewCount = loadPort.loadViewCount(boardId) != null ? loadPort.loadViewCount(boardId) : 0L;
+        long viewCount = loadPort.loadViewCount(boardId);
         long likeCount = loadReactionPort.loadBoardLikeCount(boardId) != null ? loadReactionPort.loadBoardLikeCount(boardId) : 0L;
         long disLikeCount = loadReactionPort.loadBoardDisLikeCount(boardId) != null ? loadReactionPort.loadBoardDisLikeCount(boardId) : 0L;
         long commentCount = loadCommentPort.loadCommentCount(boardId) != null ? loadCommentPort.loadCommentCount(boardId) : 0L;
@@ -248,7 +220,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
     private void updateBoardStatistics(List<Board> boards) {
         boards.forEach(board -> {
 
-            long viewCount = loadPort.loadViewCount(board.getId()) != null ? loadPort.loadViewCount(board.getId()) : 0L;
+            long viewCount = loadPort.loadViewCount(board.getId());
             long likeCount = loadReactionPort.loadBoardLikeCount(board.getId()) != null ? loadReactionPort.loadBoardLikeCount(board.getId()) : 0L;
             long disLikeCount = loadReactionPort.loadBoardDisLikeCount(board.getId()) != null ? loadReactionPort.loadBoardDisLikeCount(board.getId()) : 0L;
             long commentCount = loadCommentPort.loadCommentCount(board.getId()) != null ? loadCommentPort.loadCommentCount(board.getId()) : 0L;

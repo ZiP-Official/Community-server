@@ -162,24 +162,33 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
                 });
     }
 
-    // 조회수 가져오기
     @Override
     public Long loadViewCount(Long boardId) {
         var boardViewCountKey = RedisKeyGenerator.getBoardViewCountKey(boardId);
-        var viewCount = redisTemplate.opsForValue().get(boardViewCountKey);
 
-        // Redis에 데이터가 없으면 DB에서 조회 후 Redis에 저장
-        if (viewCount == null) {
-            viewCount = repository.findById(boardId)
-                    .map(board -> board.getBoardStatistics().getViewCount())
-                    .orElse(0L);
+        // Redis에서 조회
+        Long viewCount = redisTemplate.opsForValue().get(boardViewCountKey);
 
-            // Redis에 캐싱
-            redisTemplate.opsForValue().set(boardViewCountKey, viewCount);
+        // Redis에 데이터가 없거나 값이 0이면 DB에서 조회
+        if (viewCount == null || viewCount == 0) {
+            var boardJpaEntityOptional = repository.findById(boardId);
+
+            // DB에서 조회 후 Redis에 캐싱
+            if (boardJpaEntityOptional.isPresent()) {
+                long dbView = boardJpaEntityOptional.get().getBoardStatistics().getViewCount();
+                viewCount = dbView;
+
+                // Redis에 캐시 저장
+                redisTemplate.opsForValue().set(boardViewCountKey, viewCount);
+            } else {
+                // Board가 없을 경우 기본값 0 설정
+                viewCount = 0L;
+            }
         }
 
         return viewCount;
     }
+
 
     //  전체 최신 게시물 조회 (작성일자 기준 내림차순)
     @Override
@@ -307,11 +316,14 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     @Override
     public void removeCache(Long boardId) {
 
+        String boardViewCountKey = RedisKeyGenerator.getBoardViewCountKey(boardId);
+
         // 레디스에서 삭제한다.
         repository.findById(boardId)
                 .ifPresent(board -> {
                     BoardRedisHash redisHash = BoardRedisHash.from(board.toDomain());
                     redisRepository.delete(redisHash);
+                    redisTemplate.delete(boardViewCountKey);
                 });
 
     }

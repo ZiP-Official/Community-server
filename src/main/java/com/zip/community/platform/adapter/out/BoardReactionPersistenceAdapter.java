@@ -45,7 +45,7 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
     }
 
     @Override
-    public void synchronizeBoardReaction(Long boardId) {
+    public void syncBoardReaction(Long boardId) {
 
         // Redis Set에서 목록을 가져오기
         String boardLikeKey = RedisKeyGenerator.getBoardLikeKey(boardId);
@@ -76,6 +76,9 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
                 repository.save(BoardReactionJpaEntity.from(reaction));
             }
         }
+
+        // 캐시 삭제하기
+        removeCache(boardId);
     }
 
 
@@ -87,8 +90,7 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
 
         /// RDS 판단한다.
         if (Boolean.FALSE.equals(redis)) {
-            boolean rds = repository.existsByBoardIdAndMemberIdAndReactionType(boardId, memberId, UserReaction.LIKE);
-            return rds;
+            return repository.existsByBoardIdAndMemberIdAndReactionType(boardId, memberId, UserReaction.LIKE);
         }
 
         return redis;

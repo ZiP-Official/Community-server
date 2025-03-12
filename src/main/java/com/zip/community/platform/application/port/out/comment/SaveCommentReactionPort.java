@@ -18,6 +18,6 @@ public interface SaveCommentReactionPort {
     void savePinnedComment(List<Comment> comments);
 
     // 싱크를 맞춘다
-    void synchronizeCommentReaction(CommentReaction commentReaction);
+    void syncBoardReaction(String commentId);
 
 }

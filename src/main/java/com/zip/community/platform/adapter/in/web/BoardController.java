@@ -7,10 +7,7 @@ import com.zip.community.platform.adapter.in.web.dto.request.board.BoardUpdateRe
 import com.zip.community.platform.adapter.in.web.dto.response.board.BoardListResponse;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
 import com.zip.community.platform.adapter.in.web.dto.response.board.BoardDetailResponse;
-import com.zip.community.platform.application.port.in.board.CreateBoardUseCase;
-import com.zip.community.platform.application.port.in.board.GetBoardUseCase;
-import com.zip.community.platform.application.port.in.board.RemoveBoardUseCase;
-import com.zip.community.platform.application.port.in.board.UpdateBoardUseCase;
+import com.zip.community.platform.application.port.in.board.*;
 import com.zip.community.platform.domain.board.Board;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +27,7 @@ public class BoardController {
     private final CreateBoardUseCase createService;
     private final GetBoardUseCase getService;
     private final UpdateBoardUseCase updateService;
+    private final SyncUseCase syncService;
     private final RemoveBoardUseCase removeService;
 
     // 게시글 생성
@@ -101,7 +99,7 @@ public class BoardController {
     // 싱크맞추기
     @PostMapping("/sync/{boardId}")
     public ApiResponse<String> syncBoard(@PathVariable Long boardId) {
-        updateService.syncData(boardId);
+        syncService.syncData(boardId);
         return ApiResponse.created("데이터의 이전이 완료되었습니다.");
     }
 

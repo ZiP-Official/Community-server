@@ -12,12 +12,12 @@ public interface RemoveCommentReactionPort {
 
     /// 게시글에서 사용할 내용
     // 글의 삭제와 함께 모두 삭제되는 기능
-    void removeAllByBoardId(Long boardId);
+    void removeAllByBoardId(String commentId);
 
     // 영속성 삭제
-    void removeEntity(Long boardId);
+    void removeEntity(String commentId);
 
     // 캐시만 삭제
-    void removeCache(Long boardId);
+    void removeCache(String commentId);
 
 }
