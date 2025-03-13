@@ -73,8 +73,6 @@ public class BoardController {
     // 좋아요 기반 게시글 목록 조회하기
 
 
-
-
     // 카테고리 내 게시글 조회
     @GetMapping("/category/list/{categoryId}")
     public ApiResponse<PageResponse<BoardListResponse>> getByCategory(@PathVariable Long categoryId, PageRequest pageRequest) {
@@ -101,6 +99,14 @@ public class BoardController {
     public ApiResponse<String> syncBoard(@PathVariable Long boardId) {
         syncService.syncData(boardId);
         return ApiResponse.created("데이터의 이전이 완료되었습니다.");
+    }
+
+    // 데이터 삭제하기
+    @DeleteMapping("/{boardId}")
+    public ApiResponse<String> deleteBoard(@PathVariable Long boardId) {
+        removeService.removeBoard(boardId);
+
+        return ApiResponse.ok("성공적으로 삭제되었습니다.");
     }
 
 }

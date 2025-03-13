@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface CommentReactionJpaRepository extends JpaRepository<CommentReactionJpaEntity, String> {
 
@@ -17,4 +18,6 @@ public interface CommentReactionJpaRepository extends JpaRepository<CommentReact
 
     @Query("select case when count(c) > 0 then true else false end from CommentReactionJpaEntity c where c.commentId = :commentId and c.memberId = :memberId and c.reactionType = :reactionType")
     boolean existsByCommentIdAndMemberIdAndReactionType(@Param("commentId") String commentId, Long memberId, UserReaction reactionType);
+
+    List<CommentReactionJpaEntity> findByCommentId(String commentId);
 }

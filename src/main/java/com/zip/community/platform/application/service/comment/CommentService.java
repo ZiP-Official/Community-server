@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -30,12 +29,16 @@ import java.util.UUID;
 public class CommentService implements CreateCommentUseCase, GetCommentUseCase, RemoveCommentUseCase {
 
     private final SaveCommentPort savePort;
-    private final LoadCommentPort loadPort;
-    private final RemoveCommentPort removePort;
-
     private final SaveCommentReactionPort saveReactionPort;
+
+    private final LoadCommentPort loadPort;
+
     private final LoadCommentReactionPort loadReactionPort;
     private final LoadBoardPort loadBoardPort;
+
+    private final RemoveCommentPort removePort;
+    private final RemoveCommentReactionPort removeReactionPort;
+
     private final MemberPort memberPort;
 
     @Override
@@ -155,8 +158,22 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
 
     /// 댓글 삭제하기
     @Override
-    public void removeComment(String id) {
-        removePort.removeComment(id);
+    @Transactional
+    public void removeComment(String commentId, Long userId) {
+
+        /// 해당 유저가 작성했는지 체크한다.
+
+        /// 댓글이 존재하는지 체크한다.
+        if (!loadPort.getCheckedExistComment(commentId)) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_COMMENT);
+        }
+
+        // 댓글 자체의 삭제
+        removePort.removeComment(commentId);
+
+        // 댓글 관련 리액션 삭제
+        removeReactionPort.removeAllByCommentId(commentId);
+
     }
 
 

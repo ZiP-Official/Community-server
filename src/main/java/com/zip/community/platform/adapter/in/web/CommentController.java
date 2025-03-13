@@ -61,4 +61,9 @@ public class CommentController {
     }
 
     // 댓글 삭제하기
+    @DeleteMapping()
+    ApiResponse<String> delete(@RequestBody CommentDeleteRequest request) {
+        removeService.removeComment(request.getCommentId(), request.getUserId());
+        return ApiResponse.ok("성공적으로 삭제되었습니다.");
+    }
 }

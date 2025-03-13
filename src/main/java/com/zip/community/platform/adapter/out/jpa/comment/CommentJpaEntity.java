@@ -64,4 +64,9 @@ public class CommentJpaEntity extends BaseEntity {
                 .build();
     }
 
+    /// 비즈니스 로직
+    public void delete(){
+        this.deleted = true;
+    }
+
 }

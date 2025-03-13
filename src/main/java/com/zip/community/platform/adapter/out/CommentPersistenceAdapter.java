@@ -150,15 +150,19 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
 
 
     /// RemoveCommentPort
-    // 댓글 삭제하기
+    // 댓글만 삭제하기
     @Override
     public void removeComment(String id) {
 
-        /*
-            SoftDelete로 설정한다.
-         */
+        // 서비스 계층에서 좋아요나, 싫어요의 DB도 지우는 로직이 필요하다.
 
-        repository.deleteById(id);
+        /// 캐시 삭제
+        redisTemplate.delete(RedisKeyGenerator.getCommentLikeKey(id));
+        redisTemplate.delete(RedisKeyGenerator.getCommentDisLikeKey(id));
+
+        /// DB에서 소프트웨어적 삭제를 진행한다.
+        repository.findById(id)
+                .ifPresent(CommentJpaEntity::delete);
     }
 
 
@@ -196,7 +200,7 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
 
     }
 
-    ///  게시글과 댓글 모두 삭제한다.
+    ///  게시글에 해당하는 댓글을 모두 삭제한다.
     @Override
     public void removeAllByBoardId(Long boardId) {
         // Redis 처리

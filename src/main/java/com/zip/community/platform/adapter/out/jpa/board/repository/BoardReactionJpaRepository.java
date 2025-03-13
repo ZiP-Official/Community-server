@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface BoardReactionJpaRepository extends JpaRepository<BoardReactionJpaEntity, Long> {
 
@@ -20,4 +21,5 @@ public interface BoardReactionJpaRepository extends JpaRepository<BoardReactionJ
     @Query("select count(b) from BoardReactionJpaEntity b where b.boardId = :boardId and b.reactionType = :reactionType")
     long countByBoardIdAndReactionType(@Param("boardId") Long boardId, @Param("reactionType") UserReaction reactionType);
 
+    List<BoardReactionJpaEntity> findByBoardId(Long boardId);
 }

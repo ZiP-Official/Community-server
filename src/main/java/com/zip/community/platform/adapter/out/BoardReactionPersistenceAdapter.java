@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -192,6 +193,9 @@ public class BoardReactionPersistenceAdapter implements LoadBoardReactionPort, S
     // 영속성 관련 내용 삭제하기
     @Override
     public void removeEntity(Long boardId) {
+
+        List<BoardReactionJpaEntity> reactions = repository.findByBoardId(boardId);
+        repository.deleteAll(reactions);
 
     }
 

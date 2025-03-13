@@ -70,6 +70,10 @@ public class BoardJpaEntity extends BaseEntity {
     public void updateBoardSnippet(BoardSnippet snippet) {
         this.boardSnippet.update(snippet);
     }
-    
+
+    // 소프트 삭제의 로직
+    public void deleteBoard() {
+        this.deleted = true;
+    }
 
 }

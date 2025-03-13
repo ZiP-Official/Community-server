@@ -319,8 +319,9 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     public void removeEntity(Long boardId) {
 
         // 게시글 관련하여 영속성 삭제를 진행한다.
-        // softDelete, Batch 통해 삭제할 예정이다.
-        repository.deleteById(boardId);
+        /// 소프트 삭제
+        BoardJpaEntity entity = repository.findById(boardId).get();
+        entity.deleteBoard();
     }
 
     @Override

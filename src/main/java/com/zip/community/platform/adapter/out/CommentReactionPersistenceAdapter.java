@@ -214,7 +214,7 @@ public class CommentReactionPersistenceAdapter implements SaveCommentReactionPor
 
     // 게시글에 해당 하는 내용 다 삭제하기, 글 삭제와 관련된 내용이 존재한다.
     @Override
-    public void removeAllByBoardId(String commentId) {
+    public void removeAllByCommentId(String commentId) {
 
         // 캐시 관련 내용 삭제
         removeCache(commentId);
@@ -224,9 +224,12 @@ public class CommentReactionPersistenceAdapter implements SaveCommentReactionPor
 
     }
 
+
     @Override
     public void removeEntity(String commentId) {
-        repository.deleteById(commentId);
+        List<CommentReactionJpaEntity> result = repository.findByCommentId(commentId);
+
+        repository.deleteAll(result);
     }
 
     // 게시글 추천, 비추천에 대한 캐시 삭제

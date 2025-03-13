@@ -11,8 +11,10 @@ import com.zip.community.platform.application.port.in.board.UpdateBoardUseCase;
 import com.zip.community.platform.application.port.out.board.*;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentPort;
+import com.zip.community.platform.application.port.out.comment.RemoveCommentReactionPort;
 import com.zip.community.platform.application.port.out.member.MemberPort;
 import com.zip.community.platform.domain.board.*;
+import com.zip.community.platform.domain.comment.Comment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
@@ -42,11 +44,13 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
     private final RemoveBoardPort removePort;
     private final RemoveBoardReactionPort removeReactionPort;
     private final RemoveCommentPort removeCommentPort;
+    private final RemoveCommentReactionPort removeCommentReactionPort;
 
     /// 예외처리 관련 의존성
     private final MemberPort memberPort;
     private final CategoryPort categoryPort;
     private final SyncService syncService;
+
 
     /// CreateUseCase 구현체
     @Override
@@ -85,8 +89,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
             throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
 
-        // 게시글 작성 유저와 요청 유저가 동일한지 체크
-        if (!board.getMemberId().equals(request.getBoardId())){
+        if (!board.getMemberId().equals(request.getUserId())) {
             throw new CustomException(BoardErrorCode.BAD_REQUEST_UPDATE);
         }
 
@@ -204,16 +207,23 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
 
     /// RemoveUseCase 구현체
     @Override
+    @Transactional
     public void removeBoard(Long boardId) {
 
-        // 게시글 관련 레디스 + DB 삭제
+        // 게시글 관련 정보 삭제
         removePort.removeBoard(boardId);
 
-        // 추천 관련 레디스, DB 정보 삭제
+        // 글에 해당하는 글 추천 관련 정보 삭제
         removeReactionPort.removeAllByBoardId(boardId);
 
-        // 댓글 관련 레디스, DB 정보 삭제
+        // 글에 해당하는 댓글 정보 삭제
         removeCommentPort.removeAllByBoardId(boardId);
+
+        // 글에 해당하는 댓글 추천 관련 정보 삭제
+        List<Comment> comments = loadCommentPort.loadCommentsByBoardId(boardId);
+        comments.forEach(comment -> {
+            removeCommentReactionPort.removeAllByCommentId(comment.getId());
+        });
     }
 
 
