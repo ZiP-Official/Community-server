@@ -1,4 +1,4 @@
-package com.zip.community.platform.adapter.in.web;
+package com.zip.community.platform.adapter.in.web.dto.request;
 
 import lombok.Data;
 

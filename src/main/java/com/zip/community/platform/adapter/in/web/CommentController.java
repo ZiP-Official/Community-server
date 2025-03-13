@@ -3,6 +3,7 @@ package com.zip.community.platform.adapter.in.web;
 import com.zip.community.common.response.ApiResponse;
 import com.zip.community.common.response.pageable.PageRequest;
 import com.zip.community.common.response.pageable.PageResponse;
+import com.zip.community.platform.adapter.in.web.dto.request.CommentDeleteRequest;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentRequest;
 import com.zip.community.platform.adapter.in.web.dto.response.board.CommentResponse;
 import com.zip.community.platform.application.port.in.comment.CreateCommentUseCase;
