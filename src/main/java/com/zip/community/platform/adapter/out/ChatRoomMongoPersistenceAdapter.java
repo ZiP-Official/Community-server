@@ -1,7 +1,5 @@
 package com.zip.community.platform.adapter.out;
 
-import com.zip.community.common.response.CustomException;
-import com.zip.community.common.response.errorcode.ChatErrorCode;
 import com.zip.community.platform.adapter.out.mongo.chat.ChatRoomDocument;
 import com.zip.community.platform.adapter.out.mongo.chat.repository.ChatRoomMongoRepository;
 import com.zip.community.platform.application.port.out.chat.ChatRoomPort;
@@ -10,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -20,28 +19,20 @@ public class ChatRoomMongoPersistenceAdapter implements ChatRoomPort {
 
     @Override
     public ChatRoom save(ChatRoom chatRoom) {
-        ChatRoomDocument doc = ChatRoomDocument.from(
-                chatRoom.getId(),
-                chatRoom.getParticipants(),
-                chatRoom.getLastMessage()
-        );
+        ChatRoomDocument doc = ChatRoomDocument.from(chatRoom);
         ChatRoomDocument savedDoc = chatRoomRepository.save(doc);
         return savedDoc.toDomain();
     }
 
     @Override
-    public ChatRoom findByChatRoomId(String chatRoomId) {
+    public Optional<ChatRoom> findByChatRoomId(String chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
-                .map(ChatRoomDocument::toDomain)
-                .orElseThrow(() -> new CustomException(ChatErrorCode.NOT_FOUND_CHAT_ROOM));
+                .map(ChatRoomDocument::toDomain);
     }
 
     @Override
     public List<ChatRoom> findChatRoomsByUserId(Long memberId) {
         List<ChatRoomDocument> rooms = chatRoomRepository.findByParticipantsId(memberId);
-        if (rooms == null || rooms.isEmpty()) {
-            throw new CustomException(ChatErrorCode.NOT_FOUND_CHAT_ROOM);
-        }
         return rooms.stream()
                 .map(ChatRoomDocument::toDomain)
                 .collect(Collectors.toList());

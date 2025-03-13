@@ -1,7 +1,5 @@
 package com.zip.community.platform.adapter.out;
 
-import com.zip.community.common.response.CustomException;
-import com.zip.community.common.response.errorcode.ChatErrorCode;
 import com.zip.community.platform.adapter.out.mongo.chat.ChatMessageDocument;
 import com.zip.community.platform.adapter.out.mongo.chat.ReportedChatMessageDocument;
 import com.zip.community.platform.adapter.out.mongo.chat.repository.ChatMessageMongoRepository;
@@ -14,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,52 +24,35 @@ public class ChatMessageMongoPersistenceAdapter implements ChatMessageMongoPort 
 
     @Override
     public ChatMessage save(ChatMessage message) {
-        ChatMessageDocument doc = ChatMessageDocument.builder()
-                .id(message.getId())
-                .chatRoomId(message.getChatRoomId())
-                .content(message.getContent())
-                .senderId(message.getSenderId())
-                .senderName(message.getSenderName())
-                .sentAt(message.getSentAt())
-                .readYn(message.getReadYn())
-                .deletedYn(message.getDeletedYn())
-                .build();
-        ChatMessageDocument savedDoc = chatMessageRepository.save(doc);
-        return savedDoc.toDomain();
+        ChatMessageDocument doc = ChatMessageDocument.from(message);
+        return chatMessageRepository.save(doc).toDomain();
     }
 
     @Override
     public List<ChatMessage> getMessages(String chatRoomId, Integer page) {
         // page=0: 1~20, page=1: 21~40 ...
         PageRequest pageable = PageRequest.of(page, 20);
-        List<ChatMessageDocument> docs =
-                chatMessageRepository.findByChatRoomIdOrderBySentAtDesc(chatRoomId, pageable);
+        List<ChatMessageDocument> docs = chatMessageRepository.findByChatRoomIdOrderBySentAtDesc(chatRoomId, pageable);
         return docs.stream().map(ChatMessageDocument::toDomain).collect(Collectors.toList());
     }
 
     @Override
-    public ChatMessage findById(String messageId) {
-        return chatMessageRepository.findById(messageId)
-                .orElseThrow(() -> new CustomException(ChatErrorCode.NOT_FOUND_CHAT_MESSAGE))
-                .toDomain();
+    public Optional<ChatMessageDocument> findById(String messageId) {
+        return chatMessageRepository.findById(messageId);
     }
 
     @Override
-    public ReportedChatMessage reportMessage(String messageId, Long reportMemberId, Long reportedMemberId, String reason) {
-        reportedChatMessageRepository.findByMessageIdAndReportMemberId(messageId, reportMemberId).ifPresent(doc -> {
-            throw new CustomException(ChatErrorCode.ALREADY_REPORTED_MESSAGE);
-        });
-        return reportedChatMessageRepository.save(ReportedChatMessageDocument.builder()
-                .messageId(messageId)
-                .reportMemberId(reportMemberId)
-                .reportedMemberId(reportedMemberId)
-                .reason(reason)
-                .build()
-        ).toDomain();
+    public ReportedChatMessage reportMessage(ReportedChatMessage reportedChatMessage) {
+        return reportedChatMessageRepository.save(ReportedChatMessageDocument.from(reportedChatMessage)).toDomain();
     }
 
     @Override
     public List<ChatMessage> searchMessages(String chatRoomId, String keyword) {
         return null;
+    }
+
+    @Override
+    public Optional<ReportedChatMessageDocument> getByMessageIdAndReportMemberId(String messageId, Long reportMemberId) {
+        return reportedChatMessageRepository.findByMessageIdAndReportMemberId(messageId, reportMemberId);
     }
 }
