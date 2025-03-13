@@ -23,6 +23,16 @@ public class ReportedChatMessageDocument extends BaseDocument {
     private Long reportedMemberId; // 신고당한 회원 ID
     private String reason;
 
+    public static ReportedChatMessageDocument from(ReportedChatMessage reportedChatMessage) {
+        return ReportedChatMessageDocument.builder()
+                .id(reportedChatMessage.getId())
+                .messageId(reportedChatMessage.getMessageId())
+                .reportMemberId(reportedChatMessage.getReportMemberId())
+                .reportedMemberId(reportedChatMessage.getReportedMemberId())
+                .reason(reportedChatMessage.getReason())
+                .build();
+    }
+
     public ReportedChatMessage toDomain() {
         return ReportedChatMessage.builder()
                 .id(this.id)

@@ -16,4 +16,14 @@ public class ReportedChatMessage extends BaseDomain {
     private Long reportedMemberId;
     private String reason;
     private LocalDateTime reportedAt;
+
+    public static ReportedChatMessage of(String messageId, Long reportMemberId, Long reportedMemberId, String reason, LocalDateTime reportedAt) {
+        return ReportedChatMessage.builder()
+                .messageId(messageId)
+                .reportMemberId(reportMemberId)
+                .reportedMemberId(reportedMemberId)
+                .reason(reason)
+                .reportedAt(reportedAt)
+                .build();
+    }
 }

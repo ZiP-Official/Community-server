@@ -17,4 +17,11 @@ public class LastMessage {
     private String sender;
     private LocalDateTime sentAt;
 
+    public static LastMessage of(String content, String sender, LocalDateTime sentAt) {
+        return LastMessage.builder()
+                .content(content)
+                .sender(sender)
+                .sentAt(sentAt)
+                .build();
+    }
 }

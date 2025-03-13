@@ -28,6 +28,19 @@ public class ChatMessageDocument extends BaseDocument {
     private Boolean readYn;
     private Boolean deletedYn;
 
+    public static ChatMessageDocument from(ChatMessage chatMessage) {
+        return ChatMessageDocument.builder()
+                .id(chatMessage.getId())
+                .chatRoomId(chatMessage.getChatRoomId())
+                .content(chatMessage.getContent())
+                .senderId(chatMessage.getSenderId())
+                .senderName(chatMessage.getSenderName())
+                .sentAt(chatMessage.getSentAt())
+                .readYn(chatMessage.getReadYn())
+                .deletedYn(chatMessage.getDeletedYn())
+                .build();
+    }
+
     public ChatMessage toDomain() {
         return ChatMessage.builder()
                 .id(this.id)

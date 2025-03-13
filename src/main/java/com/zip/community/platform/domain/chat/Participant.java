@@ -13,4 +13,11 @@ public class Participant {
 
     private Long id;
     private String name;
+
+    public static Participant of(Long id, String name) {
+        return Participant.builder()
+                .id(id)
+                .name(name)
+                .build();
+    }
 }

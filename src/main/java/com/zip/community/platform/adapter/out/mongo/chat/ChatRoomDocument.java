@@ -25,11 +25,11 @@ public class ChatRoomDocument extends BaseDocument {
     private List<Participant> participants;
     private LastMessage lastMessage;
 
-    public static ChatRoomDocument from(String id, List<Participant> participants, LastMessage lastMessage) {
+    public static ChatRoomDocument from(ChatRoom chatRoom) {
         return ChatRoomDocument.builder()
-                .id(id)
-                .participants(participants)
-                .lastMessage(lastMessage)
+                .id(chatRoom.getId())
+                .participants(chatRoom.getParticipants())
+                .lastMessage(chatRoom.getLastMessage())
                 .build();
     }
 
