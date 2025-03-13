@@ -29,7 +29,7 @@ public class RedisKeyGenerator {
     }
 
     public static String getCommentCountKey(Long boardId) {
-        return COMMENT_COUNT + SEPARATOR + boardId;
+        return BOARD + SEPARATOR + COMMENT_COUNT + SEPARATOR + boardId;
     }
 
     public static String getCommentLikeKey(String commentId) {

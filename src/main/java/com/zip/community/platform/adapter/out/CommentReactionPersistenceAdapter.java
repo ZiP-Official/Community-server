@@ -99,7 +99,7 @@ public class CommentReactionPersistenceAdapter implements SaveCommentReactionPor
         if (likeUserIds != null) {
             for (Long userId : likeUserIds) {
                 // DB에 저장하는 로직 추가
-                CommentReaction reaction = CommentReaction.of(UUID.randomUUID().toString(), commentId, userId, UserReaction.LIKE);
+                CommentReaction reaction = CommentReaction.of(commentId, userId, UserReaction.LIKE);
                 repository.save(CommentReactionJpaEntity.from(reaction));
             }
         }
@@ -107,7 +107,7 @@ public class CommentReactionPersistenceAdapter implements SaveCommentReactionPor
         if (disLikeUserIds != null) {
             for (Long userId : disLikeUserIds) {
                 // DB에 저장하는 로직 추가
-                CommentReaction reaction = CommentReaction.of(UUID.randomUUID().toString(), commentId, userId, UserReaction.DISLIKE);
+                CommentReaction reaction = CommentReaction.of(commentId, userId, UserReaction.DISLIKE);
                 repository.save(CommentReactionJpaEntity.from(reaction));
             }
         }

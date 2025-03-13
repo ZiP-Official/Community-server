@@ -16,8 +16,9 @@ import lombok.NoArgsConstructor;
 public class CommentJpaEntity extends BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
-    private String id;
+    private Long id;
 
     private Long boardId;
 
@@ -38,7 +39,6 @@ public class CommentJpaEntity extends BaseEntity {
     public static CommentJpaEntity from(Comment comment) {
 
         return CommentJpaEntity.builder()
-                .id(comment.getId())
                 .boardId(comment.getBoardId())
                 .memberId(comment.getMemberId())
                 .parentId(comment.getParentId())
@@ -52,7 +52,7 @@ public class CommentJpaEntity extends BaseEntity {
     public Comment toDomain(){
 
         return Comment.builder()
-                .id(id)
+                .id(String.valueOf(id))
                 .boardId(boardId)
                 .parentId(parentId)
                 .memberId(memberId)

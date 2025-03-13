@@ -33,10 +33,9 @@ public class Comment extends BaseDomain {
     private boolean pinned;
 
     // 생성자
-    public static Comment of(String id,Long boardId, Long memberId, String parentId, String content, CommentStatistics statistics, boolean anonymous) {
+    public static Comment of(Long boardId, Long memberId, String parentId, String content, CommentStatistics statistics, boolean anonymous) {
 
         return Comment.builder()
-                .id(id)
                 .boardId(boardId)
                 .memberId(memberId)
                 .parentId(parentId)

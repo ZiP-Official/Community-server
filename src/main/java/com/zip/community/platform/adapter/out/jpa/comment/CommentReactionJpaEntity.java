@@ -16,8 +16,9 @@ import lombok.NoArgsConstructor;
 public class CommentReactionJpaEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_like_id")
-    private String id;
+    private Long id;
 
     private Long memberId;
 
@@ -29,7 +30,6 @@ public class CommentReactionJpaEntity {
     // from
     public static CommentReactionJpaEntity from(CommentReaction commentReaction) {
         return CommentReactionJpaEntity.builder()
-                .id(commentReaction.getId())
                 .memberId(commentReaction.getMemberId())
                 .commentId(commentReaction.getCommentId())
                 .reactionType(commentReaction.getReactionType())
@@ -39,7 +39,7 @@ public class CommentReactionJpaEntity {
     // toDomain
     public CommentReaction toDomain() {
         return CommentReaction.builder()
-                .id(this.getId())
+                .id(String.valueOf(this.getId()))
                 .memberId(this.getMemberId())
                 .commentId(this.getCommentId())
                 .reactionType(this.getReactionType())

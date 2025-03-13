@@ -171,7 +171,7 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
 
         // 기존에 존재하는 SoftDelete의 로직을 사용한다.
         comments.forEach(
-                comment -> removeComment(comment.getId())
+                comment -> removeComment(String.valueOf(comment.getId()))
         );
 
     }
@@ -187,8 +187,8 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
         // 댓글의 레디스키 관련 삭제하기
         comments.forEach(commentJpaEntity -> {
             // 해당 댓글의 좋아요, 싫어요 키 삭제
-            redisTemplate.delete(RedisKeyGenerator.getCommentLikeKey(commentJpaEntity.getId()));
-            redisTemplate.delete(RedisKeyGenerator.getCommentDisLikeKey(commentJpaEntity.getId()));
+            redisTemplate.delete(RedisKeyGenerator.getCommentLikeKey(String.valueOf(commentJpaEntity.getId())));
+            redisTemplate.delete(RedisKeyGenerator.getCommentDisLikeKey(String.valueOf(commentJpaEntity.getId())));
         });
 
         // 레디스에 해당 게시글의 댓글 개수 카운트 삭제

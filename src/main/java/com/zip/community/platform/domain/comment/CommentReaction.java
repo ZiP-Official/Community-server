@@ -18,10 +18,9 @@ public class CommentReaction {
     private UserReaction reactionType;
 
     // 생성자
-    public static CommentReaction of(String id, String commentId, Long memberId, UserReaction reactionType) {
+    public static CommentReaction of(String commentId, Long memberId, UserReaction reactionType) {
 
         return CommentReaction.builder()
-                .id(id)
                 .commentId(commentId)
                 .memberId(memberId)
                 .reactionType(reactionType)
