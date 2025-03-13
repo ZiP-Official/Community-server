@@ -85,30 +85,31 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
         });
     }
 
-    // 게시글을 레디스의 인기게시물 목록에 저장하기 & Entity 저장하기
+    // 인기 게시글로 저장
     @Override
     public void saveBoardFavorite(Long boardId) {
-
-        repository.findById(boardId)
-                .map(BoardJpaEntity::toDomain)
-                .ifPresent(board -> {
-
-                    /// 레디스에 저장한다.
-                    // 해당 글은 더 이상 수정할 수 없다.
-                    BoardRedisHash hash = BoardRedisHash.from(board);
-                    redisRepository.save(hash);
-
-                    /// JpaRepository 에 저장한다.
-                    favoriteRepository.save(BoardFavoriteJpaEntity.from(BoardFavorite.of(boardId)));
-                });
-
-        // RedisKey를 불러온다.
         String boardList = RedisKeyGenerator.getBoardList();
-
-        // 현재 시간을 밀리초로 가져옴
         long currentTimeMillis = Instant.now().toEpochMilli();
 
-        // 시간과 함께 저장한다.
+        // Redis에 이미 있는지 확인 (중복 저장 방지)
+        if (Boolean.TRUE.equals(redisTemplate.opsForZSet().score(boardList, boardId) != null)) {
+            return;
+        }
+
+        // Redis에서 먼저 조회 후 없으면 JPA 조회
+        Optional<BoardRedisHash> redisBoard = redisRepository.findById(boardId);
+        Board board = redisBoard.map(BoardRedisHash::toDomain)
+                .orElseGet(() -> repository.findById(boardId).map(BoardJpaEntity::toDomain).orElse(null));
+
+        if (board == null) return; // 존재하지 않는 게시글이면 종료
+
+        // Redis 저장 (게시글 내용 캐싱)
+        redisRepository.save(BoardRedisHash.from(board));
+
+        // JPA 저장 (즐겨찾기 저장)
+        favoriteRepository.save(BoardFavoriteJpaEntity.from(BoardFavorite.of(boardId)));
+
+        // Redis Sorted Set에 추가
         redisTemplate.opsForZSet().add(boardList, boardId, currentTimeMillis);
     }
 
@@ -161,6 +162,10 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
                 .or(() -> {
                     // redis cache miss, JPA에서 값을 가져온다.
                     var optionalBoard = repository.findById(boardId);
+
+                    // 레디스에 저장한다.
+//                    redisRepository.save(BoardRedisHash.from(optionalBoard.get()
+//                            .toDomain()));
 
                     return optionalBoard
                             .map(BoardJpaEntity::toDomain);
