@@ -20,6 +20,9 @@ public class Comment extends BaseDomain {
 
     private String content;
 
+    private boolean deleted;
+    private boolean anonymous;
+
     // !- 글 작성자 여부를 보여주기 위한 도메인 | 엔티티에는 필요없다 .--!
     private boolean writer;
 
@@ -30,7 +33,7 @@ public class Comment extends BaseDomain {
     private boolean pinned;
 
     // 생성자
-    public static Comment of(String id,Long boardId, Long memberId, String parentId, String content, CommentStatistics statistics) {
+    public static Comment of(String id,Long boardId, Long memberId, String parentId, String content, CommentStatistics statistics, boolean anonymous) {
 
         return Comment.builder()
                 .id(id)
@@ -39,6 +42,7 @@ public class Comment extends BaseDomain {
                 .parentId(parentId)
                 .content(content)
                 .statistics(statistics)
+                .anonymous(anonymous)
                 .writer(false)
                 .pinned(false)
                 .build();

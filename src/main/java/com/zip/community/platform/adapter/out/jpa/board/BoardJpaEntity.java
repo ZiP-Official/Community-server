@@ -32,6 +32,9 @@ public class BoardJpaEntity extends BaseEntity {
     @Embedded
     private BoardStatisticsJpaEntity boardStatistics;
 
+    private boolean anonymous;
+    private boolean deleted;
+
     // From
     public static BoardJpaEntity from(Board board) {
         return BoardJpaEntity.builder()
@@ -39,6 +42,7 @@ public class BoardJpaEntity extends BaseEntity {
                 .boardSnippet(BoardSnippetJpaEntity.from(board.getSnippet()))
                 .boardStatistics(BoardStatisticsJpaEntity.from(board.getStatistics()))
                 .categoryId(board.getCategoryId())
+                .anonymous(board.isAnonymous())
                 .build();
     }
 
@@ -48,6 +52,7 @@ public class BoardJpaEntity extends BaseEntity {
                 .id(this.id)
                 .categoryId(this.categoryId)
                 .memberId(this.memberId)
+                .anonymous(this.anonymous)
                 .snippet(this.boardSnippet.toDomain())
                 .statistics(this.boardStatistics.toDomain())
                 .createdAt(this.getCreated())

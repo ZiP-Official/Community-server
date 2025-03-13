@@ -17,13 +17,17 @@ public class Board extends BaseDomain {
     private BoardSnippet snippet;
     private BoardStatistics statistics;
 
+    private boolean anonymous;
+    private boolean deleted;
+
     // 생성자
-    public static Board of(Long memberId, Long categoryId, BoardSnippet snippet, BoardStatistics statistics) {
+    public static Board of(Long memberId, Long categoryId, BoardSnippet snippet, BoardStatistics statistics, boolean anonymous) {
         return Board.builder()
                 .memberId(memberId)
                 .snippet(snippet)
                 .statistics(statistics)
                 .categoryId(categoryId)
+                .anonymous(anonymous)
                 .build();
 
     }

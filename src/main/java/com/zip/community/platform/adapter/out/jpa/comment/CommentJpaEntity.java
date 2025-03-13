@@ -31,6 +31,8 @@ public class CommentJpaEntity extends BaseEntity {
     @Embedded
     private CommentStatisticsJpaEntity statistics;
 
+    private boolean deleted;
+    private boolean anonymous;
 
     // from
     public static CommentJpaEntity from(Comment comment) {
@@ -42,6 +44,7 @@ public class CommentJpaEntity extends BaseEntity {
                 .parentId(comment.getParentId())
                 .content(comment.getContent())
                 .statistics(CommentStatisticsJpaEntity.from(comment.getStatistics()))
+                .anonymous(comment.isAnonymous())
                 .build();
     }
 
@@ -55,6 +58,7 @@ public class CommentJpaEntity extends BaseEntity {
                 .memberId(memberId)
                 .content(content)
                 .statistics(statistics.toDomain())
+                .anonymous(anonymous)
                 .createdAt(this.getCreated())
                 .updatedAt(this.getUpdated())
                 .build();

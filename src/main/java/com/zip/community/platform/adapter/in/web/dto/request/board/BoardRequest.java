@@ -30,4 +30,8 @@ public class BoardRequest {
     @NotEmpty(message = "내용은 필수입니다.")
     @Size(min = 10, max = 1000, message = "내용은 10자 이상 1000자 이하로 입력해야 합니다.")
     private String content;
+
+    // 익명여부 판단하기 (true이면 익명, false이면 닉네임)
+    private boolean anonymous;
+
 }

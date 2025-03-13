@@ -27,4 +27,6 @@ public class TempBoardRequest {
     //
     private String thumbnailUrl;
 
+    private boolean anonymous;
+
 }

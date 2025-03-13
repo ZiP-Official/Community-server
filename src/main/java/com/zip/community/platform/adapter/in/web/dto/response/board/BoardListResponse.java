@@ -20,7 +20,7 @@ public class BoardListResponse {
     private Long category; // Immutable 빈 리스트 사용
 
     private Long id;
-    private Long author;
+    private String author;
     private String title;
 
     @Builder.Default
@@ -43,7 +43,7 @@ public class BoardListResponse {
                 .category(board.getCategoryId())
                 .id(board.getId())
                 .title(board.getSnippet().getTitle())
-                .author(board.getMemberId())
+                .author(board.isAnonymous() ? "익명" : String.valueOf(board.getMemberId()))
                 .commentCount(board.getStatistics().getCommentCount())
                 .likeCount(board.getStatistics().getLikeCount())
                 .createdAt(board.getCreatedAt())

@@ -26,6 +26,8 @@ public class BoardRedisHash {
 
     private Long categoryId;
 
+    private boolean anonymous;
+
     private BoardSnippetRedisHash boardSnippet;
 
     private BoardStatisticsRedisHash boardStatistics;
@@ -43,6 +45,7 @@ public class BoardRedisHash {
                 .categoryId(board.getCategoryId())
                 .boardSnippet(BoardSnippetRedisHash.from(board.getSnippet()))
                 .boardStatistics(BoardStatisticsRedisHash.from(board.getStatistics()))
+                .anonymous(board.isAnonymous())
                 .createdAt(board.getCreatedAt()) // 이미 JPA에서 만들어진 시간을 바탕으로 가져온다
                 .updatedAt(board.getUpdatedAt()) // 이미 JPA에서 만들어진 시간을 바탕으로 가져온다
                 .build();
@@ -56,6 +59,7 @@ public class BoardRedisHash {
                 .categoryId(categoryId)
                 .snippet(boardSnippet.toDomain())
                 .statistics(boardStatistics.toDomain())
+                .anonymous(anonymous)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .build();

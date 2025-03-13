@@ -56,7 +56,7 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
         // Comment 객체 생성
         CommentStatistics statistics = CommentStatistics.of();
         Comment comment = Comment.of(
-                UUID.randomUUID().toString(), request.getBoardId(), request.getMemberId(), request.getParentId(), request.getContent(), statistics
+                UUID.randomUUID().toString(), request.getBoardId(), request.getMemberId(), request.getParentId(), request.getContent(), statistics, request.isAnonymous()
         );
 
         Comment saveComment = savePort.saveComment(comment);

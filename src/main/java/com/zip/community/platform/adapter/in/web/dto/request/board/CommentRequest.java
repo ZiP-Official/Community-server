@@ -18,4 +18,6 @@ public class CommentRequest {
 
     // 작성하는 댓글
     private String content;
+
+    private boolean anonymous;
 }

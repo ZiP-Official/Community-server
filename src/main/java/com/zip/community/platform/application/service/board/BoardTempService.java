@@ -57,7 +57,7 @@ public class BoardTempService implements TempBoardUseCase {
         BoardStatistics statistics = BoardStatistics.of();
 
         // 게시글
-        Board board = Board.of(request.getMemberId(), request.getCategoryId(), snippet, statistics);
+        Board board = Board.of(request.getMemberId(), request.getCategoryId(), snippet, statistics, request.isAnonymous());
 
         tempPort.saveTempBoard(board);
     }

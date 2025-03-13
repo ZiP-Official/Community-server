@@ -21,7 +21,7 @@ public class BoardDetailResponse {
     private Long category; // Immutable 빈 리스트 사용
 
     private Long id;
-    private Long author;
+    private String author;
     private String title;
     private String content;
 
@@ -47,7 +47,7 @@ public class BoardDetailResponse {
                 .id(board.getId())
                 .title(board.getSnippet().getTitle())
                 .content(board.getSnippet().getContent())
-                .author(board.getMemberId())
+                .author(board.isAnonymous() ? "익명" : String.valueOf(board.getMemberId()))
                 .viewCount(board.getStatistics().getViewCount())
                 .commentCount(board.getStatistics().getCommentCount())
                 .likeCount(board.getStatistics().getLikeCount())

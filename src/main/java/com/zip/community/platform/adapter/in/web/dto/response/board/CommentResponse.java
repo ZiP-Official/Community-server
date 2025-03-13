@@ -15,7 +15,7 @@ public class CommentResponse {
 
     private String id;
     private String content;
-    private Long author;
+    private String author;
 
     private boolean isWriter;
 
@@ -36,7 +36,7 @@ public class CommentResponse {
         return CommentResponse.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
-                .author(comment.getMemberId())
+                .author(comment.isAnonymous() ? "익명" : String.valueOf(comment.getMemberId()))
                 .isWriter(comment.isWriter())
                 .likeCount(comment.getStatistics().getLikeCount())
                 .dislikeCount(comment.getStatistics().getDislikeCount())

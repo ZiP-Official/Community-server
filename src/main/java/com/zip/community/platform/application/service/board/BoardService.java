@@ -11,7 +11,6 @@ import com.zip.community.platform.application.port.in.board.UpdateBoardUseCase;
 import com.zip.community.platform.application.port.out.board.*;
 import com.zip.community.platform.application.port.out.comment.LoadCommentPort;
 import com.zip.community.platform.application.port.out.comment.RemoveCommentPort;
-import com.zip.community.platform.application.port.out.comment.RemoveCommentReactionPort;
 import com.zip.community.platform.application.port.out.member.MemberPort;
 import com.zip.community.platform.domain.board.*;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +65,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
         // 게시물 생성
         BoardSnippet snippet = BoardSnippet.of(request.getTitle(), request.getContent(), "링크");
         BoardStatistics statistics = BoardStatistics.of();
-        Board board = Board.of(request.getMemberId(), request.getCategoryId(), snippet, statistics);
+        Board board = Board.of(request.getMemberId(), request.getCategoryId(), snippet, statistics, request.isAnonymous());
 
         // 저장하기
         return savePort.saveBoard(board);
@@ -117,6 +116,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
         if (!loadPort.existBoard(boardId)) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_BOARD);
         }
+
 
         // 조회수 증가
         savePort.incrementViewCount(boardId);
