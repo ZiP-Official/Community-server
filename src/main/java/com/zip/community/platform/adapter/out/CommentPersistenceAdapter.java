@@ -52,7 +52,7 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
         if (redisTemplate.hasKey(countKey)) {
             redisTemplate.opsForValue().increment(countKey, 1);
         } else { /// db에서 값 가져와서 값 추가한다.
-            long dbCount = repository.countCommentsByBoardId(boardId);
+            long dbCount = repository.countCommentsByBoardIdAndDeletedFalse(boardId);
             redisTemplate.opsForValue().set(countKey, dbCount + 1);
         }
     }
@@ -77,7 +77,7 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
         // Redis에 값이 없거나 0일 경우 DB에서 조회
         if (redisCount == null || redisCount.equals(0L)) {
             // DB에서 댓글 개수를 직접 조회하여 리턴
-            long dbCount = repository.countCommentsByBoardId(boardId);
+            long dbCount = repository.countCommentsByBoardIdAndDeletedFalse(boardId);
 
             // DB에서 조회한 개수를 Redis에 저장
             redisTemplate.opsForValue().set(RedisKeyGenerator.getCommentCountKey(boardId), dbCount);
@@ -116,7 +116,7 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
 
     @Override
     public List<Comment> loadCommentsByBoardId(Long boardId) {
-        return repository.findCommentByBoardId(boardId)
+        return repository.findCommentByBoardIdAndDeletedFalse(boardId)
                 .stream().map(CommentJpaEntity::toDomain)
                 .toList();
     }
@@ -124,7 +124,7 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
     // 대댓글 가져오기
     @Override
     public List<Comment> loadCommentsByCommentId(String parentId) {
-        return repository.findCommentByParentId(parentId)
+        return repository.findCommentByParentIdAndDeletedFalse(parentId)
                 .stream().map(CommentJpaEntity::toDomain)
                 .toList();
     }
@@ -171,7 +171,7 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
         /// JPA 처리
 
         // 해당하는 글의 댓글 모두 가져오기
-        List<CommentJpaEntity> comments = repository.findCommentByBoardId(boardId);
+        List<CommentJpaEntity> comments = repository.findCommentByBoardIdAndDeletedFalse(boardId);
 
         // 기존에 존재하는 SoftDelete의 로직을 사용한다.
         comments.forEach(
@@ -186,7 +186,7 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
 
         /// 레디스 처리
         // 해당 글의 댓글 모두 가져오기
-        List<CommentJpaEntity> comments = repository.findCommentByBoardId(boardId);
+        List<CommentJpaEntity> comments = repository.findCommentByBoardIdAndDeletedFalse(boardId);
 
         // 댓글의 레디스키 관련 삭제하기
         comments.forEach(commentJpaEntity -> {
