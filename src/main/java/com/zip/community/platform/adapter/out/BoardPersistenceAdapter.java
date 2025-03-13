@@ -1,5 +1,7 @@
 package com.zip.community.platform.adapter.out;
 
+import com.zip.community.common.response.CustomException;
+import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.common.util.RedisKeyGenerator;
 import com.zip.community.platform.adapter.out.jpa.board.BoardFavoriteJpaEntity;
 import com.zip.community.platform.adapter.out.jpa.board.BoardJpaEntity;
@@ -114,15 +116,18 @@ public class BoardPersistenceAdapter implements SaveBoardPort, LoadBoardPort, Re
     @Override
     public Board updateBoard(Board board) {
 
-        /*
-            게시글 업데이트 하는 로직
-            기존의 레디스에서 해당하는 값은 삭제해야한다.
-            조회수나, 좋아요, 추천수는 유지해야한다.
-         */
-        removeCache(board.getId());
+        /// 기존 board의 id를 가져와서 값을 업데이트 하는 것
+        /// 게시글 업데이트 하는 로직
+        /// 통계적인 부분은 이미 Service 계층에서 이전이 된 상태이다.
+
+        BoardJpaEntity entity = repository.findById(board.getId())
+                .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
+
+        entity.updateBoardSnippet(board.getSnippet());
+
 
         // 새롭게 db에 업데이트 한다.
-        return repository.save(BoardJpaEntity.from(board))
+        return repository.save(entity)
                 .toDomain();
     }
 

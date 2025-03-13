@@ -43,11 +43,11 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
     private final RemoveBoardPort removePort;
     private final RemoveBoardReactionPort removeReactionPort;
     private final RemoveCommentPort removeCommentPort;
-    private final RemoveCommentReactionPort removeCommentReactionPort;
 
     /// 예외처리 관련 의존성
     private final MemberPort memberPort;
     private final CategoryPort categoryPort;
+    private final SyncService syncService;
 
     /// CreateUseCase 구현체
     @Override
@@ -74,6 +74,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
 
     /// UpdateUseCase 구현체
     @Override
+    @Transactional
     public Board updateBoard(BoardUpdateRequest request) {
 
         // 게시글 가져오기
@@ -81,7 +82,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
                 .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
 
         // 유저가 존재하는지 확인하는 예외처리
-        if (memberPort.getCheckedExistUser(board.getMemberId())) {
+        if (!memberPort.getCheckedExistUser(board.getMemberId())) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
 
@@ -97,9 +98,10 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
 
         // 인기글이라면 수정할 수 없다.
 
-        // 값 수정하기
+        // 기존값 DB에 저장하고, 캐시를 삭제한다.
+        syncService.syncData(request.getBoardId());
 
-        // 캐시 삭제하는 것도 필요하다.
+        // 값 수정하기
         board.update(request);
 
         return savePort.updateBoard(board);

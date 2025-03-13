@@ -34,4 +34,11 @@ public class BoardSnippetJpaEntity {
         return BoardSnippet.of(this.getTitle(), this.getContent(), this.getThumbnailUrl());
     }
 
+    // 비즈니스 로직
+    public void update(BoardSnippet snippet) {
+        this.title = snippet.getTitle();
+        this.content = snippet.getContent();
+        this.thumbnailUrl = snippet.getThumbnailUrl();
+    }
+
 }

@@ -3,6 +3,7 @@ package com.zip.community.platform.adapter.out.jpa.board;
 
 import com.zip.community.platform.adapter.out.jpa.BaseEntity;
 import com.zip.community.platform.domain.board.Board;
+import com.zip.community.platform.domain.board.BoardSnippet;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,6 +61,10 @@ public class BoardJpaEntity extends BaseEntity {
         this.boardStatistics.changeStatistics(viewCount, likeCount, dislikeCount, commentCount);
     }
 
+    // 값 내용 수정
+    public void updateBoardSnippet(BoardSnippet snippet) {
+        this.boardSnippet.update(snippet);
+    }
     
 
 }
