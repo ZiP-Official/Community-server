@@ -21,17 +21,8 @@ public class ChatMessageSocketController {
 
     @MessageMapping("/{chatRoomId}")
     public ApiResponse<ChatMessage> sendMessage(@DestinationVariable String chatRoomId, MessageSendRequest request) {
+        ChatMessage message = ChatMessage.of(chatRoomId, request.getContent(), request.getSenderId(), request.getSenderName(), LocalDateTime.now(), false, false);
         log.info("받은 메세지 {}: {}", chatRoomId, request.getContent());
-
-        ChatMessage message = ChatMessage.builder()
-                .chatRoomId(chatRoomId)
-                .content(request.getContent())
-                .senderId(request.getSenderId())
-                .senderName(request.getSenderName())
-                .sentAt(LocalDateTime.now())
-                .readYn(false)
-                .deletedYn(false)
-                .build();
 
         return ApiResponse.created(chatMessageUseCase.sendMessage(message));
     }
