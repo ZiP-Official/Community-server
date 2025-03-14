@@ -15,8 +15,8 @@ public interface LoadCommentPort {
     // 존재여부 파악하기
     boolean getCheckedExistComment(String id);
 
-    // 댓글 하나 가져오기
-    Optional<Comment> loadCommentById(String id);
+    // 부모 댓글, 존재 여부 파악하기
+    boolean hasChildren(String parentId);
 
     // 게시글에 맞는 댓글 가져오기
     Page<Comment> loadCommentsByBoardId(Long boardId, Pageable pageable);

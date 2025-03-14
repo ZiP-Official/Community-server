@@ -76,7 +76,6 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
             saveComment.changeWriter();
         }
 
-
         return saveComment;
     }
 
@@ -92,24 +91,39 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
         Page<Comment> result = loadPort.loadCommentsByBoardId(boardId, pageable);
         List<Comment> comments = new ArrayList<>(result.getContent());  // 가변 리스트로 복사
 
-
         // 댓글 및 자식 댓글 처리
         comments.forEach(comment -> {
             updateWriterStatus(comment, writerId);
             updateStatstics(comment);
+
+            // 해당 댓글이 삭제되었고, 대댓글이 존재하는 경우
+            // 삭제된 메시지로 변경한다.
+            log.info("로그 {}", comment.isDeleted());
+            if (comment.isDeleted() && loadPort.hasChildren(comment.getId())) {
+                comment.changeDeletedContent();
+            }
 
             // 자식 댓글 처리
             List<Comment> children = loadPort.loadCommentsByCommentId(comment.getId());
             children.forEach(child -> {
                 updateWriterStatus(child, writerId);
                 updateStatstics(child);
+
+//                // 해당 댓글이 삭제되었고, 대댓글이 존재하는 경우
+                // 삭제된 메시지로 변경한다.
+                if (child.isDeleted() && loadPort.hasChildren(child.getId())) {
+                    child.changeDeletedContent();
+                }
+
             });
 
             comment.changeChildren(children);
         });
 
         /// 인기게시글 저장하기
-        savePinnedComments(boardId);
+        if (!comments.isEmpty()) {
+            savePinnedComments(boardId);
+        }
 
         // 댓글을 변경 후 다시 반환
         return new PageImpl<>(comments, pageable, result.getTotalElements());

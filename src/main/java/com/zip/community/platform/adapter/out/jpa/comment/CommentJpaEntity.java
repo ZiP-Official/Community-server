@@ -45,6 +45,7 @@ public class CommentJpaEntity extends BaseEntity {
                 .content(comment.getContent())
                 .statistics(CommentStatisticsJpaEntity.from(comment.getStatistics()))
                 .anonymous(comment.isAnonymous())
+                .deleted(comment.isDeleted())
                 .build();
     }
 
@@ -61,6 +62,7 @@ public class CommentJpaEntity extends BaseEntity {
                 .anonymous(anonymous)
                 .createdAt(this.getCreated())
                 .updatedAt(this.getUpdated())
+                .deleted(deleted)
                 .build();
     }
 

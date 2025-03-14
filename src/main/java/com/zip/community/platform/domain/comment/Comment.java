@@ -55,6 +55,9 @@ public class Comment extends BaseDomain {
         this.children = children;
     }
 
+    public void changeDeletedContent() {
+        this.content = "삭제된 메시지 입니다.";
+    }
 
 
 }
