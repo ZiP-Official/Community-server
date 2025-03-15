@@ -15,7 +15,8 @@ public enum ChatErrorCode implements ErrorCode {
     CHAT_ROOM_CREATION_FAILED(3004, HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 생성에 실패했습니다."),
     REPORT_SAME_MEMBER(3005, HttpStatus.BAD_REQUEST, "자신을 신고할 수 없습니다."),
     ALREADY_DELETED_MESSAGE(3006, HttpStatus.BAD_REQUEST, "이미 삭제된 메세지입니다."),
-    ALREADY_REPORTED_MESSAGE(3007, HttpStatus.BAD_REQUEST, "이미 신고한 메세지입니다.");
+    ALREADY_REPORTED_MESSAGE(3007, HttpStatus.BAD_REQUEST, "이미 신고한 메세지입니다."),
+    INVALID_DIRECTION(3008, HttpStatus.BAD_REQUEST, "direction 값이 잘못되었습니다.");
 
     private final Integer code;
     private final HttpStatus httpStatus;
