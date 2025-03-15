@@ -8,7 +8,6 @@ import com.zip.community.platform.application.port.out.chat.ChatRoomPort;
 import com.zip.community.platform.application.port.out.chat.MessageSendPort;
 import com.zip.community.platform.application.port.out.member.MemberPort;
 import com.zip.community.platform.domain.chat.ChatMessage;
-import com.zip.community.platform.domain.chat.ChatRoom;
 import com.zip.community.platform.domain.report.ReportedChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +41,16 @@ public class ChatMessageService implements ChatMessageUseCase {
     }
 
     @Override
-    public List<ChatMessage> getMessages(String chatRoomId, Integer page) {
-        return chatMessageMongoPort.getMessages(chatRoomId, page);
+    public List<ChatMessage> getMessages(String chatRoomId, String cursor, Integer pageSize, String direction, Boolean includeCursor) {
+
+        // 채팅방 존재 확인
+        chatRoomPort.findByChatRoomId(chatRoomId)
+                .orElseThrow(() -> new CustomException(ChatErrorCode.NOT_FOUND_CHAT_ROOM));
+
+        if(!"older".equalsIgnoreCase(direction) && !"newer".equalsIgnoreCase(direction)) {
+            throw new CustomException(ChatErrorCode.INVALID_DIRECTION);
+        }
+        return chatMessageMongoPort.getMessages(chatRoomId, cursor, pageSize, direction, includeCursor);
     }
 
     @Override
@@ -105,7 +112,6 @@ public class ChatMessageService implements ChatMessageUseCase {
         return chatMessageMongoPort.save(message);
     }
 
-    // 해야함
     @Override
     public List<ChatMessage> searchMessages(String chatRoomId, String keyword) {
         return chatMessageMongoPort.searchMessages(chatRoomId, keyword);

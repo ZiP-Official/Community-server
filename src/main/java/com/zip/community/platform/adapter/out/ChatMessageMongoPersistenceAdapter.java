@@ -9,8 +9,11 @@ import com.zip.community.platform.domain.chat.ChatMessage;
 import com.zip.community.platform.domain.report.ReportedChatMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,14 +32,6 @@ public class ChatMessageMongoPersistenceAdapter implements ChatMessageMongoPort 
     }
 
     @Override
-    public List<ChatMessage> getMessages(String chatRoomId, Integer page) {
-        // page=0: 1~20, page=1: 21~40 ...
-        PageRequest pageable = PageRequest.of(page, 20);
-        List<ChatMessageDocument> docs = chatMessageRepository.findByChatRoomIdOrderBySentAtDesc(chatRoomId, pageable);
-        return docs.stream().map(ChatMessageDocument::toDomain).collect(Collectors.toList());
-    }
-
-    @Override
     public Optional<ChatMessageDocument> findById(String messageId) {
         return chatMessageRepository.findById(messageId);
     }
@@ -47,12 +42,48 @@ public class ChatMessageMongoPersistenceAdapter implements ChatMessageMongoPort 
     }
 
     @Override
+    public List<ChatMessage> getMessages(String chatRoomId, String cursor, Integer pageSize, String direction, Boolean includeCursor) {
+        LocalDateTime cursorTime = null;
+        if (cursor != null && !cursor.isEmpty()) cursorTime = LocalDateTime.parse(cursor);
+
+        return ("older".equalsIgnoreCase(direction)) ?
+                getOlderMessages(chatRoomId, cursorTime, pageSize, includeCursor)
+                : getNewerMessages(chatRoomId, cursorTime, pageSize, includeCursor);
+    }
+
+    @Override
     public List<ChatMessage> searchMessages(String chatRoomId, String keyword) {
-        return null;
+        List<ChatMessageDocument> docs = chatMessageRepository.findByChatRoomIdAndContentContainingOrderBySentAtDesc(chatRoomId, keyword);
+        return docs.stream().map(ChatMessageDocument::toDomain).collect(Collectors.toList());
     }
 
     @Override
     public Optional<ReportedChatMessageDocument> getByMessageIdAndReportMemberId(String messageId, Long reportMemberId) {
         return reportedChatMessageRepository.findByMessageIdAndReportMemberId(messageId, reportMemberId);
+    }
+
+    private List<ChatMessage> getOlderMessages(String chatRoomId, LocalDateTime cursor, Integer pageSize, Boolean includeCursor) {
+        Pageable pageable = PageRequest.of(0, pageSize);
+        List<ChatMessageDocument> docs;
+        if (cursor != null) {
+            docs = includeCursor ?
+                    chatMessageRepository.findByChatRoomIdAndSentAtLessThanEqualOrderBySentAtDesc(chatRoomId, cursor, pageable)
+                    : chatMessageRepository.findByChatRoomIdAndSentAtLessThanOrderBySentAtDesc(chatRoomId, cursor, pageable);
+        } else {
+            docs = chatMessageRepository.findByChatRoomIdOrderBySentAtDesc(chatRoomId, pageable);
+        }
+        return docs.stream().map(ChatMessageDocument::toDomain).collect(Collectors.toList());
+    }
+
+    private List<ChatMessage> getNewerMessages(String chatRoomId, LocalDateTime cursor, Integer pageSize, Boolean includeCursor) {
+        Pageable pageable = PageRequest.of(0, pageSize);
+        if (cursor != null) {
+            List<ChatMessageDocument> docs = includeCursor ?
+                    chatMessageRepository.findByChatRoomIdAndSentAtGreaterThanEqualOrderBySentAtAsc(chatRoomId, cursor, pageable)
+                    : chatMessageRepository.findByChatRoomIdAndSentAtGreaterThanOrderBySentAtAsc(chatRoomId, cursor, pageable);
+            return docs.stream().map(ChatMessageDocument::toDomain).collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
     }
 }
