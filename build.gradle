@@ -63,6 +63,11 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // rabbitmq
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }
 
 tasks.named('test') {
