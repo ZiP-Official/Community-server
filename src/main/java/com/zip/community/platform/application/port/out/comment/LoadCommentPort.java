@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
-import java.util.Optional;
 
 public interface LoadCommentPort {
 
@@ -14,6 +13,9 @@ public interface LoadCommentPort {
 
     // 존재여부 파악하기
     boolean getCheckedExistComment(String id);
+
+    // 작성자 누구인지 파악하기
+    Long getCheckedWriter(String commentId);
 
     // 부모 댓글, 존재 여부 파악하기
     boolean hasChildren(String parentId);

@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/reaction")
+@RequestMapping("/api/v1/board/reaction")
 @RequiredArgsConstructor
 public class BoardReactionController {
 

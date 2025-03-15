@@ -17,6 +17,9 @@ public interface TempBoardPort {
 
 
     /// Load
+    // 임시 저장한 글의 작성자 조회
+    Optional<Long> loadWriterIdByBoardId(Long boardId);
+
     // 임시 저장 게시글 상세 조회
     Optional<Board> getTempBoard(Long userId);
 

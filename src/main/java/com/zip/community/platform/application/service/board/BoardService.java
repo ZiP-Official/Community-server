@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.testcontainers.shaded.org.apache.commons.lang3.StringUtils.isAllEmpty;
+
 @Log4j2
 @Service
 @Transactional
@@ -89,6 +91,7 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
             throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
         }
 
+        // 작성자가 다른 경우 예외처리
         if (!board.getMemberId().equals(request.getUserId())) {
             throw new CustomException(BoardErrorCode.BAD_REQUEST_UPDATE);
         }
@@ -96,6 +99,11 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
         // 카테고리 값 예외처리
         if (!categoryPort.getCheckedExistCategory(request.getCategoryId())) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_CATEGORY);
+        }
+
+        // 제목, 내용, 썸네일 URL이 모두 비어있으면 예외 처리
+        if (isAllEmpty(request.getTitle(), request.getContent(), request.getThumbnailUrl())) {
+            throw new CustomException(BoardErrorCode.BAD_REQUEST, "제목, 내용, 썸네일 URL이 모두 비어있습니다. 최소 하나는 채워야 합니다.");
         }
 
         // 인기글이라면 수정할 수 없다.
@@ -208,7 +216,17 @@ public class BoardService implements CreateBoardUseCase, GetBoardUseCase, Update
     /// RemoveUseCase 구현체
     @Override
     @Transactional
-    public void removeBoard(Long boardId) {
+    public void removeBoard(Long boardId, Long userId) {
+
+        // 존재하지 않으면 예외처리
+        if (!loadPort.existBoard(boardId)) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_BOARD);
+        }
+
+        // 글 작성자와 삭제 요청자가 다르면
+        if (!loadPort.loadWriterIdByBoardId(boardId).equals(userId)) {
+            throw new CustomException(BoardErrorCode.BAD_REMOVE_BOARD);
+        }
 
         // 게시글 관련 정보 삭제
         removePort.removeBoard(boardId);

@@ -1,8 +1,10 @@
 package com.zip.community.platform.adapter.out.redis.board.temp;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TempBoardRedisRepository extends CrudRepository<TempBoardRedisHash, Long> {
 
@@ -13,5 +15,6 @@ public interface TempBoardRedisRepository extends CrudRepository<TempBoardRedisH
     // 임시저장글 목록 가져오기
     List<TempBoardRedisHash> findByMemberId(Long memberId);
 
+    Optional<Long> findMemberIdById(Long boardId);
 
 }

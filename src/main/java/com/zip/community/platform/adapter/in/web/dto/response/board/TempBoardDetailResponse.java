@@ -33,9 +33,6 @@ public class TempBoardDetailResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updatedAt;
-
 
     // 생성자
     public static TempBoardDetailResponse from(Board board) {
@@ -47,7 +44,6 @@ public class TempBoardDetailResponse {
                 .content(board.getSnippet().getContent())
                 .author(board.getMemberId())
                 .createdAt(board.getCreatedAt())
-                .updatedAt(board.getUpdatedAt())
                 .build();
     }
 

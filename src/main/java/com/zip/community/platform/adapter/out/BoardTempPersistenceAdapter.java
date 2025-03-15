@@ -26,6 +26,13 @@ public class BoardTempPersistenceAdapter implements TempBoardPort {
                 .toDomain();
     }
 
+    // 임시 저장한 글의 작성자 조회
+    @Override
+    public Optional<Long> loadWriterIdByBoardId(Long boardId) {
+
+        return redisRepository.findMemberIdById(boardId);
+    }
+
     /// Load 관련 구현체
     // 임시 저장 게시글 상세 조회
     @Override

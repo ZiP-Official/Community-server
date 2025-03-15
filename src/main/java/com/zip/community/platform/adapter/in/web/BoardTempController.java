@@ -4,6 +4,7 @@ import com.zip.community.common.response.ApiResponse;
 import com.zip.community.common.response.CustomException;
 import com.zip.community.common.response.errorcode.BoardErrorCode;
 import com.zip.community.platform.adapter.in.web.dto.request.board.TempBoardRequest;
+import com.zip.community.platform.adapter.in.web.dto.request.deleteRequest;
 import com.zip.community.platform.adapter.in.web.dto.response.board.TempBoardDetailResponse;
 import com.zip.community.platform.adapter.in.web.dto.response.board.TempBoardListResponse;
 import com.zip.community.platform.application.port.in.board.TempBoardUseCase;
@@ -28,7 +29,7 @@ public class BoardTempController {
     }
 
     /// 전체 조회
-    @GetMapping
+    @GetMapping("/list")
     public ApiResponse<List<TempBoardListResponse>> getTempBoardsByUserId(@RequestParam("userId") Long userId) {
         List<Board> tempBoards = tempService.getTempBoards(userId);
         return ApiResponse.ok(TempBoardListResponse.from(tempBoards));
@@ -47,10 +48,9 @@ public class BoardTempController {
 
     /// 특정 임시글 삭제
     @DeleteMapping("/{boardId}")
-    public ApiResponse<String> deleteTempBoardByUserIdAndIndex(
-            @PathVariable("boardId") Long boardId) {
+    public ApiResponse<String> deleteTempBoardByUserIdAndIndex(@PathVariable("boardId") Long boardId, @RequestBody deleteRequest request) {
 
-        tempService.deleteTempBoard(boardId);
+        tempService.deleteTempBoard(boardId, request.getUserId());
 
         return ApiResponse.ok("임시 저장글이 삭제되었습니다.");
 

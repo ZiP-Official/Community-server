@@ -43,7 +43,12 @@ public enum BoardErrorCode implements ErrorCode {
 
     BAD_REQUEST_FAVORITE(1011, HttpStatus.BAD_REQUEST, "인기글은 수정할 수 없습니다."),
 
-    BAD_REQUEST_UPDATE(1012, HttpStatus.BAD_REQUEST, "글 작성자와 요청한 유저가 동일하지 않습니다.");
+    BAD_REQUEST_UPDATE(1012, HttpStatus.BAD_REQUEST, "글 작성자와 요청한 유저가 동일하지 않습니다."),
+
+    BAD_REMOVE_COMMENT(1013, HttpStatus.BAD_REQUEST, "댓글 작성자와 요청한 유저가 동일하지 않습니다."),
+    BAD_REMOVE_BOARD(1014, HttpStatus.BAD_REQUEST, "글 작성자와 요청한 유저가 동일하지 않습니다."),
+    ;
+
 
     // 주문 관련
 
@@ -63,4 +68,4 @@ public enum BoardErrorCode implements ErrorCode {
     private final Integer code;
     private final HttpStatus httpStatus;
     private final String message;
-    }
+}

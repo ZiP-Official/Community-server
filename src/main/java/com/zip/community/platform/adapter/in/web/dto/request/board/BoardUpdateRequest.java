@@ -1,5 +1,6 @@
 package com.zip.community.platform.adapter.in.web.dto.request.board;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
@@ -7,14 +8,14 @@ import lombok.Data;
 @Builder
 public class BoardUpdateRequest {
 
-    // 수정할 게시글 아이디
-    private Long boardId;
+    @NotNull(message = "boardId는 필수 입력값입니다.")
+    private Long boardId;     // 수정할 게시글 ID
 
-    // 동일한 작성자인지 확인하기위한 userId
-    private Long userId;
+    @NotNull(message = "userId는 필수 입력값입니다.")
+    private Long userId;      // 동일한 작성자인지 확인하기 위한 userId
 
-    // 수정할 카테고리
-    private Long categoryId;
+    @NotNull(message = "categoryId는 필수 입력값입니다.")
+    private Long categoryId;  // 수정할 카테고리
 
     // 수정할 게시물 내용
     private String title;

@@ -3,13 +3,14 @@ package com.zip.community.platform.adapter.in.web;
 import com.zip.community.common.response.ApiResponse;
 import com.zip.community.common.response.pageable.PageRequest;
 import com.zip.community.common.response.pageable.PageResponse;
-import com.zip.community.platform.adapter.in.web.dto.request.CommentDeleteRequest;
+import com.zip.community.platform.adapter.in.web.dto.request.deleteRequest;
 import com.zip.community.platform.adapter.in.web.dto.request.board.CommentRequest;
 import com.zip.community.platform.adapter.in.web.dto.response.board.CommentResponse;
 import com.zip.community.platform.application.port.in.comment.CreateCommentUseCase;
 import com.zip.community.platform.application.port.in.comment.GetCommentUseCase;
 import com.zip.community.platform.application.port.in.comment.RemoveCommentUseCase;
 import com.zip.community.platform.domain.comment.Comment;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -31,8 +32,9 @@ public class CommentController {
 
     // 댓글 작성하기
     @PostMapping
-    ApiResponse<CommentResponse> createOne(@RequestBody CommentRequest commentRequest) {
-        return ApiResponse.created(CommentResponse.from(createService.createComment(commentRequest)));
+    ApiResponse<String> createOne(@RequestBody @Valid CommentRequest request) {
+        createService.createComment(request);
+        return ApiResponse.created("댓글이 성공적으로 등록되었습니다.");
     }
 
     /// 게시글별 댓글 조회하기
@@ -62,9 +64,9 @@ public class CommentController {
     }
 
     // 댓글 삭제하기
-    @DeleteMapping()
-    ApiResponse<String> delete(@RequestBody CommentDeleteRequest request) {
-        removeService.removeComment(request.getCommentId(), request.getUserId());
+    @DeleteMapping("/{commentId}")
+    ApiResponse<String> delete(@PathVariable String commentId, @RequestBody deleteRequest request) {
+        removeService.removeComment(commentId, request.getUserId());
         return ApiResponse.ok("성공적으로 삭제되었습니다.");
     }
 }

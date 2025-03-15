@@ -44,6 +44,11 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
     @Override
     public Comment createComment(CommentRequest request) {
 
+        // 유저 존재 여부 파악
+        if (!memberPort.getCheckedExistUser(request.getMemberId())) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_USER);
+        }
+
         // 게시글 존재 여부 파악
         if (!loadBoardPort.existBoard(request.getBoardId())) {
             throw new CustomException(BoardErrorCode.NOT_FOUND_BOARD);
@@ -82,14 +87,15 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
     /// 게시글 아이디로 댓글 가져오기
     @Override
     public Page<Comment> getByBoardId(Long boardId, Pageable pageable) {
-
         // 작성자 아이디 가져오기
         Long writerId = loadBoardPort.loadWriterIdByBoardId(boardId)
                 .orElseThrow(() -> new CustomException(BoardErrorCode.NOT_FOUND_BOARD));
 
         // 게시글에 해당하는 댓글을 페이지 단위로 조회
         Page<Comment> result = loadPort.loadCommentsByBoardId(boardId, pageable);
-        List<Comment> comments = new ArrayList<>(result.getContent());  // 가변 리스트로 복사
+
+        // 수정을 위하여 가변 리스트로 복사
+        List<Comment> comments = new ArrayList<>(result.getContent());
 
         // 댓글 및 자식 댓글 처리
         comments.forEach(comment -> {
@@ -97,30 +103,16 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
             updateStatstics(comment);
 
             // 해당 댓글이 삭제되었고, 대댓글이 존재하는 경우
-            // 삭제된 메시지로 변경한다.
-            log.info("로그 {}", comment.isDeleted());
             if (comment.isDeleted() && loadPort.hasChildren(comment.getId())) {
                 comment.changeDeletedContent();
             }
 
-            // 자식 댓글 처리
-            List<Comment> children = loadPort.loadCommentsByCommentId(comment.getId());
-            children.forEach(child -> {
-                updateWriterStatus(child, writerId);
-                updateStatstics(child);
-
-//                // 해당 댓글이 삭제되었고, 대댓글이 존재하는 경우
-                // 삭제된 메시지로 변경한다.
-                if (child.isDeleted() && loadPort.hasChildren(child.getId())) {
-                    child.changeDeletedContent();
-                }
-
-            });
-
+            // 대댓글을 처리
+            List<Comment> children = loadRepliesRecursively(comment.getId(), writerId);
             comment.changeChildren(children);
         });
 
-        /// 인기게시글 저장하기
+        // 인기게시글 저장하기
         if (!comments.isEmpty()) {
             savePinnedComments(boardId);
         }
@@ -129,7 +121,31 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
         return new PageImpl<>(comments, pageable, result.getTotalElements());
     }
 
-    ///
+    /// 내부함수,재귀함수
+    private List<Comment> loadRepliesRecursively(String parentId, Long writerId) {
+        // 부모 댓글에 대한 대댓글을 조회
+        List<Comment> children = loadPort.loadCommentsByCommentId(parentId);
+
+        // 대댓글들에 대해 작성자 정보 및 좋아요/싫어요 수 등을 업데이트
+        for (Comment child : children) {
+            updateWriterStatus(child, writerId);
+            updateStatstics(child);
+
+            // 대댓글이 삭제되었고, 또 다른 대댓글이 있으면 '삭제된 댓글' 처리
+            if (child.isDeleted() && loadPort.hasChildren(child.getId())) {
+                child.changeDeletedContent();
+            }
+
+            // 재귀적으로 자식 대댓글을 가져오기
+            List<Comment> grandChildren = loadRepliesRecursively(child.getId(), writerId);
+            child.changeChildren(grandChildren);  // 자식 대댓글을 해당 댓글에 추가
+        }
+
+        return children;
+    }
+
+
+    /// 내부 함수
     private void savePinnedComments(Long boardId) {
 
         // BoardId에 해당하는 댓글 목록을 로드하고, 이를 ArrayList로 변환
@@ -142,6 +158,12 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
     // 인기댓글 보기
     @Override
     public List<Comment> getPinnedComments(Long boardId) {
+
+        // 게시글 예외처리
+        if (!loadBoardPort.existBoard(boardId)) {
+            throw new CustomException(BoardErrorCode.NOT_FOUND_BOARD);
+        }
+
         List<Comment> comments = loadPort.getPinnedComment(boardId);
         comments.forEach(
                 comment -> {
@@ -176,6 +198,9 @@ public class CommentService implements CreateCommentUseCase, GetCommentUseCase, 
     public void removeComment(String commentId, Long userId) {
 
         /// 해당 유저가 작성했는지 체크한다.
+        if (!loadPort.getCheckedWriter(commentId).equals(userId)) {
+           throw new CustomException(BoardErrorCode.BAD_REMOVE_COMMENT);
+        }
 
         /// 댓글이 존재하는지 체크한다.
         if (!loadPort.getCheckedExistComment(commentId)) {

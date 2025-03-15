@@ -4,11 +4,13 @@ import com.zip.community.common.response.ApiResponse;
 import com.zip.community.common.response.pageable.PageRequest;
 import com.zip.community.common.response.pageable.PageResponse;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardUpdateRequest;
+import com.zip.community.platform.adapter.in.web.dto.request.deleteRequest;
 import com.zip.community.platform.adapter.in.web.dto.response.board.BoardListResponse;
 import com.zip.community.platform.adapter.in.web.dto.request.board.BoardRequest;
 import com.zip.community.platform.adapter.in.web.dto.response.board.BoardDetailResponse;
 import com.zip.community.platform.application.port.in.board.*;
 import com.zip.community.platform.domain.board.Board;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,7 +34,7 @@ public class BoardController {
 
     // 게시글 생성
     @PostMapping
-    public ApiResponse<BoardDetailResponse> saveBoard(@RequestBody BoardRequest boardRequest) {
+    public ApiResponse<BoardDetailResponse> saveBoard(@RequestBody @Valid BoardRequest boardRequest) {
         return ApiResponse.created(BoardDetailResponse.from(createService.createBoard(boardRequest)));
     }
 
@@ -59,7 +61,7 @@ public class BoardController {
     }
 
     // 화제 게시글 목록 조회하기
-    @GetMapping("/list/favorite")
+    @GetMapping("/list/best")
     public ApiResponse<PageResponse<BoardListResponse>> getBoardsFavorite(PageRequest pageRequest) {
 
         Pageable pageable = org.springframework.data.domain.PageRequest.of(pageRequest.getPage() - 1, pageRequest.getSize(), Sort.by("id").descending());
@@ -87,7 +89,7 @@ public class BoardController {
 
     //글 수정하기
     @PutMapping("/{boardId}")
-    public ApiResponse<String> updateBoard(@PathVariable Long boardId, @RequestBody BoardUpdateRequest request) {
+    public ApiResponse<String> updateBoard(@PathVariable Long boardId, @RequestBody @Valid BoardUpdateRequest request) {
         request.setBoardId(boardId);
         updateService.updateBoard(request);
 
@@ -103,8 +105,8 @@ public class BoardController {
 
     // 데이터 삭제하기
     @DeleteMapping("/{boardId}")
-    public ApiResponse<String> deleteBoard(@PathVariable Long boardId) {
-        removeService.removeBoard(boardId);
+    public ApiResponse<String> deleteBoard(@PathVariable Long boardId, @RequestBody deleteRequest request) {
+        removeService.removeBoard(boardId, request.getUserId());
 
         return ApiResponse.ok("성공적으로 삭제되었습니다.");
     }

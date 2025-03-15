@@ -86,6 +86,14 @@ public class CommentPersistenceAdapter implements SaveCommentPort, LoadCommentPo
         return repository.existsById(id);
     }
 
+    // 작성자 아이디 가져오기
+    @Override
+    public Long getCheckedWriter(String commentId) {
+        return repository.findById(commentId)
+                .map(CommentJpaEntity::getMemberId)
+                .orElse(0L);
+    }
+
     // 삭제하려고 할 때, 대댓글이 존재하는 경우를 판단한다.
     @Override
     public boolean hasChildren(String parentId) {

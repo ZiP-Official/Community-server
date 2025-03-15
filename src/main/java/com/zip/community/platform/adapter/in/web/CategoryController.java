@@ -5,6 +5,7 @@ import com.zip.community.platform.adapter.in.web.dto.request.board.CategoryReque
 import com.zip.community.platform.adapter.in.web.dto.response.board.CategoryResponse;
 import com.zip.community.platform.application.port.in.board.CreateCategoryUseCase;
 import com.zip.community.platform.application.port.in.board.GetCategoryUseCase;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class CategoryController {
     // 카테고리 생성하기
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
-    public ApiResponse<CategoryResponse> save(@RequestBody CategoryRequest categoryRequest) {
+    public ApiResponse<CategoryResponse> save(@RequestBody @Valid CategoryRequest categoryRequest) {
         return ApiResponse.created(CategoryResponse.from(createService.createCategory(categoryRequest)));
     }
 

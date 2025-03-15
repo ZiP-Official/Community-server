@@ -76,7 +76,12 @@ public class BoardTempService implements TempBoardUseCase {
     }
 
     @Override
-    public void deleteTempBoard(Long boardId) {
+    public void deleteTempBoard(Long boardId, Long userId) {
+
+        if (!tempPort.loadWriterIdByBoardId(boardId).equals(userId)) {
+            throw new CustomException(BoardErrorCode.BAD_REMOVE_BOARD);
+        }
+
         tempPort.deleteTempBoard(boardId);
 
     }
